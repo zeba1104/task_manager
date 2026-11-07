@@ -1,6 +1,10 @@
 import axios from 'axios';
 
-export const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+export const API_BASE_URL =
+    process.env.REACT_APP_API_URL ||
+    (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1'
+        ? 'https://web-production-8dd16.up.railway.app/api'
+        : 'http://localhost:5000/api');
 export const FILE_BASE_URL = API_BASE_URL.replace(/\/api\/?$/, '');
 
 const api = axios.create({
