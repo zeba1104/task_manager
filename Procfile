@@ -1,1 +1,1 @@
-web: cd taskflow-backend && node server.js
+web: node index.js
