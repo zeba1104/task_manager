@@ -1,7 +1,17 @@
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 require('dotenv').config();
+
+// Production fallbacks so backend starts seamlessly anywhere
+process.env.JWT_SECRET = process.env.JWT_SECRET || 'taskflow-super-secure-production-jwt-token-secret-2026';
+process.env.SMTP_HOST = process.env.SMTP_HOST || 'smtp.gmail.com';
+process.env.SMTP_PORT = process.env.SMTP_PORT || '587';
+process.env.SMTP_USER = process.env.SMTP_USER || 'zeba.zaveri57@gmail.com';
+process.env.SMTP_PASS = process.env.SMTP_PASS || 'ehdtrovkbrbyjhwr';
+process.env.MAIL_FROM = process.env.MAIL_FROM || 'Taskflow <zeba.zaveri57@gmail.com>';
+
 const express = require('express');
 const cors = require('cors');
-const path = require('path');
 const mongoose = require('mongoose');
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
@@ -18,16 +28,35 @@ const chatRoutes = require('./routes/chatRoutes');
 const app = express();
 
 // Middleware
-app.use(cors());          // allow cross-origin requests
+app.use(cors({
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());  // parses incoming JSON request bodies into req.body
 app.use(express.urlencoded({ extended: true })); // parses incoming form-urlencoded data for email action pages
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// DB check middleware - keeps server always alive and returns helpful status
+// Root & Health check routes
+app.get('/', (req, res) => {
+    res.json({
+        status: 'ok',
+        service: 'taskflow-backend',
+        dbReady: mongoose.connection.readyState === 1,
+        message: 'Taskflow API is running live'
+    });
+});
+
+app.get('/api/health', (req, res) => {
+    res.json({
+        status: 'ok',
+        service: 'taskflow-backend',
+        dbReady: mongoose.connection.readyState === 1
+    });
+});
+
+// DB check middleware
 app.use((req, res, next) => {
-    if (req.path === '/api/health') {
-        return res.json({ status: 'ok', dbReady: mongoose.connection.readyState === 1 });
-    }
     if (mongoose.connection.readyState !== 1) {
         return res.status(503).json({
             message: 'Database connection in progress. Please ensure IP 42.104.235.4 (or 0.0.0.0/0) is whitelisted in your MongoDB Atlas Network Access.',

@@ -1,17 +1,22 @@
 const mongoose = require('mongoose');
 
+const DEFAULT_MONGO_URI = 'mongodb+srv://zebazaveri57_db_user:12345@cluster0.gir6czu.mongodb.net/taskflow?retryWrites=true&w=majority';
 let isConnected = false;
 
 const connectDB = async () => {
-    const mongoUri = process.env.MONGO_URI;
-    if (!mongoUri) {
-        console.error('MONGO_URI is not defined in environment variables.');
-        return;
-    }
+    const mongoUri = process.env.MONGO_URI || DEFAULT_MONGO_URI;
 
     try {
-        const uriDatabase = new URL(mongoUri).pathname.slice(1).split('/')[0];
-        const databaseName = process.env.MONGO_DB_NAME || decodeURIComponent(uriDatabase || 'taskflow');
+        let databaseName = process.env.MONGO_DB_NAME;
+        if (!databaseName) {
+            try {
+                const parsed = new URL(mongoUri);
+                const name = parsed.pathname.slice(1).split('/')[0];
+                databaseName = name ? decodeURIComponent(name) : 'taskflow';
+            } catch {
+                databaseName = 'taskflow';
+            }
+        }
 
         await mongoose.connect(mongoUri, {
             dbName: databaseName,
