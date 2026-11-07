@@ -76,8 +76,14 @@ const registerUser = async (req, res) => {
 // Login User
 const loginUser = async (req, res) => {
     try {
-        const { email, password } = req.body;
-        // check if user exists
+        const email = String(req.body.email || '').trim().toLowerCase();
+        const password = String(req.body.password || '').trim();
+
+        if (!email || !password) {
+            return res.status(400).json({ message: 'Email and password are required' });
+        }
+
+        // check if user exists (case-insensitive)
         const user = await User.findOne({ email });
         if (!user) {
             return res.status(401).json({ message: 'Invalid credentials' });
