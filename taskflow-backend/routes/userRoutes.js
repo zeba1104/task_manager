@@ -12,8 +12,10 @@ const {
 	importUsers,
 	getUserProfile,
 	uploadProfilePicture,
+	deleteProfilePicture,
 	getProfilePicture,
 	resendCredentials,
+	getRecentNotifications,
 } = require('../controllers/userController');
 const authMiddleware = require('../middleware/authMiddleware');
 
@@ -49,10 +51,12 @@ const receiveProfilePicture = (req, res, next) => {
 };
 
 router.get('/', getAllUsers);
+router.get('/notifications', getRecentNotifications);
 router.post('/import', importUsers);
 router.post('/:id/resend-credentials', resendCredentials);
 router.get('/:id/profile', getUserProfile);
 router.post('/:id/profile-picture', receiveProfilePicture, uploadProfilePicture);
+router.delete('/:id/profile-picture', deleteProfilePicture);
 router.get('/:id/profile-picture', getProfilePicture);
 router.post('/', createUser);
 router.put('/:id', updateUser);

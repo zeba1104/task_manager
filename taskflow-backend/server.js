@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const mongoose = require('mongoose');
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
 const taskRoutes = require('./routes/taskRoutes');
@@ -9,14 +10,30 @@ const attendanceRoutes = require('./routes/attendanceRoutes');
 const focusRoutes = require('./routes/focusRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const managerRoutes = require('./routes/managerRoutes');
+const employeeRoutes = require('./routes/employeeRoutes');
+const leaveRoutes = require('./routes/leaveRoutes');
+const chatRoutes = require('./routes/chatRoutes');
 
 const app = express();
 
 // Middleware
-app.use(cors());          // allow cross-origin requests (needed for React frontend later)
+app.use(cors());          // allow cross-origin requests
 app.use(express.json());  // parses incoming JSON request bodies into req.body
+app.use(express.urlencoded({ extended: true })); // parses incoming form-urlencoded data for email action pages
 
-
+// DB check middleware - keeps server always alive and returns helpful status
+app.use((req, res, next) => {
+    if (req.path === '/api/health') {
+        return res.json({ status: 'ok', dbReady: mongoose.connection.readyState === 1 });
+    }
+    if (mongoose.connection.readyState !== 1) {
+        return res.status(503).json({
+            message: 'Database connection in progress. Please ensure IP 42.104.235.4 (or 0.0.0.0/0) is whitelisted in your MongoDB Atlas Network Access.',
+            dbReady: false,
+        });
+    }
+    next();
+});
 
 app.use('/api/auth', authRoutes);
 app.use('/api/task', taskRoutes);
@@ -25,18 +42,17 @@ app.use('/api/attendance', attendanceRoutes);
 app.use('/api/focus', focusRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/manager', managerRoutes);
+app.use('/api/employee', employeeRoutes);
+app.use('/api/leave', leaveRoutes);
+app.use('/api/chat', chatRoutes);
+
 const PORT = process.env.PORT || 5000;
 
-const startServer = async () => {
-    try {
-        await connectDB();
-        app.listen(PORT, () => {
-            console.log(`Server running on port ${PORT}`);
-        });
-    } catch (error) {
-        console.error('Server startup failed: MongoDB connection could not be established.', error.message);
-        process.exitCode = 1;
-    }
+const startServer = () => {
+    app.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+    });
+    connectDB();
 };
 
 startServer();

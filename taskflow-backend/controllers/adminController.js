@@ -7,8 +7,12 @@ const LeaveRequest = require('../models/LeaveRequest');
 const Announcement = require('../models/Announcement');
 const Activity = require('../models/Activity');
 const ProfileChangeRequest = require('../models/ProfileChangeRequest');
+const TransferRequest = require('../models/TransferRequest');
+const AdminNotification = require('../models/AdminNotification');
 const logActivity = require('../activityLogger');
 const getManagerScope = require('../managerScope');
+const leaveService = require('../services/leaveService');
+const leaveController = require('./leaveController');
 
 const isAdmin = (req, res) => {
     if (req.userRole === 'Admin') return true;
@@ -27,28 +31,74 @@ exports.getOverview = async (req, res) => {
         const todayEnd = new Date(now);
         todayEnd.setHours(23, 59, 59, 999);
         const todayKey = now.toISOString().slice(0, 10);
+        const sevenDaysAhead = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
 
-        const [users, tasks, departments, projects, attendance, onLeave, leaveRequests, profileChangeRequests, activities] = await Promise.all([
-            User.find().select('name email role department manager isActive createdAt').lean(),
-            Task.find().select('title status deadline user project createdAt updatedAt').populate('user', 'name').lean(),
+        // Date range filtering support
+        let dateFilterStart = null;
+        let dateFilterEnd = null;
+        let activePeriod = req.query.period || 'all';
+
+        if (activePeriod === 'today') {
+            dateFilterStart = todayStart;
+            dateFilterEnd = todayEnd;
+        } else if (activePeriod === 'week') {
+            dateFilterStart = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            dateFilterEnd = todayEnd;
+        } else if (activePeriod === 'month') {
+            dateFilterStart = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+            dateFilterEnd = todayEnd;
+        } else if (activePeriod === 'quarter') {
+            dateFilterStart = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+            dateFilterEnd = todayEnd;
+        } else if (req.query.startDate) {
+            dateFilterStart = new Date(req.query.startDate);
+            dateFilterEnd = req.query.endDate ? new Date(req.query.endDate) : todayEnd;
+            if (dateFilterEnd) dateFilterEnd.setHours(23, 59, 59, 999);
+            activePeriod = 'custom';
+        }
+
+        const taskQuery = {};
+        const activityQuery = {};
+        if (dateFilterStart && dateFilterEnd) {
+            taskQuery.createdAt = { $gte: dateFilterStart, $lte: dateFilterEnd };
+            activityQuery.createdAt = { $gte: dateFilterStart, $lte: dateFilterEnd };
+        }
+
+        const [users, allTasks, filteredTasks, departments, projects, attendance, onLeave, leaveRequests, profileChangeRequests, activities, transferRequests, adminNotifications] = await Promise.all([
+            User.find().select('name email role department manager team designation isActive createdAt').lean(),
+            Task.find().select('title status deadline user project priority createdAt updatedAt').populate('user', 'name email department').lean(),
+            dateFilterStart ? Task.find(taskQuery).select('title status deadline user project priority createdAt updatedAt').populate('user', 'name email department').lean() : null,
             Department.find().populate('head', 'name email role').sort({ name: 1 }).lean(),
-            Project.find().populate('department', 'name').populate('manager', 'name').sort({ createdAt: -1 }).lean(),
+            Project.find().populate('department', 'name').populate('manager', 'name email designation').sort({ createdAt: -1 }).lean(),
             Attendance.find({ date: todayKey }).select('user clockIn').lean(),
             LeaveRequest.find({ status: 'approved', startDate: { $lte: todayEnd }, endDate: { $gte: todayStart } }).select('user').lean(),
-            LeaveRequest.find({ status: 'pending' }).populate('user', 'name email department').sort({ createdAt: 1 }).limit(10).lean(),
+            LeaveRequest.find({ status: 'pending' }).populate('user', 'name email department employeeId team designation').sort({ createdAt: 1 }).limit(20).lean(),
             ProfileChangeRequest.find({ status: 'pending' }).populate('user', 'name email role department employeeId').sort({ createdAt: 1 }).limit(10).lean(),
-            Activity.find().populate('actor', 'name role').sort({ createdAt: -1 }).limit(12).lean(),
+            Activity.find(activityQuery).populate('actor', 'name role email').sort({ createdAt: -1 }).limit(30).lean(),
+            TransferRequest.find({ status: 'pending' }).populate('employee', 'name employeeId department team').populate('requestedBy', 'name email designation').sort({ createdAt: -1 }).limit(10).lean(),
+            AdminNotification.find().populate('sender', 'name designation').populate('project', 'name').sort({ createdAt: -1 }).limit(15).lean(),
         ]);
 
+        const tasksToUse = filteredTasks || allTasks;
         const activeUsers = users.filter((user) => user.isActive !== false);
         const employees = activeUsers.filter((user) => user.role === 'Employee');
         const managers = activeUsers.filter((user) => user.role === 'Manager');
         const staff = activeUsers.filter((user) => user.role === 'Employee' || user.role === 'Manager');
+
         const departmentNames = new Set([
             ...departments.map((department) => department.name.trim().toLowerCase()),
             ...activeUsers.map((user) => String(user.department || '').trim().toLowerCase()).filter(Boolean),
         ]);
+
+        // Calculate unique functional teams
+        const uniqueTeams = new Set([
+            ...activeUsers.map((u) => String(u.team || '').trim()).filter(Boolean),
+            ...departments.map((d) => String(d.name || '').trim()).filter(Boolean),
+        ]);
         const teamManagerIds = new Set(employees.map((employee) => String(employee.manager || '')).filter(Boolean));
+        const totalTeamsCount = uniqueTeams.size || teamManagerIds.size || 1;
+
+        // Attendance summary calculation
         const attendanceByUser = new Map(attendance.map((record) => [String(record.user), record]));
         const onLeaveIds = new Set(onLeave.map((request) => String(request.user)));
         const attendanceSummary = { present: 0, absent: 0, late: 0, onLeave: 0 };
@@ -69,8 +119,9 @@ exports.getOverview = async (req, res) => {
             else attendanceSummary.present++;
         });
 
+        // Project progress mapping
         const tasksByProject = new Map();
-        tasks.forEach((task) => {
+        allTasks.forEach((task) => {
             const key = String(task.project || '').trim().toLowerCase();
             if (!key) return;
             const projectTasks = tasksByProject.get(key) || [];
@@ -78,21 +129,37 @@ exports.getOverview = async (req, res) => {
             tasksByProject.set(key, projectTasks);
         });
 
+        const isProjectActive = (p) => !['completed'].includes(String(p.status || '').toLowerCase());
+        const activeProjectsCount = projects.filter(isProjectActive).length;
+
         const projectProgress = projects.map((project) => {
             const projectTasks = tasksByProject.get(project.name.trim().toLowerCase()) || [];
             const completedTasks = projectTasks.filter((task) => task.status === 'completed').length;
-            const progress = projectTasks.length
-                ? Math.round((completedTasks / projectTasks.length) * 100)
-                : (project.status === 'completed' ? 100 : 0);
-            return { ...project, taskCount: projectTasks.length, completedTasks, progress };
+            const progress = project.progress !== undefined && project.progress > 0
+                ? project.progress
+                : projectTasks.length
+                    ? Math.round((completedTasks / projectTasks.length) * 100)
+                    : (String(project.status || '').toLowerCase() === 'completed' ? 100 : 0);
+
+            const isOverdue = project.deadline && new Date(project.deadline) < now && progress < 100;
+
+            return {
+                ...project,
+                taskCount: projectTasks.length,
+                completedTasks,
+                progress,
+                isOverdue,
+            };
         });
 
+        // Department employee distribution
         const departmentDistribution = employees.reduce((distribution, employee) => {
             const name = String(employee.department || 'General').trim() || 'General';
             distribution[name] = (distribution[name] || 0) + 1;
             return distribution;
         }, {});
 
+        // Department deep metrics
         const departmentMetrics = departments.map((department) => {
             const departmentName = String(department.name || '').trim().toLowerCase();
             const departmentUsers = activeUsers.filter((user) => String(user.department || '').trim().toLowerCase() === departmentName);
@@ -101,7 +168,7 @@ exports.getOverview = async (req, res) => {
             const departmentUserIds = new Set(departmentUsers.map((user) => String(user._id)));
             const departmentProjects = projects.filter((project) => String(project.department?._id || project.department || '') === String(department._id));
             const projectNames = new Set(departmentProjects.map((project) => String(project.name || '').trim().toLowerCase()));
-            const departmentTasks = tasks.filter((task) => {
+            const departmentTasks = allTasks.filter((task) => {
                 const ownerId = String(task.user?._id || task.user || '');
                 const projectName = String(task.project || '').trim().toLowerCase();
                 return departmentUserIds.has(ownerId) || (projectName && projectNames.has(projectName));
@@ -122,21 +189,88 @@ exports.getOverview = async (req, res) => {
             };
         });
 
+        // Task Counts
         const taskCounts = {
-            pending: tasks.filter((task) => task.status === 'pending').length,
-            inProgress: tasks.filter((task) => task.status === 'in-process').length,
-            completed: tasks.filter((task) => task.status === 'completed').length,
-            overdue: tasks.filter((task) => task.status !== 'completed' && task.deadline && new Date(task.deadline) < now).length,
+            total: tasksToUse.length,
+            completed: tasksToUse.filter((task) => task.status === 'completed').length,
+            pending: tasksToUse.filter((task) => task.status === 'pending').length,
+            inProgress: tasksToUse.filter((task) => task.status === 'in-process').length,
+            inReview: tasksToUse.filter((task) => task.status === 'in-review').length,
+            overdue: tasksToUse.filter((task) => task.status !== 'completed' && task.deadline && new Date(task.deadline) < now).length,
         };
+
+        // Comprehensive Alerts Generation
+        const overdueTasksAlerts = allTasks
+            .filter((t) => t.status !== 'completed' && t.deadline && new Date(t.deadline) < now)
+            .map((t) => ({
+                id: t._id,
+                title: t.title,
+                status: t.status,
+                priority: t.priority || 'medium',
+                deadline: t.deadline,
+                assignedTo: t.user?.name || 'Unassigned',
+                project: t.project || '',
+                daysOverdue: Math.max(1, Math.round((now - new Date(t.deadline)) / (1000 * 60 * 60 * 24))),
+            }))
+            .sort((a, b) => b.daysOverdue - a.daysOverdue);
+
+        const delayedProjectsAlerts = projectProgress
+            .filter((p) => p.isOverdue)
+            .map((p) => ({
+                id: p._id,
+                name: p.name,
+                manager: p.manager?.name || 'Unassigned',
+                department: p.department?.name || 'General',
+                deadline: p.deadline,
+                progress: p.progress,
+                daysOverdue: Math.max(1, Math.round((now - new Date(p.deadline)) / (1000 * 60 * 60 * 24))),
+            }))
+            .sort((a, b) => b.daysOverdue - a.daysOverdue);
+
+        const upcomingDeadlinesAlerts = [
+            ...allTasks
+                .filter((t) => t.status !== 'completed' && t.deadline && new Date(t.deadline) >= now && new Date(t.deadline) <= sevenDaysAhead)
+                .map((t) => ({
+                    type: 'task',
+                    id: t._id,
+                    title: t.title,
+                    assignedTo: t.user?.name || 'Unassigned',
+                    deadline: t.deadline,
+                    priority: t.priority || 'medium',
+                    daysLeft: Math.max(0, Math.ceil((new Date(t.deadline) - now) / (1000 * 60 * 60 * 24))),
+                })),
+            ...projects
+                .filter((p) => isProjectActive(p) && p.deadline && new Date(p.deadline) >= now && new Date(p.deadline) <= sevenDaysAhead)
+                .map((p) => ({
+                    type: 'project',
+                    id: p._id,
+                    title: p.name,
+                    assignedTo: p.manager?.name || 'Project Manager',
+                    deadline: p.deadline,
+                    priority: p.priority || 'medium',
+                    daysLeft: Math.max(0, Math.ceil((new Date(p.deadline) - now) / (1000 * 60 * 60 * 24))),
+                })),
+        ].sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
 
         return res.json({
             stats: {
+                totalEmployees: employees.length,
+                totalManagers: managers.length,
+                totalDepartments: departmentNames.size,
+                totalTeams: totalTeamsCount,
+                activeProjects: activeProjectsCount,
+                totalTasks: taskCounts.total,
+                completedTasks: taskCounts.completed,
+                pendingTasks: taskCounts.pending,
+                overdueTasks: taskCounts.overdue,
+                inProgressTasks: taskCounts.inProgress,
+                inReviewTasks: taskCounts.inReview,
+                // Legacy keys for backwards compatibility
                 employees: employees.length,
                 managers: managers.length,
                 departments: departmentNames.size,
-                teams: teamManagerIds.size,
-                activeProjects: projects.filter((project) => project.status === 'active').length,
-                tasks: tasks.length,
+                teams: totalTeamsCount,
+                tasks: taskCounts.total,
             },
             taskCounts,
             attendanceSummary,
@@ -148,6 +282,18 @@ exports.getOverview = async (req, res) => {
             leaveRequests,
             profileChangeRequests,
             activities,
+            transferRequests,
+            adminNotifications,
+            alerts: {
+                overdueTasks: overdueTasksAlerts,
+                delayedProjects: delayedProjectsAlerts,
+                upcomingDeadlines: upcomingDeadlinesAlerts,
+            },
+            dateFilter: {
+                period: activePeriod,
+                startDate: dateFilterStart,
+                endDate: dateFilterEnd,
+            },
         });
     } catch (error) {
         console.error('Admin overview failed:', error.message);
@@ -270,7 +416,27 @@ exports.getAnnouncements = async (req, res) => {
     return res.json(announcements);
 };
 
-exports.createLeaveRequest = async (req, res) => {
+exports.deleteAnnouncement = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const announcement = await Announcement.findById(id);
+        if (!announcement) return res.status(404).json({ message: 'Announcement not found' });
+        if (req.userRole !== 'Admin' && String(announcement.publishedBy) !== String(req.userId)) {
+            return res.status(403).json({ message: 'Only Admins or the publisher can delete this announcement' });
+        }
+        await Announcement.findByIdAndDelete(id);
+        logActivity(req.userId, 'deleted', 'announcement', announcement.title);
+        return res.json({ message: 'Announcement deleted successfully' });
+    } catch (error) {
+        return res.status(500).json({ message: error.message || 'Could not delete announcement' });
+    }
+};
+
+exports.createLeaveRequest = (req, res) => {
+    return leaveController.applyLeave(req, res);
+};
+
+exports.legacyCreateLeaveRequest = async (req, res) => {
     try {
         const startDate = new Date(req.body.startDate);
         const endDate = new Date(req.body.endDate);
@@ -292,12 +458,38 @@ exports.createLeaveRequest = async (req, res) => {
     }
 };
 
-exports.getMyLeaveRequests = async (req, res) => {
+exports.getMyLeaveRequests = (req, res) => {
+    return leaveController.getMyLeaves(req, res);
+};
+
+exports.legacyGetMyLeaveRequests = async (req, res) => {
     const requests = await LeaveRequest.find({ user: req.userId }).sort({ createdAt: -1 }).limit(20).lean();
     return res.json(requests);
 };
 
 exports.reviewLeaveRequest = async (req, res) => {
+    if (!['Admin', 'Manager'].includes(req.userRole)) return res.status(403).json({ message: 'Access denied' });
+    const status = req.body.status;
+    if (!['approved', 'rejected'].includes(status)) return res.status(400).json({ message: 'Status must be approved or rejected' });
+    try {
+        const approverUser = await User.findById(req.userId);
+        const result = await leaveService.processLeaveDecision({
+            isManualOverride: true,
+            approverOverrideUser: approverUser,
+            action: status === 'approved' ? 'approve' : 'reject',
+            rejectionReason: req.body.rejectionReason || req.body.reason || '',
+            leaveRequestId: req.params.id,
+        });
+        if (!result.success) {
+            return res.status(400).json({ message: result.message });
+        }
+        return res.json(result.leaveRequest);
+    } catch (error) {
+        return res.status(400).json({ message: error.message || 'Could not update leave request' });
+    }
+};
+
+exports.legacyReviewLeaveRequest = async (req, res) => {
     if (!['Admin', 'Manager'].includes(req.userRole)) return res.status(403).json({ message: 'Access denied' });
     const status = req.body.status;
     if (!['approved', 'rejected'].includes(status)) return res.status(400).json({ message: 'Status must be approved or rejected' });
@@ -440,5 +632,90 @@ exports.reviewProfileChangeRequest = async (req, res) => {
     } catch (error) {
         if (error.code === 11000) return res.status(409).json({ message: 'The requested value is already in use' });
         return res.status(500).json({ message: 'Could not review profile change' });
+    }
+};
+
+
+exports.getTransferRequests = async (req, res) => {
+    if (!isAdmin(req, res)) return;
+    try {
+        const requests = await TransferRequest.find()
+            .populate('employee', 'name employeeId email designation department team')
+            .populate('requestedBy', 'name email designation')
+            .populate('reviewedBy', 'name')
+            .sort({ createdAt: -1 })
+            .lean();
+        return res.json(requests);
+    } catch (error) {
+        return res.status(500).json({ message: 'Could not load transfer requests' });
+    }
+};
+
+exports.reviewTransferRequest = async (req, res) => {
+    if (!isAdmin(req, res)) return;
+    const { id } = req.params;
+    const { status, adminNotes } = req.body;
+    if (!['approved', 'rejected'].includes(status)) {
+        return res.status(400).json({ message: 'Status must be approved or rejected' });
+    }
+    try {
+        const request = await TransferRequest.findById(id).populate('employee');
+        if (!request) return res.status(404).json({ message: 'Transfer request not found' });
+        if (request.status !== 'pending') return res.status(409).json({ message: 'This request has already been reviewed' });
+
+        if (status === 'approved' && request.employee) {
+            const employee = await User.findById(request.employee._id);
+            if (employee) {
+                const prevDept = employee.department || 'General';
+                employee.departmentHistory.push({
+                    fromDepartment: prevDept,
+                    toDepartment: request.targetDepartment,
+                    changedBy: req.userId,
+                    changedAt: new Date(),
+                });
+                employee.department = request.targetDepartment;
+                if (request.targetTeam) employee.team = request.targetTeam;
+                if (request.targetManager) employee.manager = request.targetManager;
+                await employee.save();
+            }
+        }
+
+        request.status = status;
+        request.adminNotes = adminNotes || '';
+        request.reviewedBy = req.userId;
+        request.reviewedAt = new Date();
+        await request.save();
+
+        logActivity(req.userId, `${status} employee transfer request`, 'employee', request.employee?.name || 'Employee');
+        return res.json({ message: `Transfer request ${status}`, request });
+    } catch (error) {
+        return res.status(500).json({ message: 'Could not review transfer request' });
+    }
+};
+
+exports.getAdminNotifications = async (req, res) => {
+    if (!isAdmin(req, res)) return;
+    try {
+        const notifications = await AdminNotification.find()
+            .populate('sender', 'name email role designation')
+            .populate('project', 'name status deadline')
+            .populate('employee', 'name employeeId')
+            .sort({ createdAt: -1 })
+            .limit(50)
+            .lean();
+        return res.json(notifications);
+    } catch (error) {
+        return res.status(500).json({ message: 'Could not load notifications' });
+    }
+};
+
+exports.markAdminNotificationRead = async (req, res) => {
+    if (!isAdmin(req, res)) return;
+    try {
+        const { id } = req.params;
+        const notification = await AdminNotification.findByIdAndUpdate(id, { isRead: true }, { new: true });
+        return res.json(notification);
+    } catch (error) {
+        return res.status(500).json({ message: 'Could not update notification' });
     }
 };

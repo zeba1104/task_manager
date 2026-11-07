@@ -15,7 +15,7 @@ const getManagerScope = async (managerId) => {
     if (isDepartmentHead && departmentName) employeeFilter.$or.push({ department: departmentName });
 
     const employees = await User.find(employeeFilter)
-        .select('name firstName lastName email phone employeeId role department designation team manager isActive isSuspended')
+        .select('name firstName lastName email phone employeeId role department designation team manager isActive isSuspended joiningDate profilePicture responsibilities createdAt')
         .populate('manager', 'name email')
         .lean();
     const memberIds = [managerId, ...employees.map((employee) => employee._id)];

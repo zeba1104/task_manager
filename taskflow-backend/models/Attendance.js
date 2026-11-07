@@ -1,3 +1,4 @@
+
 const mongoose = require('mongoose');
 
 const attendanceSchema = new mongoose.Schema({
@@ -21,6 +22,11 @@ const attendanceSchema = new mongoose.Schema({
     totalSeconds: {
         type: Number,
         default: 0
+    },
+    status: {
+        type: String,
+        enum: ['present', 'absent', 'late', 'on-leave'],
+        default: 'present'
     }
 }, { timestamps: true });
 

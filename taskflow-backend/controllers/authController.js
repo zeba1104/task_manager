@@ -7,9 +7,17 @@ const getManagerScope = require('../managerScope');
 
 const registerUser = async (req, res) => {
     try {
+        const userCount = await User.countDocuments();
+        if (userCount > 0) {
+            return res.status(403).json({
+                message: 'Public account registration is disabled. Employee and Manager accounts are created exclusively by the Organization Administrator in the Admin Panel.',
+                registrationDisabled: true,
+            });
+        }
+
         const { name, email, password, role } = req.body;
         // check if user already exists
-        const existingUser = await User.findOne({ email })
+        const existingUser = await User.findOne({ email });
         if (existingUser) {
             return res.status(400).json({ message: 'User already exists' });
         }
@@ -17,14 +25,14 @@ const registerUser = async (req, res) => {
         // hash the password
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
-        //create user 
+        // create user (initial admin setup)
         const user = await User.create({
             name,
             email,
             password: hashedPassword,
-            role: role || 'Employee',
+            role: role || 'Admin',
         });
-        logActivity(user._id, 'joined the organization', 'employee', user.name);
+        logActivity(user._id, 'joined the organization as initial administrator', 'admin', user.name);
 
         let emailSent = true;
         try {
@@ -42,8 +50,8 @@ const registerUser = async (req, res) => {
 
         res.status(201).json({
             message: emailSent
-                ? 'User registered successfully. A confirmation email has been sent.'
-                : 'User registered successfully, but the confirmation email could not be sent.',
+                ? 'Initial Administrator account registered successfully.'
+                : 'Initial Administrator account registered successfully, but email could not be sent.',
             emailSent,
             token,
             user: { id: user._id, name: user.name, email: user.email, role: user.role },
@@ -68,7 +76,6 @@ const registerUser = async (req, res) => {
 // Login User
 const loginUser = async (req, res) => {
     try {
-
         const { email, password } = req.body;
         // check if user exists
         const user = await User.findOne({ email });

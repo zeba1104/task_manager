@@ -38,6 +38,13 @@ const createTask = async (req, res) => {
         if (assignedTo && (req.userRole === 'Manager' || req.userRole === 'Admin')) {
             taskUser = assignedTo;
         }
+
+        if (taskUser) {
+            const assignee = await User.findById(taskUser).select('isActive isSuspended name');
+            if (assignee && (assignee.isActive === false || assignee.isSuspended)) {
+                return res.status(400).json({ message: 'Cannot assign task: account is deactivated or suspended.' });
+            }
+        }
         if (req.userRole === 'Manager') {
             const scope = await getManagerScope(req.userId);
             if (!scope?.memberIds.some((memberId) => String(memberId) === String(taskUser))) {

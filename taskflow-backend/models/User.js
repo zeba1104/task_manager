@@ -41,6 +41,18 @@ const userSchema = new mongoose.Schema({
   designation: { type: String, trim: true, default: '' },
   responsibilities: { type: String, trim: true, default: '' },
   team: { type: String, trim: true, default: '' },
+  teams: { type: [String], default: [] },
+  employmentType: {
+    type: String,
+    enum: ['Full-time', 'Part-time', 'Contract', 'Intern'],
+    default: 'Full-time'
+  },
+  employmentStatus: {
+    type: String,
+    enum: ['Active', 'On Probation', 'Notice Period', 'Terminated'],
+    default: 'Active'
+  },
+  dateOfBirth: { type: Date, default: null },
   joiningDate: { type: Date, default: null },
   profilePicture: { type: String, default: '' },
   manager: {
@@ -54,6 +66,14 @@ const userSchema = new mongoose.Schema({
   },
   isSuspended: { type: Boolean, default: false },
   credentialsSent: { type: Boolean, default: false },
+  leaveBalance: {
+    annual: { type: Number, default: 12 },
+    sick: { type: Number, default: 6 },
+    casual: { type: Number, default: 4 },
+    maternity_paternity: { type: String, default: 'As applicable' },
+    personal: { type: Number, default: 4 },
+    other: { type: Number, default: 4 },
+  },
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);
