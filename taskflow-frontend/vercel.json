@@ -1,5 +1,16 @@
 {
   "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+    {
+      "source": "/api/:match*",
+      "destination": "https://web-production-8dd16.up.railway.app/api/:match*"
+    },
+    {
+      "source": "/uploads/:match*",
+      "destination": "https://web-production-8dd16.up.railway.app/uploads/:match*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
   ]
 }
