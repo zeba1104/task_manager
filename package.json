@@ -1,0 +1,9 @@
+{
+  "name": "task-manager-root",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "cd taskflow-backend && npm install",
+    "start": "cd taskflow-backend && node server.js"
+  }
+}

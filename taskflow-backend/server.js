@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const mongoose = require('mongoose');
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
@@ -20,6 +21,7 @@ const app = express();
 app.use(cors());          // allow cross-origin requests
 app.use(express.json());  // parses incoming JSON request bodies into req.body
 app.use(express.urlencoded({ extended: true })); // parses incoming form-urlencoded data for email action pages
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // DB check middleware - keeps server always alive and returns helpful status
 app.use((req, res, next) => {

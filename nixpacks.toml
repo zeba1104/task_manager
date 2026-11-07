@@ -1,0 +1,11 @@
+[phases.setup]
+nixPkgs = ["nodejs_20"]
+
+[phases.install]
+cmds = ["cd taskflow-backend && npm install"]
+
+[phases.build]
+cmds = ["echo 'Backend ready'"]
+
+[start]
+cmd = "cd taskflow-backend && node server.js"
