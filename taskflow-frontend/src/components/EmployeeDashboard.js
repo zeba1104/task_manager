@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import axios from '../api/axios';
+import axios, { FILE_BASE_URL } from '../api/axios';
 import {
   getEmployeeDashboard,
   getEmployeeProfile,
@@ -2004,7 +2004,7 @@ export default function EmployeeDashboard({ user, logout, setView, activeTab, on
                           <FileText size={14} className="text-blue" />
                           <span className="doc-name">{l.supportingDocument.originalName || 'Supporting Document'}</span>
                           <a
-                            href={`http://localhost:5000/uploads/leaveDocs/${l.supportingDocument.filename}`}
+                            href={`${FILE_BASE_URL}/uploads/leaveDocs/${l.supportingDocument.filename}`}
                             target="_blank"
                             rel="noreferrer"
                             className="doc-link-btn"

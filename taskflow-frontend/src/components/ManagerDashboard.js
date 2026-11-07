@@ -33,6 +33,7 @@ import {
 import { useAuth } from '../context/AuthContext';
 import axios from '../api/axios';
 import { clockIn, clockOut } from '../api/employeeApi';
+import { FILE_BASE_URL } from '../api/axios';
 import { createProject } from '../api/adminApi';
 import { createTask, deleteTask, getTasks, updateTask } from '../api/taskApi';
 import {
@@ -1411,7 +1412,7 @@ function ManagerDashboard({ user, logout, setView, activeTab, onTabChange }) {
                               <FileText size={14} className="text-blue" />
                               <span className="doc-name">{l.supportingDocument.originalName || 'Supporting Document'}</span>
                               <a
-                                href={`http://localhost:5000/uploads/leaveDocs/${l.supportingDocument.filename}`}
+                                href={`${FILE_BASE_URL}/uploads/leaveDocs/${l.supportingDocument.filename}`}
                                 target="_blank"
                                 rel="noreferrer"
                                 className="doc-link-btn"
@@ -1557,7 +1558,7 @@ function ManagerDashboard({ user, logout, setView, activeTab, onTabChange }) {
                               <FileText size={14} className="text-blue" />
                               <span className="doc-name">{tLeave.supportingDocument.originalName || 'Supporting Document'}</span>
                               <a
-                                href={`http://localhost:5000/uploads/leaveDocs/${tLeave.supportingDocument.filename}`}
+                                href={`${FILE_BASE_URL}/uploads/leaveDocs/${tLeave.supportingDocument.filename}`}
                                 target="_blank"
                                 rel="noreferrer"
                                 className="doc-link-btn"

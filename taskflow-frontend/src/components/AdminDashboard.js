@@ -39,6 +39,7 @@ import {
   getAdminLeaveRequests,
   overrideLeaveAsAdmin,
 } from '../api/leaveApi';
+import { FILE_BASE_URL } from '../api/axios';
 import Swal from '../utils/swalConfig';
 
 const COLORS = ['#6366f1', '#10b981', '#f43f5e', '#f59e0b', '#8b5cf6'];
@@ -687,7 +688,7 @@ function AdminDashboard({ tasks, employees, user, logout, setView, onAddEmployee
                         <FileText size={14} className="text-blue" />
                         <span className="doc-name">{leave.supportingDocument.originalName || 'Supporting Document'}</span>
                         <a
-                          href={`http://localhost:5000/uploads/leaveDocs/${leave.supportingDocument.filename}`}
+                          href={`${FILE_BASE_URL}/uploads/leaveDocs/${leave.supportingDocument.filename}`}
                           target="_blank"
                           rel="noreferrer"
                           className="doc-link-btn"
