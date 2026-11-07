@@ -1,0 +1,15 @@
+.tilt-card {
+  position: relative;
+  transition: transform 0.15s ease-out;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+.tilt-spotlight {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 0;
+  border-radius: inherit;
+}
+.tilt-content { position: relative; z-index: 1; }
