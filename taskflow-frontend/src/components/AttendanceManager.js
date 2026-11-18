@@ -11,6 +11,7 @@ import {
   Users,
   Activity,
   Palmtree,
+  XCircle,
 } from 'lucide-react';
 import axios from '../api/axios';
 import UserAvatar from './UserAvatar';
@@ -119,12 +120,14 @@ function AttendanceManager() {
     let totalSecs = 0;
     let activeCount = 0;
     let completedCount = 0;
+    let absentCount = 0;
 
     displayRecords.forEach((r) => {
       const secs = getDynamicSeconds(r);
       totalSecs += secs;
       if (r.clockIn && !r.clockOut) activeCount += 1;
       else if (r.clockIn && r.clockOut) completedCount += 1;
+      else if (r.status === 'absent' || r.isAbsent) absentCount += 1;
     });
 
     const totalH = Math.floor(totalSecs / 3600);
@@ -139,6 +142,7 @@ function AttendanceManager() {
       totalRecords: displayRecords.length,
       activeNow: activeCount,
       completed: completedCount,
+      absentCount,
       totalHoursStr: `${totalH}h ${totalM}m`,
       avgHoursStr: `${avgH}h ${avgM}m`,
     };
@@ -188,6 +192,16 @@ function AttendanceManager() {
           <div className="tile-content">
             <span className="tile-label">Working Now (Live)</span>
             <strong className="tile-value text-emerald">{stats.activeNow}</strong>
+          </div>
+        </div>
+
+        <div className="attendance-tile tile-absent">
+          <div className="tile-icon-wrap" style={{ background: '#fee2e2', color: '#dc2626' }}>
+            <XCircle size={18} />
+          </div>
+          <div className="tile-content">
+            <span className="tile-label">Absent Shifts</span>
+            <strong className="tile-value text-red" style={{ color: '#dc2626' }}>{stats.absentCount}</strong>
           </div>
         </div>
 
@@ -324,6 +338,7 @@ function AttendanceManager() {
                   const isWorkingNow = Boolean(record.clockIn && !record.clockOut);
                   const hasClocked = Boolean(record.clockIn);
                   const isOnLeave = Boolean(record.status === 'on-leave' || record.status === 'On Leave' || record.isOnLeave);
+                  const isAbsent = Boolean(record.status === 'absent' || record.status === 'Absent' || record.isAbsent);
 
                   let statusBadge = null;
                   if (isOnLeave) {
@@ -338,20 +353,24 @@ function AttendanceManager() {
                         <span className="live-pulse-dot" /> Working Now
                       </span>
                     );
+                  } else if (isAbsent) {
+                    statusBadge = <span className="shift-badge shift-absent">Absent</span>;
                   } else if (hasClocked && record.clockOut) {
                     if (dynamicSecs >= 28800) {
                       statusBadge = <span className="shift-badge shift-full">Full Day (8h+)</span>;
-                    } else if (dynamicSecs >= 14400) {
-                      statusBadge = <span className="shift-badge shift-standard">Standard Shift</span>;
+                    } else if (dynamicSecs >= 18000) {
+                      statusBadge = <span className="shift-badge shift-standard">Standard Shift (5h+)</span>;
+                    } else if (dynamicSecs >= 12600) {
+                      statusBadge = <span className="shift-badge shift-partial">Partial Day (3.5h - 5h)</span>;
                     } else {
-                      statusBadge = <span className="shift-badge shift-partial">Partial Day</span>;
+                      statusBadge = <span className="shift-badge shift-short">Short Shift (&lt; 3.5h)</span>;
                     }
                   } else {
-                    statusBadge = <span className="shift-badge shift-off">Not Clocked</span>;
+                    statusBadge = <span className="shift-badge shift-absent">Absent</span>;
                   }
 
                   return (
-                    <tr key={record._id} className={isWorkingNow ? 'row-active-shift' : isOnLeave ? 'row-leave-shift' : ''}>
+                    <tr key={record._id} className={isWorkingNow ? 'row-active-shift' : isOnLeave ? 'row-leave-shift' : isAbsent ? 'row-absent-shift' : ''}>
                       <td>
                         <div className="attendance-user-cell">
                           <UserAvatar user={record.user} className="attendance-table-avatar" />
@@ -384,7 +403,7 @@ function AttendanceManager() {
                             <Clock size={12} /> {formatTime(record.clockIn)}
                           </span>
                         ) : (
-                          <span className="text-muted">--:--</span>
+                          <span className="time-pill absent">--:--</span>
                         )}
                       </td>
 
@@ -402,7 +421,7 @@ function AttendanceManager() {
                             <span className="live-pulse-dot" /> In Progress
                           </span>
                         ) : (
-                          <span className="text-muted">--:--</span>
+                          <span className="time-pill absent">--:--</span>
                         )}
                       </td>
 

@@ -24,6 +24,7 @@ const managerRoutes = require('./routes/managerRoutes');
 const employeeRoutes = require('./routes/employeeRoutes');
 const leaveRoutes = require('./routes/leaveRoutes');
 const chatRoutes = require('./routes/chatRoutes');
+const holidayRoutes = require('./routes/holidayRoutes');
 
 const app = express();
 
@@ -76,6 +77,7 @@ app.use('/api/manager', managerRoutes);
 app.use('/api/employee', employeeRoutes);
 app.use('/api/leave', leaveRoutes);
 app.use('/api/chat', chatRoutes);
+app.use('/api/holidays', holidayRoutes);
 
 const PORT = process.env.PORT || 5000;
 

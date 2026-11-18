@@ -30,6 +30,7 @@ import Swal from '../utils/swalConfig';
 import MyAttendance from './MyAttendance';
 import AnnouncementsPage from './AnnouncementsPage';
 import ChatPage from './ChatPage';
+import HolidayCalendar from './HolidayCalendar';
 import {
   Calendar,
   Clock,
@@ -106,10 +107,12 @@ export default function EmployeeDashboard({ user, logout, setView, activeTab, on
   const [tab, setTab] = useState(activeTab || 'dashboard'); // dashboard | profile | projects | tasks | leave
 
   useEffect(() => {
-    if (activeTab && activeTab !== tab) {
+    if (activeTab === 'tasks' && setView) {
+      setView('tasks');
+    } else if (activeTab && activeTab !== tab) {
       setTab(activeTab);
     }
-  }, [activeTab]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [activeTab, setView]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const { updateUser } = useAuth();
   const [dashboardData, setDashboardData] = useState(null);
@@ -704,6 +707,12 @@ export default function EmployeeDashboard({ user, logout, setView, activeTab, on
       list = list.filter(t => t.isOverdue);
     } else if (taskQuickFilter === 'inProgress') {
       list = list.filter(t => t.status === 'in-process');
+    } else if (taskQuickFilter === 'pending') {
+      list = list.filter(t => t.status === 'pending');
+    } else if (taskQuickFilter === 'inReview') {
+      list = list.filter(t => t.status === 'in-review');
+    } else if (taskQuickFilter === 'completed') {
+      list = list.filter(t => t.status === 'completed');
     }
     return list;
   }, [tasksList, taskSearch, taskStatusFilter, taskPriorityFilter, taskQuickFilter]);
@@ -722,7 +731,7 @@ export default function EmployeeDashboard({ user, logout, setView, activeTab, on
   return (
     <div className="dashboard-page employee-dashboard">
       {/* Clean Page Title Row (Announcements & Chat have their own dedicated rich headers) */}
-      {tab !== 'announcements' && tab !== 'chat' && (
+      {tab !== 'announcements' && tab !== 'chat' && tab !== 'holidays' && (
         <div className="page-header-row">
           <div>
             <h2 className="page-main-title">
@@ -1062,27 +1071,27 @@ export default function EmployeeDashboard({ user, logout, setView, activeTab, on
               <strong>{stats.totalProjects || 0}</strong>
               <span>Assigned Projects</span>
             </div>
-            <div className="stat-card">
+            <div className="stat-card" style={{ cursor: 'pointer' }} onClick={() => setView && setView('tasks')} title="View Task Management Board">
               <strong>{stats.totalTasks || 0}</strong>
               <span>Total Tasks</span>
             </div>
-            <div className="stat-card">
+            <div className="stat-card" style={{ cursor: 'pointer' }} onClick={() => setView && setView('tasks')} title="View Task Management Board">
               <strong className="text-amber">{stats.pendingTasks || 0}</strong>
               <span>To Do (Pending)</span>
             </div>
-            <div className="stat-card">
+            <div className="stat-card" style={{ cursor: 'pointer' }} onClick={() => setView && setView('tasks')} title="View Task Management Board">
               <strong className="text-blue">{stats.inProgressTasks || 0}</strong>
               <span>In Progress</span>
             </div>
-            <div className="stat-card">
+            <div className="stat-card" style={{ cursor: 'pointer' }} onClick={() => setView && setView('tasks')} title="View Task Management Board">
               <strong className="text-purple">{stats.inReviewTasks || 0}</strong>
               <span>Under Review</span>
             </div>
-            <div className="stat-card">
+            <div className="stat-card" style={{ cursor: 'pointer' }} onClick={() => setView && setView('tasks')} title="View Task Management Board">
               <strong className="text-emerald">{stats.completedTasks || 0}</strong>
               <span>Completed</span>
             </div>
-            <div className="stat-card highlight-overdue">
+            <div className="stat-card highlight-overdue" style={{ cursor: 'pointer' }} onClick={() => setView && setView('tasks')} title="View Task Management Board">
               <strong className={stats.overdueTasks > 0 ? 'text-red' : ''}>{stats.overdueTasks || 0}</strong>
               <span>Overdue Tasks</span>
             </div>
@@ -1704,22 +1713,40 @@ export default function EmployeeDashboard({ user, logout, setView, activeTab, on
               All Tasks ({tasksList.length})
             </button>
             <button
-              className={`filter-pill pill-overdue ${taskQuickFilter === 'modification' ? 'active' : ''}`}
-              onClick={() => setTaskQuickFilter('modification')}
+              className={`filter-pill ${taskQuickFilter === 'pending' ? 'active' : ''}`}
+              onClick={() => setTaskQuickFilter(taskQuickFilter === 'pending' ? 'all' : 'pending')}
             >
-              <AlertTriangle size={13} /> Modifications Requested ({tasksList.filter(t => t.status !== 'completed' && (t.needsModification || t.reviewStatus === 'changes-requested')).length})
+              To Do ({tasksList.filter(t => t.status === 'pending').length})
+            </button>
+            <button
+              className={`filter-pill ${taskQuickFilter === 'inProgress' ? 'active' : ''}`}
+              onClick={() => setTaskQuickFilter(taskQuickFilter === 'inProgress' ? 'all' : 'inProgress')}
+            >
+              In Progress ({tasksList.filter(t => t.status === 'in-process').length})
+            </button>
+            <button
+              className={`filter-pill ${taskQuickFilter === 'inReview' ? 'active' : ''}`}
+              onClick={() => setTaskQuickFilter(taskQuickFilter === 'inReview' ? 'all' : 'inReview')}
+            >
+              In Review ({tasksList.filter(t => t.status === 'in-review').length})
+            </button>
+            <button
+              className={`filter-pill ${taskQuickFilter === 'completed' ? 'active' : ''}`}
+              onClick={() => setTaskQuickFilter(taskQuickFilter === 'completed' ? 'all' : 'completed')}
+            >
+              Completed ({tasksList.filter(t => t.status === 'completed').length})
             </button>
             <button
               className={`filter-pill pill-overdue ${taskQuickFilter === 'overdue' ? 'active' : ''}`}
-              onClick={() => setTaskQuickFilter('overdue')}
+              onClick={() => setTaskQuickFilter(taskQuickFilter === 'overdue' ? 'all' : 'overdue')}
             >
               Overdue Tasks ({tasksList.filter(t => t.isOverdue).length})
             </button>
             <button
-              className={`filter-pill ${taskQuickFilter === 'inProgress' ? 'active' : ''}`}
-              onClick={() => setTaskQuickFilter('inProgress')}
+              className={`filter-pill pill-overdue ${taskQuickFilter === 'modification' ? 'active' : ''}`}
+              onClick={() => setTaskQuickFilter(taskQuickFilter === 'modification' ? 'all' : 'modification')}
             >
-              In Progress ({tasksList.filter(t => t.status === 'in-process').length})
+              <AlertTriangle size={13} /> Modifications ({tasksList.filter(t => t.status !== 'completed' && (t.needsModification || t.reviewStatus === 'changes-requested')).length})
             </button>
           </div>
 
@@ -2065,6 +2092,13 @@ export default function EmployeeDashboard({ user, logout, setView, activeTab, on
       )}
 
       {/* =========================================================================
+          TAB 9: GOVERNMENT HOLIDAYS
+         ========================================================================= */}
+      {tab === 'holidays' && (
+        <HolidayCalendar user={user} setView={setView} />
+      )}
+
+      {/* =========================================================================
           MODAL: APPLY LEAVE (EMPLOYEE)
          ========================================================================= */}
       {leaveModalOpen && (
@@ -2399,12 +2433,18 @@ export default function EmployeeDashboard({ user, logout, setView, activeTab, on
                           <div className="doc-info">
                             <FileText size={18} className="text-blue" />
                             <div>
-                              <strong>{doc.originalName}</strong>
-                              <small>{(doc.size / 1024).toFixed(1)} KB · Uploaded by {doc.uploadedBy?.name || 'Member'} on {new Date(doc.createdAt).toLocaleDateString()}</small>
+                              <strong>{doc.title || doc.originalName}</strong>
+                              {doc.title && doc.title !== doc.originalName && (
+                                <span className="doc-sub-filename" style={{ display: 'block', fontSize: '11px', color: 'var(--text-muted)' }}>{doc.originalName}</span>
+                              )}
+                              {doc.notes && (
+                                <p style={{ margin: '3px 0 0', fontSize: '12px', color: 'var(--text-secondary)' }}><em>Note: {doc.notes}</em></p>
+                              )}
+                              <small>{(doc.size / 1024).toFixed(1)} KB · Uploaded by {doc.uploadedBy?.name || 'Admin'} on {new Date(doc.createdAt).toLocaleDateString()}</small>
                             </div>
                           </div>
                           <a
-                            href={`/api/manager/projects/${selectedProject.project._id}/documents/${doc._id}`}
+                            href={`/api/manager/projects/${selectedProject.project._id}/documents/${doc._id}?token=${encodeURIComponent(localStorage.getItem('token') || '')}`}
                             download={doc.originalName}
                             className="btn-ghost btn-small"
                             target="_blank"

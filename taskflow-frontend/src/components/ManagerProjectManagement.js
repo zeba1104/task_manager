@@ -1460,19 +1460,40 @@ export default function ManagerProjectManagement({ manager, authorizedEmployees 
                                     <FileText size={20} />
                                   </div>
                                   <div className="doc-item-details">
-                                    <strong className="doc-item-name" title={doc.originalName}>{doc.originalName}</strong>
+                                    <strong className="doc-item-name" title={doc.originalName}>{doc.title || doc.originalName}</strong>
+                                    {doc.title && doc.title !== doc.originalName && (
+                                      <span className="doc-sub-filename" style={{ display: 'block', fontSize: '11px', color: 'var(--text-muted)' }}>{doc.originalName}</span>
+                                    )}
+                                    {doc.notes && (
+                                      <p className="doc-notes-text" style={{ margin: '3px 0 0', fontSize: '12px', color: 'var(--text-secondary)' }}><em>Note: {doc.notes}</em></p>
+                                    )}
                                     <div className="doc-item-meta">
                                       <span>{(doc.size / 1024).toFixed(1)} KB</span>
                                       <span className="meta-sep">·</span>
                                       <span>Uploaded by {doc.uploadedBy?.name || 'Manager'}</span>
                                       <span className="meta-sep">·</span>
                                       <span>{formatDate(doc.createdAt)}</span>
+                                      {doc.targetAudience && (
+                                        <>
+                                          <span className="meta-sep">·</span>
+                                          <span className="doc-audience-badge" style={{
+                                            fontSize: '11px',
+                                            padding: '1px 7px',
+                                            borderRadius: '999px',
+                                            background: doc.targetAudience === 'Manager' ? '#ede9fe' : '#e0e7ff',
+                                            color: doc.targetAudience === 'Manager' ? '#6d28d9' : '#3730a3',
+                                            fontWeight: 600,
+                                          }}>
+                                            {doc.targetAudience === 'All' ? 'For: Team' : `For: ${doc.targetAudience}`}
+                                          </span>
+                                        </>
+                                      )}
                                     </div>
                                   </div>
                                 </div>
                                 <div className="doc-item-actions">
                                   <a
-                                    href={`/api/manager/projects/${activeProjectDetail.project._id}/documents/${doc._id}`}
+                                    href={`/api/manager/projects/${activeProjectDetail.project._id}/documents/${doc._id}?token=${encodeURIComponent(localStorage.getItem('token') || '')}`}
                                     download={doc.originalName}
                                     className="btn-doc-download"
                                     target="_blank"

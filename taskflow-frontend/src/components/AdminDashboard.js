@@ -24,6 +24,17 @@ import {
   History,
   Download,
   RefreshCw,
+  Plus,
+  Edit3,
+  Power,
+  Users,
+  Briefcase,
+  Layers,
+  UserCheck,
+  CheckSquare,
+  Paperclip,
+  UploadCloud,
+  Trash2,
 } from 'lucide-react';
 import {
   getAdminOverview,
@@ -34,6 +45,9 @@ import {
   reviewManagerProfileChange,
   reviewTransferRequest,
   markAdminNotificationRead,
+  getProjectDocuments,
+  uploadProjectDocument,
+  deleteProjectDocument,
 } from '../api/adminApi';
 import {
   getAdminLeaveRequests,
@@ -69,6 +83,21 @@ function AdminDashboard({ tasks, employees, user, logout, setView, onAddEmployee
   const [overrideModal, setOverrideModal] = useState({ open: false, leave: null, action: 'approved', reason: '' });
   const [historyModal, setHistoryModal] = useState({ open: false, leave: null });
   const [overrideBusy, setOverrideBusy] = useState(false);
+
+  // Project Document Hub State
+  const [projectDocsModalOpen, setProjectDocsModalOpen] = useState(false);
+  const [selectedProjectId, setSelectedProjectId] = useState('');
+  const [selectedProjectData, setSelectedProjectData] = useState(null);
+  const [projectDocsList, setProjectDocsList] = useState([]);
+  const [projectDocsLoading, setProjectDocsLoading] = useState(false);
+  const [docUploadFile, setDocUploadFile] = useState(null);
+  const [docUploadForm, setDocUploadForm] = useState({
+    title: '',
+    targetAudience: 'All',
+    notes: '',
+  });
+  const [docUploading, setDocUploading] = useState(false);
+  const [docUploadError, setDocUploadError] = useState('');
 
   const loadLeaves = useCallback(async (filter = leaveFilter) => {
     setLeavesLoading(true);
@@ -275,7 +304,7 @@ function AdminDashboard({ tasks, employees, user, logout, setView, onAddEmployee
 
   const deptData = overview?.departmentDistribution || [];
   const departmentOptions = (overview?.departments || []).filter((department) => department.isActive);
-  const projectProgress = overview?.projects || [];
+  const projectProgress = useMemo(() => overview?.projects || [], [overview?.projects]);
   const activities = overview?.activities || [];
   const profileChangeRequests = overview?.profileChangeRequests || [];
   const transferRequests = overview?.transferRequests || [];
@@ -290,19 +319,185 @@ function AdminDashboard({ tasks, employees, user, logout, setView, onAddEmployee
     return (type || 'LEAVE').toUpperCase() + ' LEAVE';
   };
 
-  const StatCard = ({ label, value, color }) => (
-    <div style={{
-      background: 'var(--bg-card, #ffffff)',
-      border: '1px solid var(--border-color, rgba(0,0,0,0.06))',
-      borderRadius: '12px',
-      padding: '24px 28px',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      boxShadow: 'var(--card-shadow, 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 10px 15px -3px rgba(0, 0, 0, 0.1))',
-      position: 'relative',
-      overflow: 'hidden'
-    }}>
+  const openProjectDocModal = useCallback(async (project = null) => {
+    setDocUploadError('');
+    setDocUploadFile(null);
+    setDocUploadForm({ title: '', targetAudience: 'All', notes: '' });
+    setProjectDocsModalOpen(true);
+
+    const targetProj = project || (projectProgress && projectProgress[0]) || null;
+    if (targetProj && targetProj._id) {
+      setSelectedProjectId(targetProj._id);
+      setSelectedProjectData(targetProj);
+      setProjectDocsLoading(true);
+      try {
+        const res = await getProjectDocuments(targetProj._id);
+        setProjectDocsList(res.data.documents || []);
+        if (res.data) {
+          setSelectedProjectData((prev) => ({ ...prev, ...res.data }));
+        }
+      } catch (err) {
+        console.error('Failed to load project docs:', err);
+        setProjectDocsList(targetProj.documents || []);
+      } finally {
+        setProjectDocsLoading(false);
+      }
+    } else {
+      setSelectedProjectId('');
+      setSelectedProjectData(null);
+      setProjectDocsList([]);
+    }
+  }, [projectProgress]);
+
+  const handleSelectProjectForDocs = async (projId) => {
+    setSelectedProjectId(projId);
+    setDocUploadError('');
+    setDocUploadFile(null);
+    if (!projId) {
+      setSelectedProjectData(null);
+      setProjectDocsList([]);
+      return;
+    }
+    const found = projectProgress.find((p) => p._id === projId);
+    setSelectedProjectData(found || null);
+    setProjectDocsLoading(true);
+    try {
+      const res = await getProjectDocuments(projId);
+      setProjectDocsList(res.data.documents || []);
+      if (res.data) {
+        setSelectedProjectData((prev) => ({ ...prev, ...res.data }));
+      }
+    } catch (err) {
+      console.error('Failed to load project docs:', err);
+      setProjectDocsList(found?.documents || []);
+    } finally {
+      setProjectDocsLoading(false);
+    }
+  };
+
+  const closeProjectDocModal = () => {
+    if (docUploading) return;
+    setProjectDocsModalOpen(false);
+    setSelectedProjectId('');
+    setSelectedProjectData(null);
+    setProjectDocsList([]);
+    setDocUploadFile(null);
+    setDocUploadForm({ title: '', targetAudience: 'All', notes: '' });
+    setDocUploadError('');
+  };
+
+  const handleUploadDocumentSubmit = async (e) => {
+    e.preventDefault();
+    if (!selectedProjectId) {
+      setDocUploadError('Please select a project first');
+      return;
+    }
+    if (!docUploadFile) {
+      setDocUploadError('Please select a file to upload');
+      return;
+    }
+
+    setDocUploading(true);
+    setDocUploadError('');
+
+    try {
+      const formData = new FormData();
+      formData.append('document', docUploadFile);
+      if (docUploadForm.title.trim()) {
+        formData.append('title', docUploadForm.title.trim());
+      }
+      formData.append('targetAudience', docUploadForm.targetAudience);
+      if (docUploadForm.notes.trim()) {
+        formData.append('notes', docUploadForm.notes.trim());
+      }
+
+      const res = await uploadProjectDocument(selectedProjectId, formData);
+      setProjectDocsList(res.data.documents || []);
+      setDocUploadFile(null);
+      setDocUploadForm({ title: '', targetAudience: 'All', notes: '' });
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Document Uploaded!',
+        text: 'The document is now available to the project team.',
+        timer: 2000,
+        showConfirmButton: false,
+      });
+
+      refreshOverview();
+    } catch (err) {
+      console.error('Upload error:', err);
+      setDocUploadError(err.response?.data?.message || 'Could not upload document');
+    } finally {
+      setDocUploading(false);
+    }
+  };
+
+  const handleDeleteProjectDoc = async (projId, doc) => {
+    const result = await Swal.fire({
+      title: 'Remove Document?',
+      text: `Are you sure you want to delete "${doc.title || doc.originalName}"? This action cannot be undone.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'Yes, delete',
+      cancelButtonText: 'Cancel',
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      const res = await deleteProjectDocument(projId, doc._id);
+      setProjectDocsList(res.data.documents || []);
+      Swal.fire({
+        icon: 'success',
+        title: 'Deleted',
+        text: 'Project document was removed.',
+        timer: 1600,
+        showConfirmButton: false,
+      });
+      refreshOverview();
+    } catch (err) {
+      console.error('Delete error:', err);
+      Swal.fire({
+        icon: 'error',
+        title: 'Failed',
+        text: err.response?.data?.message || 'Could not delete document',
+      });
+    }
+  };
+
+  const handleDownloadProjectDoc = (projId, doc) => {
+    const token = localStorage.getItem('token');
+    const downloadUrl = `/api/admin/projects/${projId}/documents/${doc._id}/download?token=${encodeURIComponent(token || '')}`;
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    link.setAttribute('download', doc.originalName || doc.title || 'document');
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const StatCard = ({ label, value, color, onClick }) => (
+    <div
+      onClick={onClick}
+      style={{
+        background: 'var(--bg-card, #ffffff)',
+        border: '1px solid var(--border-color, rgba(0,0,0,0.06))',
+        borderRadius: '12px',
+        padding: '24px 28px',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        boxShadow: 'var(--card-shadow, 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 10px 15px -3px rgba(0, 0, 0, 0.1))',
+        position: 'relative',
+        overflow: 'hidden',
+        cursor: onClick ? 'pointer' : 'default',
+        transition: 'all 0.18s ease',
+      }}
+    >
       <div style={{
         position: 'absolute', top: 0, left: 0, width: '4px', height: '100%', background: color
       }} />
@@ -332,11 +527,11 @@ function AdminDashboard({ tasks, employees, user, logout, setView, onAddEmployee
         <StatCard label="Departments" value={stats.totalDepartments} color="#0f766e" />
         <StatCard label="Teams" value={stats.totalTeams} color="#0891b2" />
         <StatCard label="Active Projects" value={stats.activeProjects} color="#c2410c" />
-        <StatCard label="Total Tasks" value={stats.totalTasks} color="#3b82f6" />
-        <StatCard label="Completed Tasks" value={stats.completedTasks} color="#10b981" />
-        <StatCard label="Pending Tasks" value={stats.pendingTasks} color="#f59e0b" />
-        <StatCard label="In Progress" value={stats.inProgressTasks} color="#0ea5e9" />
-        <StatCard label="Overdue Tasks" value={stats.overdueTasks} color="#f43f5e" />
+        <StatCard label="Total Tasks" value={stats.totalTasks} color="#3b82f6" onClick={() => setView('tasks')} />
+        <StatCard label="Completed Tasks" value={stats.completedTasks} color="#10b981" onClick={() => setView('tasks')} />
+        <StatCard label="Pending Tasks" value={stats.pendingTasks} color="#f59e0b" onClick={() => setView('tasks')} />
+        <StatCard label="In Progress" value={stats.inProgressTasks} color="#0ea5e9" onClick={() => setView('tasks')} />
+        <StatCard label="Overdue Tasks" value={stats.overdueTasks} color="#f43f5e" onClick={() => setView('tasks')} />
       </div>
 
       {overviewError && <p className="error-text" role="alert">{overviewError}</p>}
@@ -351,6 +546,7 @@ function AdminDashboard({ tasks, employees, user, logout, setView, onAddEmployee
           <button type="button" className="btn-primary btn-small add-mgr-btn" onClick={() => onAddEmployee('Manager')} style={{ background: 'linear-gradient(135deg, #6366f1, #4f46e5)', borderColor: '#4f46e5' }}><ShieldCheck size={16} />Add Manager</button>
           <button type="button" className="btn-ghost btn-small" onClick={() => openAction('department')}><Building2 size={16} />Create department</button>
           <button type="button" className="btn-ghost btn-small" onClick={() => openAction('project')}><FolderPlus size={16} />Create project</button>
+          <button type="button" className="btn-ghost btn-small" onClick={() => openProjectDocModal()}><Paperclip size={16} />Project documents</button>
           <button type="button" className="btn-ghost btn-small" onClick={() => openAction('announcement')}><Megaphone size={16} />Publish announcement</button>
         </div>
       </section>
@@ -404,36 +600,181 @@ function AdminDashboard({ tasks, employees, user, logout, setView, onAddEmployee
 
       <div className="admin-overview-grid">
         {/* Project progress */}
-        <section className="admin-overview-panel">
-          <header><h3>Project progress</h3><span>{projectProgress.length} projects</span></header>
-          {projectProgress.length === 0 ? <p className="admin-empty-state">No projects created yet.</p> : projectProgress.slice(0, 6).map((project) => (
-            <div className="project-progress-row" key={project._id}>
-              <div className="project-progress-heading"><strong>{project.name}</strong><span>{project.progress}%</span></div>
-              <div className="project-progress-track"><span style={{ width: `${project.progress}%` }} /></div>
-              <small>{project.completedTasks}/{project.taskCount} tasks complete · {project.status}</small>
+        <section className="admin-overview-panel admin-project-progress-panel">
+          <header className="project-panel-header">
+            <div>
+              <h3>Project progress</h3>
+              <span>{projectProgress.length} {projectProgress.length === 1 ? 'project' : 'projects'}</span>
             </div>
-          ))}
+            <button
+              type="button"
+              className="btn-ghost btn-small proj-docs-header-btn"
+              onClick={() => openProjectDocModal()}
+              title="Attach and manage project documents"
+            >
+              <Paperclip size={14} /> Project documents
+            </button>
+          </header>
+          {projectProgress.length === 0 ? (
+            <p className="admin-empty-state">No projects created yet.</p>
+          ) : (
+            projectProgress.slice(0, 6).map((project) => (
+              <div className="project-progress-row" key={project._id}>
+                <div className="project-progress-heading">
+                  <span className="project-name-text"><strong>{project.name}</strong></span>
+                  <div className="project-heading-right">
+                    <button
+                      type="button"
+                      className="project-doc-chip"
+                      onClick={() => openProjectDocModal(project)}
+                      title={`Manage documents for ${project.name}`}
+                    >
+                      <Paperclip size={12} />
+                      <span>{project.documents?.length || 0} Docs</span>
+                    </button>
+                    <span className="project-percent-text">{project.progress}%</span>
+                  </div>
+                </div>
+                <div className="project-progress-track"><span style={{ width: `${project.progress}%` }} /></div>
+                <div className="project-progress-footer-row">
+                  <small>{project.completedTasks}/{project.taskCount} tasks complete · {project.status}</small>
+                  {project.manager?.name && <small className="project-manager-tag">Manager: {project.manager.name}</small>}
+                </div>
+              </div>
+            ))
+          )}
         </section>
 
         {/* Departments */}
         <section id="departments-section" className="admin-overview-panel admin-departments-panel">
-          <header><h3>Departments</h3><button type="button" className="detail-text-action" onClick={() => openAction('department')}>Create department</button></header>
-          {(overview?.departments || []).length === 0 ? <p className="admin-empty-state">No departments created yet.</p> : (overview.departments || []).map((department) => (
-            <article className={`admin-department-row ${department.isActive ? '' : 'is-inactive'}`} key={department._id}>
-              <div className="admin-department-title">
-                <div>
-                  <strong>{department.name} {department.code ? `(${department.code})` : ''}</strong>
-                  <span>Head: {department.head?.name || 'Unassigned'}</span>
-                </div>
-                <span className={`employee-status ${department.isActive ? 'active' : 'inactive'}`}>
-                  {department.isActive ? 'Active' : 'Inactive'}
+          <header className="dept-panel-header">
+            <div className="dept-header-title-wrap">
+              <div className="dept-header-icon-box">
+                <Building2 size={18} />
+              </div>
+              <div>
+                <h3>Departments</h3>
+                <span className="dept-header-subtitle">
+                  {(overview?.departments || []).length} configured {(overview?.departments || []).length === 1 ? 'unit' : 'units'}
                 </span>
               </div>
-              <div className="admin-department-metrics"><span><b>{department.metrics?.employees || 0}</b> employees</span><span><b>{department.metrics?.managers || 0}</b> managers</span><span><b>{department.metrics?.teams || 0}</b> teams</span><span><b>{department.metrics?.projects || 0}</b> projects</span><span><b>{department.metrics?.tasks || 0}</b> tasks</span><span><b>{department.metrics?.completionRate || 0}%</b> complete</span></div>
-              <div className="admin-department-progress"><span style={{ width: `${department.metrics?.completionRate || 0}%` }} /></div>
-              <div className="admin-department-actions"><button type="button" className="icon-btn" onClick={() => openAction('department', department)}>Edit</button><button type="button" className="icon-btn" onClick={() => toggleDepartment(department)}>{department.isActive ? 'Deactivate' : 'Activate'}</button></div>
-            </article>
-          ))}
+            </div>
+            <button
+              type="button"
+              className="dept-create-btn"
+              onClick={() => openAction('department')}
+            >
+              <Plus size={14} color="#ffffff" />
+              <span>Create department</span>
+            </button>
+          </header>
+
+          {(overview?.departments || []).length === 0 ? (
+            <div className="dept-empty-card">
+              <Building2 size={36} className="dept-empty-icon" />
+              <p className="dept-empty-title">No departments created yet</p>
+              <p className="dept-empty-desc">Create your first department to organize teams, managers, and projects.</p>
+              <button type="button" className="dept-create-btn" onClick={() => openAction('department')}>
+                <Plus size={14} color="#ffffff" />
+                <span>Create department</span>
+              </button>
+            </div>
+          ) : (
+            <div className="dept-cards-stack">
+              {(overview.departments || []).map((department) => (
+                <article
+                  className={`dept-card ${department.isActive ? 'active' : 'inactive'}`}
+                  key={department._id}
+                >
+                  <div className="dept-card-top">
+                    <div className="dept-card-brand">
+                      <div className="dept-card-avatar">
+                        <Building2 size={18} />
+                      </div>
+                      <div className="dept-card-identity">
+                        <div className="dept-name-row">
+                          <h4 className="dept-card-name">{department.name}</h4>
+                          {department.code && <span className="dept-code-tag">{department.code}</span>}
+                        </div>
+                        <div className="dept-head-info">
+                          <UserCheck size={13} className="dept-head-icon" />
+                          <span>Head: <strong>{department.head?.name || 'Unassigned'}</strong></span>
+                        </div>
+                      </div>
+                    </div>
+                    <span className={`dept-status-badge ${department.isActive ? 'active' : 'inactive'}`}>
+                      <span className="status-dot" />
+                      {department.isActive ? 'Active' : 'Inactive'}
+                    </span>
+                  </div>
+
+                  <div className="dept-metrics-grid">
+                    <div className="dept-metric-chip" title="Employees">
+                      <Users size={13} className="metric-chip-icon icon-employees" />
+                      <span className="metric-chip-val">{department.metrics?.employees || 0}</span>
+                      <span className="metric-chip-label">Employees</span>
+                    </div>
+                    <div className="dept-metric-chip" title="Managers">
+                      <UserCheck size={13} className="metric-chip-icon icon-managers" />
+                      <span className="metric-chip-val">{department.metrics?.managers || 0}</span>
+                      <span className="metric-chip-label">Managers</span>
+                    </div>
+                    <div className="dept-metric-chip" title="Teams">
+                      <Layers size={13} className="metric-chip-icon icon-teams" />
+                      <span className="metric-chip-val">{department.metrics?.teams || 0}</span>
+                      <span className="metric-chip-label">Teams</span>
+                    </div>
+                    <div className="dept-metric-chip" title="Projects">
+                      <Briefcase size={13} className="metric-chip-icon icon-projects" />
+                      <span className="metric-chip-val">{department.metrics?.projects || 0}</span>
+                      <span className="metric-chip-label">Projects</span>
+                    </div>
+                    <div className="dept-metric-chip" title="Tasks">
+                      <CheckSquare size={13} className="metric-chip-icon icon-tasks" />
+                      <span className="metric-chip-val">{department.metrics?.tasks || 0}</span>
+                      <span className="metric-chip-label">Tasks</span>
+                    </div>
+                  </div>
+
+                  <div className="dept-progress-wrap">
+                    <div className="dept-progress-meta">
+                      <span className="dept-progress-title">Task Completion</span>
+                      <span className="dept-progress-pct">
+                        <strong>{department.metrics?.completionRate || 0}%</strong> complete
+                      </span>
+                    </div>
+                    <div className="dept-progress-track">
+                      <div
+                        className="dept-progress-bar"
+                        style={{
+                          width: `${Math.min(100, Math.max(0, department.metrics?.completionRate || 0))}%`
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="dept-card-footer">
+                    <button
+                      type="button"
+                      className="dept-btn dept-btn-edit"
+                      onClick={() => openAction('department', department)}
+                    >
+                      <Edit3 size={13} />
+                      <span>Edit</span>
+                    </button>
+                    <button
+                      type="button"
+                      className={`dept-btn ${department.isActive ? 'dept-btn-deactivate' : 'dept-btn-activate'}`}
+                      onClick={() => toggleDepartment(department)}
+                    >
+                      <Power size={13} />
+                      <span>{department.isActive ? 'Deactivate' : 'Activate'}</span>
+                    </button>
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
         </section>
 
         {/* Transfer Requests from Managers */}
@@ -986,6 +1327,307 @@ function AdminDashboard({ tasks, employees, user, logout, setView, onAddEmployee
               </button>
             </footer>
           </div>
+        </div>
+      )}
+
+      {/* Project Documents Hub Modal */}
+      {projectDocsModalOpen && (
+        <div
+          className="admin-modal-backdrop"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget && !docUploading) closeProjectDocModal();
+          }}
+        >
+          <section className="admin-project-docs-modal" role="dialog" aria-modal="true" aria-labelledby="project-docs-modal-title">
+            <header className="docs-modal-header">
+              <div className="docs-modal-title-wrap">
+                <div className="docs-modal-icon-badge">
+                  <Paperclip size={20} />
+                </div>
+                <div>
+                  <h2 id="project-docs-modal-title">Project Documents Hub</h2>
+                  <p className="docs-modal-subtitle">Upload and manage project documentation for Managers and Employees</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                className="icon-btn"
+                onClick={closeProjectDocModal}
+                disabled={docUploading}
+                aria-label="Close"
+              >
+                <X size={20} />
+              </button>
+            </header>
+
+            <div className="docs-modal-body">
+              {/* Project Picker */}
+              <div className="docs-project-selector-bar">
+                <label htmlFor="docs-project-select">
+                  <FolderPlus size={16} />
+                  <span>Target Project:</span>
+                </label>
+                <select
+                  id="docs-project-select"
+                  value={selectedProjectId}
+                  onChange={(e) => handleSelectProjectForDocs(e.target.value)}
+                  disabled={docUploading}
+                >
+                  <option value="">-- Choose a project --</option>
+                  {projectProgress.map((proj) => (
+                    <option key={proj._id} value={proj._id}>
+                      {proj.name} {proj.department?.name ? `(${proj.department.name})` : ''} — {proj.documents?.length || 0} doc(s)
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {!selectedProjectId ? (
+                <div className="docs-pick-project-prompt">
+                  <FolderPlus size={44} className="prompt-icon" />
+                  <h4>Select a project above</h4>
+                  <p>Choose any project to attach documentation, specifications, or deliverables accessible to managers and team members.</p>
+                </div>
+              ) : (
+                <>
+                  {/* Selected Project Summary Strip */}
+                  <div className="docs-project-summary-strip">
+                    <div className="summary-left">
+                      <strong>{selectedProjectData?.name}</strong>
+                      <span className="summary-badge">{selectedProjectData?.department?.name || 'General'}</span>
+                      {selectedProjectData?.manager?.name && (
+                        <span className="summary-meta">Manager: {selectedProjectData.manager.name}</span>
+                      )}
+                    </div>
+                    <div className="summary-right">
+                      <span className="docs-count-pill">
+                        <Paperclip size={13} /> {projectDocsList.length} Attached {projectDocsList.length === 1 ? 'Document' : 'Documents'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Upload Card */}
+                  <div className="docs-upload-card">
+                    <div className="upload-card-header">
+                      <UploadCloud size={18} className="upload-icon" />
+                      <div>
+                        <h4>Attach New Document</h4>
+                        <p>Upload project specifications, blueprints, or assets to share with team roles.</p>
+                      </div>
+                    </div>
+
+                    <form onSubmit={handleUploadDocumentSubmit} className="docs-upload-form">
+                      <div className="docs-form-grid">
+                        <div className="docs-field">
+                          <label>Document Title <span className="field-hint">(optional, defaults to file name)</span></label>
+                          <input
+                            type="text"
+                            placeholder="e.g. Project Architecture Blueprint v2"
+                            value={docUploadForm.title}
+                            onChange={(e) => setDocUploadForm({ ...docUploadForm, title: e.target.value })}
+                            disabled={docUploading}
+                          />
+                        </div>
+
+                        <div className="docs-field">
+                          <label>Target Audience <span className="field-required">*</span></label>
+                          <div className="audience-toggle-group">
+                            <label className={`audience-toggle-opt ${docUploadForm.targetAudience === 'All' ? 'active' : ''}`}>
+                              <input
+                                type="radio"
+                                name="targetAudience"
+                                value="All"
+                                checked={docUploadForm.targetAudience === 'All'}
+                                onChange={(e) => setDocUploadForm({ ...docUploadForm, targetAudience: e.target.value })}
+                                disabled={docUploading}
+                              />
+                              <Users size={14} />
+                              <span>Manager & Employees</span>
+                            </label>
+                            <label className={`audience-toggle-opt ${docUploadForm.targetAudience === 'Manager' ? 'active' : ''}`}>
+                              <input
+                                type="radio"
+                                name="targetAudience"
+                                value="Manager"
+                                checked={docUploadForm.targetAudience === 'Manager'}
+                                onChange={(e) => setDocUploadForm({ ...docUploadForm, targetAudience: e.target.value })}
+                                disabled={docUploading}
+                              />
+                              <ShieldCheck size={14} />
+                              <span>Manager Only</span>
+                            </label>
+                            <label className={`audience-toggle-opt ${docUploadForm.targetAudience === 'Employee' ? 'active' : ''}`}>
+                              <input
+                                type="radio"
+                                name="targetAudience"
+                                value="Employee"
+                                checked={docUploadForm.targetAudience === 'Employee'}
+                                onChange={(e) => setDocUploadForm({ ...docUploadForm, targetAudience: e.target.value })}
+                                disabled={docUploading}
+                              />
+                              <Briefcase size={14} />
+                              <span>Employees Only</span>
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="docs-field">
+                        <label>Notes / Instructions for Team <span className="field-hint">(optional)</span></label>
+                        <textarea
+                          rows={2}
+                          placeholder="e.g. Please review section 3 before the sprint kickoff."
+                          value={docUploadForm.notes}
+                          onChange={(e) => setDocUploadForm({ ...docUploadForm, notes: e.target.value })}
+                          disabled={docUploading}
+                        />
+                      </div>
+
+                      {/* File Dropzone */}
+                      <div className="docs-dropzone-wrap">
+                        <input
+                          type="file"
+                          id="admin-doc-file-input"
+                          style={{ display: 'none' }}
+                          onChange={(e) => setDocUploadFile(e.target.files?.[0] || null)}
+                          disabled={docUploading}
+                        />
+                        {!docUploadFile ? (
+                          <label htmlFor="admin-doc-file-input" className="docs-file-dropzone">
+                            <UploadCloud size={28} className="dropzone-icon" />
+                            <div className="dropzone-texts">
+                              <span className="dropzone-main">Click or drop file to select document</span>
+                              <span className="dropzone-sub">Supports PDF, DOCX, XLSX, TXT, PNG, JPG, ZIP (up to 50MB)</span>
+                            </div>
+                          </label>
+                        ) : (
+                          <div className="docs-file-selected-box">
+                            <div className="selected-meta">
+                              <FileText size={22} className="selected-icon text-indigo" />
+                              <div>
+                                <strong>{docUploadFile.name}</strong>
+                                <small>{(docUploadFile.size / 1024).toFixed(1)} KB · {docUploadFile.type || 'Document'}</small>
+                              </div>
+                            </div>
+                            <button
+                              type="button"
+                              className="btn-clear-file"
+                              onClick={() => setDocUploadFile(null)}
+                              disabled={docUploading}
+                              title="Remove selected file"
+                            >
+                              <X size={16} />
+                            </button>
+                          </div>
+                        )}
+                      </div>
+
+                      {docUploadError && (
+                        <p className="error-text" role="alert">{docUploadError}</p>
+                      )}
+
+                      <div className="docs-upload-footer">
+                        <button
+                          type="submit"
+                          className="btn-primary btn-upload-doc"
+                          disabled={!docUploadFile || docUploading}
+                        >
+                          <UploadCloud size={16} />
+                          <span>{docUploading ? 'Uploading Document...' : 'Upload & Distribute to Project'}</span>
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+
+                  {/* Documents List */}
+                  <div className="docs-list-section">
+                    <div className="docs-list-head">
+                      <h4>Attached Documents ({projectDocsList.length})</h4>
+                      {projectDocsLoading && <span className="loading-badge">Refreshing...</span>}
+                    </div>
+
+                    {projectDocsLoading && projectDocsList.length === 0 ? (
+                      <div className="docs-loading-box">Loading project documents...</div>
+                    ) : projectDocsList.length === 0 ? (
+                      <div className="docs-empty-state">
+                        <Paperclip size={32} className="empty-icon" />
+                        <h5>No documents uploaded for this project yet</h5>
+                        <p>Upload project documentation above to make it instantly visible to the manager and assigned employees.</p>
+                      </div>
+                    ) : (
+                      <div className="docs-grid-container">
+                        {projectDocsList.map((doc) => (
+                          <div key={doc._id} className="admin-doc-card">
+                            <div className="doc-card-top">
+                              <div className="doc-card-icon-wrap">
+                                <FileText size={22} />
+                              </div>
+                              <div className="doc-card-main-info">
+                                <h5 className="doc-card-title">{doc.title || doc.originalName}</h5>
+                                {doc.title && doc.title !== doc.originalName && (
+                                  <span className="doc-card-filename" title={doc.originalName}>{doc.originalName}</span>
+                                )}
+                              </div>
+                              <div className="doc-card-badges">
+                                {doc.targetAudience === 'Manager' ? (
+                                  <span className="doc-pill-audience audience-mgr" title="Visible to Project Manager & Admin">
+                                    <ShieldCheck size={12} /> Manager Only
+                                  </span>
+                                ) : doc.targetAudience === 'Employee' ? (
+                                  <span className="doc-pill-audience audience-emp" title="Visible to Employees & Admin">
+                                    <Briefcase size={12} /> Employees Only
+                                  </span>
+                                ) : (
+                                  <span className="doc-pill-audience audience-all" title="Visible to Manager and all Employees">
+                                    <Users size={12} /> Manager & Employees
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+
+                            {doc.notes && (
+                              <div className="doc-card-notes">
+                                <small><strong>Note:</strong> {doc.notes}</small>
+                              </div>
+                            )}
+
+                            <div className="doc-card-footer">
+                              <div className="doc-card-meta">
+                                <span>{(doc.size / 1024).toFixed(1)} KB</span>
+                                <span className="dot-sep">·</span>
+                                <span>Uploaded by {doc.uploadedBy?.name || 'Admin'}</span>
+                                <span className="dot-sep">·</span>
+                                <span>{new Date(doc.createdAt).toLocaleDateString()}</span>
+                              </div>
+
+                              <div className="doc-card-actions">
+                                <button
+                                  type="button"
+                                  className="btn-doc-download"
+                                  onClick={() => handleDownloadProjectDoc(selectedProjectId, doc)}
+                                  title="Download document"
+                                >
+                                  <Download size={14} /> Download
+                                </button>
+                                <button
+                                  type="button"
+                                  className="btn-doc-delete"
+                                  onClick={() => handleDeleteProjectDoc(selectedProjectId, doc)}
+                                  title="Delete document"
+                                >
+                                  <Trash2 size={14} />
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+          </section>
         </div>
       )}
     </div>

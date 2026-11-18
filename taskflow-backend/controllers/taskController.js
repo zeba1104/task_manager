@@ -60,9 +60,23 @@ const createTask = async (req, res) => {
             }
         }
 
-        const task = await Task.create({ title, description, status, priority, category, project, user: taskUser, deadline, estimatedMinutes });
+        const task = await Task.create({
+            title,
+            description,
+            status,
+            priority,
+            category,
+            project,
+            user: taskUser,
+            assignedBy: req.userId,
+            deadline,
+            estimatedMinutes,
+        });
         logActivity(req.userId, assignedTo ? 'assigned task' : 'created task', 'task', task.title);
-        res.status(201).json(task);
+        const populatedTask = await Task.findById(task._id)
+            .populate('user', 'name role department employeeId')
+            .populate('assignedBy', 'name role department email designation');
+        res.status(201).json(populatedTask);
     }
     catch (error) {
         return handleTaskError(res, error);
@@ -77,7 +91,10 @@ const getTask = async (req, res) => {
         if (status) filter.status = status;
         if (category) filter.category = category;
 
-        const tasks = await Task.find(filter).populate('user', 'name').sort({ createdAt: -1 });
+        const tasks = await Task.find(filter)
+            .populate('user', 'name role department employeeId')
+            .populate('assignedBy', 'name role department email designation')
+            .sort({ createdAt: -1 });
         res.status(200).json(tasks);
     }
     catch (error) {
@@ -88,6 +105,8 @@ const getTask = async (req, res) => {
 const getTaskbyId = async (req, res) => {
     try {
         const task = await Task.findOne(await getTaskFilter(req, req.params.id))
+            .populate('user', 'name role department employeeId')
+            .populate('assignedBy', 'name role department email designation')
             .populate('comments.user', 'name');
         if (!task) {
             return res.status(404).json({ message: 'Task not Found' })
@@ -111,6 +130,7 @@ const updateTask = async (req, res) => {
         });
         if (req.body.assignedTo && (req.userRole === 'Manager' || req.userRole === 'Admin')) {
             updates.user = req.body.assignedTo;
+            updates.assignedBy = req.userId;
         }
         if (req.userRole === 'Manager') {
             const scope = await getManagerScope(req.userId);
@@ -131,7 +151,9 @@ const updateTask = async (req, res) => {
         if (!previousTask) return res.status(404).json({ message: 'Task not found' });
         const task = await Task.findOneAndUpdate(filter,
             updates,
-            { new: true, runValidators: true });
+            { new: true, runValidators: true })
+            .populate('user', 'name role department employeeId')
+            .populate('assignedBy', 'name role department email designation');
         if (!task) {
             return res.status(404).json({ message: 'Task not founds' });
         }

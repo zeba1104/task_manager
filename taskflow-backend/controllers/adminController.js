@@ -1,3 +1,5 @@
+const fs = require('fs');
+const path = require('path');
 const User = require('../models/User');
 const Task = require('../models/Task');
 const Attendance = require('../models/Attendance');
@@ -98,10 +100,12 @@ exports.getOverview = async (req, res) => {
         const teamManagerIds = new Set(employees.map((employee) => String(employee.manager || '')).filter(Boolean));
         const totalTeamsCount = uniqueTeams.size || teamManagerIds.size || 1;
 
-        // Attendance summary calculation
+        // Attendance summary calculation (excludes Saturday and Sunday from absent count)
         const attendanceByUser = new Map(attendance.map((record) => [String(record.user), record]));
         const onLeaveIds = new Set(onLeave.map((request) => String(request.user)));
         const attendanceSummary = { present: 0, absent: 0, late: 0, onLeave: 0 };
+        const todayDayOfWeek = new Date().getDay(); // 0 = Sun, 6 = Sat
+        const isWeekend = todayDayOfWeek === 0 || todayDayOfWeek === 6;
 
         staff.forEach((staffMember) => {
             const id = String(staffMember._id);
@@ -111,7 +115,10 @@ exports.getOverview = async (req, res) => {
             }
             const record = attendanceByUser.get(id);
             if (!record?.clockIn) {
-                attendanceSummary.absent++;
+                // Only count as absent on working days (Monday - Friday)
+                if (!isWeekend) {
+                    attendanceSummary.absent++;
+                }
                 return;
             }
             const clockIn = new Date(record.clockIn);
@@ -717,5 +724,130 @@ exports.markAdminNotificationRead = async (req, res) => {
         return res.json(notification);
     } catch (error) {
         return res.status(500).json({ message: 'Could not update notification' });
+    }
+};
+
+// =========================================================================
+// ADMIN PROJECT DOCUMENTS MANAGEMENT
+// =========================================================================
+
+exports.getProjectDocuments = async (req, res) => {
+    if (!isAdmin(req, res)) return;
+    try {
+        const { id } = req.params;
+        const project = await Project.findById(id)
+            .populate('documents.uploadedBy', 'name email role')
+            .populate('manager', 'name email')
+            .populate('assignedEmployees', 'name email employeeId')
+            .lean();
+        if (!project) return res.status(404).json({ message: 'Project not found' });
+        return res.json({
+            projectId: project._id,
+            projectName: project.name,
+            manager: project.manager,
+            assignedEmployees: project.assignedEmployees || [],
+            documents: (project.documents || []).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)),
+        });
+    } catch (error) {
+        return res.status(500).json({ message: 'Could not load project documents: ' + error.message });
+    }
+};
+
+exports.uploadProjectDocument = async (req, res) => {
+    if (!isAdmin(req, res)) return;
+    if (!req.file) return res.status(400).json({ message: 'Please select a document file to upload' });
+    try {
+        const { id } = req.params;
+        const project = await Project.findById(id);
+        if (!project) {
+            await fs.promises.unlink(req.file.path).catch(() => {});
+            return res.status(404).json({ message: 'Project not found' });
+        }
+
+        const title = (req.body.title || '').trim() || req.file.originalname;
+        const targetAudience = req.body.targetAudience || 'All';
+        const notes = (req.body.notes || '').trim();
+
+        const docObj = {
+            title,
+            originalName: req.file.originalname,
+            fileName: req.file.filename,
+            contentType: req.file.mimetype,
+            size: req.file.size,
+            uploadedBy: req.userId,
+            targetAudience,
+            notes,
+            createdAt: new Date(),
+        };
+
+        project.documents.push(docObj);
+        await project.save();
+
+        logActivity(req.userId, 'uploaded project document', 'project', `${title} (${project.name})`);
+
+        const populated = await Project.findById(project._id)
+            .populate('documents.uploadedBy', 'name email role')
+            .lean();
+
+        return res.status(201).json({
+            message: 'Document uploaded successfully',
+            document: populated.documents[populated.documents.length - 1],
+            documents: populated.documents,
+        });
+    } catch (error) {
+        if (req.file?.path) await fs.promises.unlink(req.file.path).catch(() => {});
+        return res.status(500).json({ message: 'Could not upload project document: ' + error.message });
+    }
+};
+
+exports.downloadProjectDocument = async (req, res) => {
+    try {
+        const { id, docId } = req.params;
+        const project = await Project.findById(id);
+        if (!project) return res.status(404).json({ message: 'Project not found' });
+
+        const doc = project.documents.id(docId);
+        if (!doc) return res.status(404).json({ message: 'Document not found' });
+
+        const filePath = path.join(__dirname, '..', 'uploads', 'project-documents', path.basename(doc.fileName));
+        if (!fs.existsSync(filePath)) return res.status(404).json({ message: 'Document file not found on disk' });
+
+        return res.download(filePath, doc.originalName || doc.title || 'document');
+    } catch (error) {
+        return res.status(500).json({ message: 'Could not download document' });
+    }
+};
+
+exports.deleteProjectDocument = async (req, res) => {
+    if (!isAdmin(req, res)) return;
+    try {
+        const { id, docId } = req.params;
+        const project = await Project.findById(id);
+        if (!project) return res.status(404).json({ message: 'Project not found' });
+
+        const doc = project.documents.id(docId);
+        if (!doc) return res.status(404).json({ message: 'Document not found' });
+
+        const filePath = path.join(__dirname, '..', 'uploads', 'project-documents', path.basename(doc.fileName));
+        if (fs.existsSync(filePath)) {
+            await fs.promises.unlink(filePath).catch(() => {});
+        }
+
+        const docTitle = doc.title || doc.originalName;
+        project.documents.pull(docId);
+        await project.save();
+
+        logActivity(req.userId, 'deleted project document', 'project', `${docTitle} (${project.name})`);
+
+        const populated = await Project.findById(project._id)
+            .populate('documents.uploadedBy', 'name email role')
+            .lean();
+
+        return res.json({
+            message: 'Document removed successfully',
+            documents: populated.documents,
+        });
+    } catch (error) {
+        return res.status(500).json({ message: 'Could not delete document' });
     }
 };

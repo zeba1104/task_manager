@@ -41,6 +41,12 @@ export const ROLE_NAVIGATION = {
         badge: 'Admin',
       },
       {
+        id: 'admin-holidays',
+        label: 'Government Holidays',
+        icon: 'Calendar',
+        view: 'holidays',
+      },
+      {
         id: 'admin-departments',
         label: 'Departments',
         icon: 'Building2',
@@ -108,6 +114,13 @@ export const ROLE_NAVIGATION = {
         tab: 'announcements',
       },
       {
+        id: 'manager-holidays',
+        label: 'Government Holidays',
+        icon: 'Calendar',
+        view: 'manager',
+        tab: 'holidays',
+      },
+      {
         id: 'manager-chat',
         label: 'Direct Messages',
         icon: 'MessageSquare',
@@ -146,10 +159,9 @@ export const ROLE_NAVIGATION = {
       },
       {
         id: 'employee-tasks',
-        label: 'My Tasks',
+        label: 'Tasks',
         icon: 'CheckSquare',
-        view: 'employee',
-        tab: 'tasks',
+        view: 'tasks',
       },
       {
         id: 'employee-projects',
@@ -173,6 +185,13 @@ export const ROLE_NAVIGATION = {
         icon: 'Megaphone',
         view: 'employee',
         tab: 'announcements',
+      },
+      {
+        id: 'employee-holidays',
+        label: 'Government Holidays',
+        icon: 'Calendar',
+        view: 'employee',
+        tab: 'holidays',
       },
       {
         id: 'employee-chat',

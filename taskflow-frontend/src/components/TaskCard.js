@@ -1,5 +1,17 @@
 import TiltCard from './TiltCard';
-import { CalendarClock, ClipboardList, Clock3, MessageSquare, Paperclip, Pencil, Trash2 } from 'lucide-react';
+import {
+  CalendarClock,
+  ClipboardList,
+  Clock3,
+  MessageSquare,
+  Paperclip,
+  Pencil,
+  Trash2,
+  ShieldAlert,
+  ShieldCheck,
+  UserCheck,
+  User,
+} from 'lucide-react';
 
 function TaskCard({ task, onEdit, onDelete, onStatusChange, onDetails, canDelete = true }) {
   let deadlineText = null;
@@ -29,6 +41,46 @@ function TaskCard({ task, onEdit, onDelete, onStatusChange, onDetails, canDelete
         <h4 title={task.title}>{task.title}</h4>
       </div>
       {task.description && <p className="task-desc">{task.description}</p>}
+
+      {/* Assignment Attribution Row */}
+      <div className="task-assignment-row">
+        {task.assignedBy ? (
+          <div
+            className={`task-assigned-pill ${
+              task.assignedBy.role === 'Admin'
+                ? 'pill-assigned-admin'
+                : task.assignedBy.role === 'Manager'
+                ? 'pill-assigned-manager'
+                : 'pill-assigned-user'
+            }`}
+            title={`Assigned by ${task.assignedBy.role || 'Member'}: ${task.assignedBy.name}`}
+          >
+            {task.assignedBy.role === 'Admin' ? (
+              <ShieldAlert size={12} className="pill-assign-icon" />
+            ) : task.assignedBy.role === 'Manager' ? (
+              <ShieldCheck size={12} className="pill-assign-icon" />
+            ) : (
+              <User size={12} className="pill-assign-icon" />
+            )}
+            <span className="pill-assign-text">
+              Assigned by {task.assignedBy.role ? `${task.assignedBy.role}` : 'Staff'}: <strong>{task.assignedBy.name}</strong>
+            </span>
+          </div>
+        ) : (
+          <div className="task-assigned-pill pill-assigned-admin" title="Assigned by Admin">
+            <ShieldAlert size={12} className="pill-assign-icon" />
+            <span className="pill-assign-text">Assigned by <strong>Admin</strong></span>
+          </div>
+        )}
+
+        {task.user?.name && (
+          <div className="task-assignee-pill" title={`Assigned to: ${task.user.name}`}>
+            <UserCheck size={11} className="pill-assign-icon" />
+            <span className="pill-assign-text">To: <strong>{task.user.name}</strong></span>
+          </div>
+        )}
+      </div>
+
       <div className="task-tags">
         {task.project && <span className="tag project-tag">{task.project}</span>}
         <span className="tag category-tag">{task.category || 'general'}</span>

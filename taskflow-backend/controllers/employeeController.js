@@ -79,7 +79,10 @@ exports.getDashboard = async (req, res) => {
             todayAttendance?.status === 'on-leave'
         );
 
-        let todayStatus = 'Absent';
+        const todayDayOfWeek = todayDateObj.getDay();
+        const isWeekend = todayDayOfWeek === 0 || todayDayOfWeek === 6;
+
+        let todayStatus = isWeekend ? 'Weekend' : 'Absent';
         if (isOnLeave) {
             todayStatus = 'On Leave';
         } else if (todayAttendance?.clockIn) {
@@ -429,6 +432,11 @@ exports.getProjectDetails = async (req, res) => {
 
         if (!project) return res.status(404).json({ message: 'Project not found' });
 
+        // Filter documents according to target audience (Employee can see 'All' and 'Employee' documents)
+        if (project.documents && Array.isArray(project.documents)) {
+            project.documents = project.documents.filter(doc => !doc.targetAudience || doc.targetAudience === 'All' || doc.targetAudience === 'Employee');
+        }
+
         // Tasks associated with this project that belong to this employee
         const myTasks = await Task.find({ project: project.name, user: userId })
             .sort({ deadline: 1 })
@@ -720,5 +728,23 @@ exports.getUpcomingMeetings = async (req, res) => {
         return res.json(meetings);
     } catch (error) {
         return res.status(500).json({ message: 'Could not load meetings' });
+    }
+};
+
+exports.downloadProjectDocument = async (req, res) => {
+    try {
+        const { id, docId } = req.params;
+        const project = await Project.findById(id);
+        if (!project) return res.status(404).json({ message: 'Project not found' });
+
+        const doc = project.documents.id(docId);
+        if (!doc) return res.status(404).json({ message: 'Document not found' });
+
+        const filePath = path.join(__dirname, '..', 'uploads', 'project-documents', path.basename(doc.fileName));
+        if (!fs.existsSync(filePath)) return res.status(404).json({ message: 'Document file not found on disk' });
+
+        return res.download(filePath, doc.originalName || doc.title || 'document');
+    } catch (error) {
+        return res.status(500).json({ message: 'Could not download document' });
     }
 };

@@ -4,20 +4,18 @@ import TiltCard from '../components/TiltCard';
 import TaskForm from '../components/TaskForm';
 import TaskCard from '../components/TaskCard';
 import TaskDetails from '../components/TaskDetails';
-import { getTasks, createTask, updateTask, deleteTask, getUsers, getAttendance, getFocusSessions } from '../api/taskApi';
+import { getTasks, createTask, updateTask, deleteTask, getUsers } from '../api/taskApi';
 import { exportDailyReportToExcel } from '../utils/exportExcel';
-import TimeTracker from '../components/TimeTracker';
 import AdminDashboard from '../components/AdminDashboard';
 import ManagerDashboard from '../components/ManagerDashboard';
 import EmployeeDashboard from '../components/EmployeeDashboard';
 import EmployeeManager from '../components/EmployeeManager';
 import AttendanceManager from '../components/AttendanceManager';
-import EmployeeAnalytics from '../components/EmployeeAnalytics';
-import EmployeePortal from '../components/EmployeePortal';
 import AnnouncementsPage from '../components/AnnouncementsPage';
 import ChatPage from '../components/ChatPage';
 import FocusMode from '../components/FocusMode';
 import AppLayout from '../components/AppLayout';
+import HolidayCalendar from '../components/HolidayCalendar';
 import Swal from '../utils/swalConfig';
 import { getProjects } from '../api/adminApi';
 import { Calendar } from 'lucide-react';
@@ -39,14 +37,13 @@ function Dashboard() {
   const [editingTask, setEditingTask] = useState(null);
   const [selectedTask, setSelectedTask] = useState(null);
   const [categoryFilter, setCategoryFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
   const [advFilters, setAdvFilters] = useState({ employee: '', manager: '', department: '', status: '', priority: '', startDate: '', endDate: '', deadlineBefore: '' });
   const [showFilters, setShowFilters] = useState(false);
   const [view, setView] = useState('tasks');
   const [managerTab, setManagerTab] = useState('overview');
   const [employeeTab, setEmployeeTab] = useState('dashboard');
-  const [employeeAttendance, setEmployeeAttendance] = useState([]);
   const [showFocusMode, setShowFocusMode] = useState(false);
-  const [focusSessions, setFocusSessions] = useState([]);
   const [projectOptions, setProjectOptions] = useState([]);
   const [openEmployeeFormOnView, setOpenEmployeeFormOnView] = useState(false);
 
@@ -99,10 +96,6 @@ function Dashboard() {
       if (user && (user.role === 'Manager' || user.role === 'Admin')) {
         const empRes = await getUsers();
         setEmployees(empRes.data);
-      } else if (user && user.role === 'Employee') {
-        const [attRes, focusRes] = await Promise.all([getAttendance(), getFocusSessions()]);
-        setEmployeeAttendance(attRes.data);
-        setFocusSessions(focusRes.data);
       }
     } catch (err) {
       setError('Could not load tasks');
@@ -213,28 +206,6 @@ function Dashboard() {
   const inReviewTasks = displayTasks.filter((t) => t.status === 'in-review');
   const completedTasks = displayTasks.filter((t) => t.status === 'completed');
 
-  const StatCard = ({ label, value, color }) => (
-    <div style={{
-      background: '#ffffff',
-      border: '1px solid rgba(0,0,0,0.05)',
-      borderRadius: '12px',
-      padding: '22px 24px',
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-      position: 'relative',
-      overflow: 'hidden'
-    }}>
-      <div style={{ position: 'absolute', top: 0, left: 0, width: '4px', height: '100%', background: color }} />
-      <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', flex: 1 }}>
-          <span style={{ fontFamily: 'Inter', fontSize: '34px', fontWeight: 700, color: '#111827', lineHeight: 1 }}>{value}</span>
-          <span style={{ fontSize: '12px', color: '#6b7280', marginTop: '12px', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 600 }}>{label}</span>
-      </div>
-    </div>
-  );
-
   const taskForm = showForm && (
     <TiltCard className="task-form-card">
       <TaskForm
@@ -272,6 +243,8 @@ function Dashboard() {
         <EmployeeManager employees={employees} fetchEmployees={fetchTasks} setView={setView} tasks={tasks} initialShowForm={openEmployeeFormOnView} onInitialShowHandled={handleEmployeeFormOpened} />
       ) : view === 'attendance' && user?.role === 'Admin' ? (
         <AttendanceManager setView={setView} />
+      ) : view === 'holidays' ? (
+        <HolidayCalendar user={user} setView={setView} />
       ) : view === 'announcements' ? (
         <AnnouncementsPage user={user} />
       ) : view === 'chat' ? (
@@ -293,17 +266,6 @@ function Dashboard() {
             </span>
           </div>
         </div>
-
-      <div className={`dashboard-summary-grid ${user?.role === 'Admin' ? 'admin-summary' : 'employee-summary'}`}>
-        {user?.role !== 'Admin' && <TimeTracker />}
-        {user?.role === 'Admin' && (
-           <StatCard label="Total Users" value={employees.length} color="#8b5cf6" />
-        )}
-        <StatCard label="Total Tasks" value={tasks.length} color="#3b82f6" />
-        <StatCard label="Completed" value={completedTasks.length} color="#10b981" />
-        <StatCard label="Pending" value={pendingTasks.length + inProcessTasks.length} color="#f59e0b" />
-        <StatCard label="In Review" value={inReviewTasks.length} color="#d97706" />
-      </div>
 
       <div className="task-toolbar">
         <div className="filters">
@@ -334,39 +296,6 @@ function Dashboard() {
       </div>
 
       {taskForm}
-
-      {user?.role === 'Employee' && (
-          <div style={{ background: 'var(--panel)', borderRadius: '12px', border: '1px solid var(--border)', padding: '24px', marginBottom: '40px', boxShadow: 'var(--card-shadow)' }}>
-             <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', color: 'var(--text)' }}>Today's Focus Sessions</h3>
-             {focusSessions.filter(s => new Date(s.startTime).toDateString() === new Date().toDateString()).length === 0 ? (
-                 <p style={{ margin: 0, fontSize: '13px', color: 'var(--muted)' }}>No focus sessions today.</p>
-             ) : (
-                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '16px' }}>
-                     {focusSessions.filter(s => new Date(s.startTime).toDateString() === new Date().toDateString()).map(s => (
-                         <div key={s._id} style={{ padding: '16px', border: '1px solid var(--border)', borderRadius: '8px', background: 'var(--bg-card)' }}>
-                             <div style={{ fontWeight: 600, fontSize: '14px', color: 'var(--text)', marginBottom: '8px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                 {s.task?.title || 'Unknown Task'}
-                             </div>
-                             <div style={{ fontSize: '12px', color: 'var(--muted)', display: 'flex', justifyContent: 'space-between' }}>
-                                 <span>{new Date(s.startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
-                                 <span style={{ fontWeight: 700, color: '#3b82f6' }}>
-                                     {Math.floor((s.durationSeconds || 0)/60)}m {(s.durationSeconds || 0)%60}s
-                                 </span>
-                             </div>
-                         </div>
-                     ))}
-                 </div>
-             )}
-          </div>
-      )}
-
-      {user?.role === 'Employee' && (
-        <EmployeeAnalytics
-          tasks={displayTasks}
-          attendance={employeeAttendance}
-        />
-      )}
-      {user?.role === 'Employee' && <EmployeePortal />}
 
       {/* Advanced Filters */}
       {showFilters && (user?.role === 'Admin' || user?.role === 'Manager') && (
@@ -421,12 +350,94 @@ function Dashboard() {
 
       {error && <p className="error-text">{error}</p>}
 
+      {/* Interactive Status Filter Navigation */}
+      <div className="task-status-filter-nav">
+        <div className="status-filter-pills">
+          <button
+            type="button"
+            className={`status-pill ${statusFilter === 'all' ? 'active' : ''}`}
+            onClick={() => {
+              setStatusFilter('all');
+              setAdvFilters((prev) => ({ ...prev, status: '' }));
+            }}
+          >
+            <span>All Tasks</span>
+            <span className="pill-badge">{tasks.length}</span>
+          </button>
+          <button
+            type="button"
+            className={`status-pill pill-pending ${statusFilter === 'pending' ? 'active' : ''}`}
+            onClick={() => {
+              const next = statusFilter === 'pending' ? 'all' : 'pending';
+              setStatusFilter(next);
+              setAdvFilters((prev) => ({ ...prev, status: next === 'all' ? '' : next }));
+            }}
+          >
+            <span className="pill-dot dot-pending" />
+            <span>To Do</span>
+            <span className="pill-badge">{pendingTasks.length}</span>
+          </button>
+          <button
+            type="button"
+            className={`status-pill pill-in-process ${statusFilter === 'in-process' ? 'active' : ''}`}
+            onClick={() => {
+              const next = statusFilter === 'in-process' ? 'all' : 'in-process';
+              setStatusFilter(next);
+              setAdvFilters((prev) => ({ ...prev, status: next === 'all' ? '' : next }));
+            }}
+          >
+            <span className="pill-dot dot-in-process" />
+            <span>In Progress</span>
+            <span className="pill-badge">{inProcessTasks.length}</span>
+          </button>
+          <button
+            type="button"
+            className={`status-pill pill-in-review ${statusFilter === 'in-review' ? 'active' : ''}`}
+            onClick={() => {
+              const next = statusFilter === 'in-review' ? 'all' : 'in-review';
+              setStatusFilter(next);
+              setAdvFilters((prev) => ({ ...prev, status: next === 'all' ? '' : next }));
+            }}
+          >
+            <span className="pill-dot dot-in-review" />
+            <span>In Review</span>
+            <span className="pill-badge">{inReviewTasks.length}</span>
+          </button>
+          <button
+            type="button"
+            className={`status-pill pill-completed ${statusFilter === 'completed' ? 'active' : ''}`}
+            onClick={() => {
+              const next = statusFilter === 'completed' ? 'all' : 'completed';
+              setStatusFilter(next);
+              setAdvFilters((prev) => ({ ...prev, status: next === 'all' ? '' : next }));
+            }}
+          >
+            <span className="pill-dot dot-completed" />
+            <span>Completed</span>
+            <span className="pill-badge">{completedTasks.length}</span>
+          </button>
+        </div>
+
+        {statusFilter !== 'all' && (
+          <button
+            type="button"
+            className="view-all-cols-btn"
+            onClick={() => {
+              setStatusFilter('all');
+              setAdvFilters((prev) => ({ ...prev, status: '' }));
+            }}
+          >
+            Show All Columns
+          </button>
+        )}
+      </div>
+
       {loading ? (
         <p className="muted-text">Loading tasks...</p>
       ) : (
-        <div className="kanban-scroll">
-          <div className="kanban-board">
-            {boardColumns.map((column) => {
+        <div className={`kanban-scroll ${statusFilter !== 'all' ? 'single-column-scroll' : ''}`}>
+          <div className={`kanban-board ${statusFilter !== 'all' ? 'single-column-active' : ''}`}>
+            {(statusFilter === 'all' ? boardColumns : boardColumns.filter((col) => col.status === statusFilter)).map((column) => {
               const columnTasks = displayTasks.filter((task) => task.status === column.status);
               return (
                 <section className={`kanban-column status-${column.status}`} key={column.status}>
@@ -436,6 +447,31 @@ function Dashboard() {
                       <h3>{column.title}</h3>
                       <span className="section-count">{columnTasks.length}</span>
                     </div>
+                    {statusFilter === 'all' ? (
+                      <button
+                        type="button"
+                        className="btn-column-focus"
+                        onClick={() => {
+                          setStatusFilter(column.status);
+                          setAdvFilters((prev) => ({ ...prev, status: column.status }));
+                        }}
+                        title={`Focus on ${column.title} only`}
+                      >
+                        Focus
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        className="btn-column-focus"
+                        onClick={() => {
+                          setStatusFilter('all');
+                          setAdvFilters((prev) => ({ ...prev, status: '' }));
+                        }}
+                        title="Show all columns"
+                      >
+                        All Columns
+                      </button>
+                    )}
                   </header>
                   <div className="kanban-card-list">
                     {columnTasks.map((task) => (
@@ -450,7 +486,21 @@ function Dashboard() {
                       />
                     ))}
                     {columnTasks.length === 0 && (
-                      <p className="kanban-empty">No tasks in this column</p>
+                      <div className="kanban-empty">
+                        <p>No tasks in {column.title}</p>
+                        {statusFilter !== 'all' && (
+                          <button
+                            type="button"
+                            className="btn-ghost btn-small"
+                            onClick={() => {
+                              setStatusFilter('all');
+                              setAdvFilters((prev) => ({ ...prev, status: '' }));
+                            }}
+                          >
+                            View All Columns
+                          </button>
+                        )}
+                      </div>
                     )}
                   </div>
                 </section>

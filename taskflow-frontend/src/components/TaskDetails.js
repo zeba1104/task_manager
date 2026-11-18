@@ -20,6 +20,9 @@ import {
   Trash2,
   Upload,
   X,
+  ShieldCheck,
+  ShieldAlert,
+  UserCheck,
 } from 'lucide-react';
 
 const statusLabels = {
@@ -187,6 +190,32 @@ function TaskDetails({ task, onClose, onUpdated }) {
                 <span><CalendarDays size={15} />{details.deadline ? new Date(details.deadline).toLocaleDateString() : 'No deadline'}</span>
                 <span><Clock3 size={15} />{details.estimatedMinutes || 0} min estimate</span>
                 <span className={`detail-priority priority-${details.priority}`}>{details.priority}</span>
+              </div>
+              <div className="task-detail-assignment-banner">
+                {details.assignedBy && (
+                  <div className="assignment-meta-item">
+                    <span className="assignment-meta-label">
+                      {details.assignedBy.role === 'Admin' ? (
+                        <><ShieldAlert size={14} className="text-amber" /> Assigned by Admin:</>
+                      ) : details.assignedBy.role === 'Manager' ? (
+                        <><ShieldCheck size={14} className="text-indigo" /> Assigned by Manager:</>
+                      ) : (
+                        <>Assigned by:</>
+                      )}
+                    </span>
+                    <strong className="assignment-meta-val">
+                      {details.assignedBy.name} {details.assignedBy.email ? `(${details.assignedBy.email})` : ''}
+                    </strong>
+                  </div>
+                )}
+                {details.user && (
+                  <div className="assignment-meta-item">
+                    <span className="assignment-meta-label"><UserCheck size={14} /> Assigned to:</span>
+                    <strong className="assignment-meta-val">
+                      {details.user.name} {details.user.role ? `· ${details.user.role}` : ''}
+                    </strong>
+                  </div>
+                )}
               </div>
             </section>
 

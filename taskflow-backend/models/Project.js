@@ -10,11 +10,18 @@ const milestoneSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 const documentSchema = new mongoose.Schema({
+    title: { type: String, trim: true, default: '' },
     originalName: { type: String, required: true },
     fileName: { type: String, required: true },
     contentType: { type: String, default: 'application/octet-stream' },
     size: { type: Number, required: true },
     uploadedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    targetAudience: { 
+        type: String, 
+        enum: ['All', 'Manager', 'Employee', 'all', 'manager', 'employee'], 
+        default: 'All' 
+    },
+    notes: { type: String, trim: true, default: '' },
     createdAt: { type: Date, default: Date.now },
 });
 

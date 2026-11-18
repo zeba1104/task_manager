@@ -712,6 +712,11 @@ exports.getManagerProjectDetails = async (req, res) => {
 
         if (!project) return res.status(404).json({ message: 'Project not found' });
 
+        // Filter documents according to target audience (Manager can see 'All' and 'Manager' documents)
+        if (project.documents && Array.isArray(project.documents)) {
+            project.documents = project.documents.filter(doc => !doc.targetAudience || doc.targetAudience === 'All' || doc.targetAudience === 'Manager');
+        }
+
         const tasks = await Task.find({ project: project.name })
             .populate('user', 'name employeeId designation team')
             .sort({ deadline: 1 })

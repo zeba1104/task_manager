@@ -13,6 +13,7 @@ const {
     getMyProjects,
     getProjectDetails,
     uploadProjectDocument,
+    downloadProjectDocument,
     addProjectComment,
     getMyTasks,
     getTaskDetails,
@@ -67,6 +68,8 @@ router.post('/profile-change-requests', requestProfileChange);
 router.get('/projects', getMyProjects);
 router.get('/projects/:id', getProjectDetails);
 router.post('/projects/:id/documents', handleDocUpload, uploadProjectDocument);
+router.get('/projects/:id/documents/:docId', downloadProjectDocument);
+router.get('/projects/:id/documents/:docId/download', downloadProjectDocument);
 router.post('/projects/:id/comments', addProjectComment);
 
 /* --- 1.4 My Tasks --- */

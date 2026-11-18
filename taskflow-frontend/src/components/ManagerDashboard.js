@@ -62,6 +62,7 @@ import ManagerProjectManagement from './ManagerProjectManagement';
 import MyAttendance from './MyAttendance';
 import AnnouncementsPage from './AnnouncementsPage';
 import ChatPage from './ChatPage';
+import HolidayCalendar from './HolidayCalendar';
 import Swal from '../utils/swalConfig';
 
 const columns = [
@@ -295,6 +296,7 @@ function ManagerDashboard({ user, logout, setView, activeTab, onTabChange }) {
     return `${h}h ${m}m`;
   };
   const [tasks, setTasks] = useState([]);
+  const [taskStatusFilter, setTaskStatusFilter] = useState('all');
   const [projects, setProjects] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -764,7 +766,7 @@ function ManagerDashboard({ user, logout, setView, activeTab, onTabChange }) {
   return (
     <div className="dashboard-page manager-dashboard">
       {/* Clean Page Title Row (Announcements & Chat have their own dedicated rich headers) */}
-      {tab !== 'announcements' && tab !== 'chat' && (
+      {tab !== 'announcements' && tab !== 'chat' && tab !== 'holidays' && (
         <div className="page-header-row">
           <div>
             <h2 className="page-main-title">
@@ -971,11 +973,11 @@ function ManagerDashboard({ user, logout, setView, activeTab, onTabChange }) {
             <div><strong>{totals.employees || 0}</strong><span>Assigned employees</span></div>
             <div><strong>{totals.teams || 0}</strong><span>Teams</span></div>
             <div><strong>{totals.projects || 0}</strong><span>Assigned projects</span></div>
-            <div><strong>{totals.tasks || 0}</strong><span>Assigned tasks</span></div>
-            <div><strong>{taskStats.pendingTasks || 0}</strong><span>Pending</span></div>
-            <div><strong>{taskStats.inProgressTasks || 0}</strong><span>In progress</span></div>
-            <div><strong>{taskStats.completedTasks || 0}</strong><span>Completed</span></div>
-            <div><strong>{taskStats.overdueTasks || 0}</strong><span>Overdue</span></div>
+            <div style={{ cursor: 'pointer' }} onClick={() => setView('tasks')} title="View Task Management Board"><strong>{totals.tasks || 0}</strong><span>Assigned tasks</span></div>
+            <div style={{ cursor: 'pointer' }} onClick={() => setView('tasks')} title="View Task Management Board"><strong>{taskStats.pendingTasks || 0}</strong><span>Pending</span></div>
+            <div style={{ cursor: 'pointer' }} onClick={() => setView('tasks')} title="View Task Management Board"><strong>{taskStats.inProgressTasks || 0}</strong><span>In progress</span></div>
+            <div style={{ cursor: 'pointer' }} onClick={() => setView('tasks')} title="View Task Management Board"><strong>{taskStats.completedTasks || 0}</strong><span>Completed</span></div>
+            <div style={{ cursor: 'pointer' }} onClick={() => setView('tasks')} title="View Task Management Board"><strong>{taskStats.overdueTasks || 0}</strong><span>Overdue</span></div>
           </div>
 
           <section className="manager-attendance-summary">
@@ -1172,24 +1174,96 @@ function ManagerDashboard({ user, logout, setView, activeTab, onTabChange }) {
             </section>
 
             <section className="admin-overview-panel">
-              <header><h3>Assigned task board</h3><span>{tasks.length} tasks</span></header>
-              <div className="manager-task-list">
-                {columns.map((column) => (
-                  <div key={column.status} className="manager-task-column">
-                    <h4>{column.title}</h4>
-                    {tasks.filter((task) => task.status === column.status).map((task) => (
-                      <TaskCard
-                        key={task._id}
-                        task={task}
-                        onEdit={(item) => { setEditingTask(item); setTaskFormOpen(true); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                        onDelete={removeTask}
-                        onStatusChange={changeTaskStatus}
-                        canDelete={false}
-                        onDetails={() => {}}
-                      />
-                    ))}
-                  </div>
-                ))}
+              <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+                <div>
+                  <h3 style={{ margin: 0 }}>Assigned task board</h3>
+                  <span>{tasks.length} tasks total</span>
+                </div>
+                <div className="status-filter-pills">
+                  <button
+                    type="button"
+                    className={`status-pill ${taskStatusFilter === 'all' ? 'active' : ''}`}
+                    onClick={() => setTaskStatusFilter('all')}
+                  >
+                    <span>All</span>
+                    <span className="pill-badge">{tasks.length}</span>
+                  </button>
+                  <button
+                    type="button"
+                    className={`status-pill pill-pending ${taskStatusFilter === 'pending' ? 'active' : ''}`}
+                    onClick={() => setTaskStatusFilter(taskStatusFilter === 'pending' ? 'all' : 'pending')}
+                  >
+                    <span className="pill-dot dot-pending" />
+                    <span>To Do</span>
+                    <span className="pill-badge">{tasks.filter(t => t.status === 'pending').length}</span>
+                  </button>
+                  <button
+                    type="button"
+                    className={`status-pill pill-in-process ${taskStatusFilter === 'in-process' ? 'active' : ''}`}
+                    onClick={() => setTaskStatusFilter(taskStatusFilter === 'in-process' ? 'all' : 'in-process')}
+                  >
+                    <span className="pill-dot dot-in-process" />
+                    <span>In Progress</span>
+                    <span className="pill-badge">{tasks.filter(t => t.status === 'in-process').length}</span>
+                  </button>
+                  <button
+                    type="button"
+                    className={`status-pill pill-in-review ${taskStatusFilter === 'in-review' ? 'active' : ''}`}
+                    onClick={() => setTaskStatusFilter(taskStatusFilter === 'in-review' ? 'all' : 'in-review')}
+                  >
+                    <span className="pill-dot dot-in-review" />
+                    <span>In Review</span>
+                    <span className="pill-badge">{tasks.filter(t => t.status === 'in-review').length}</span>
+                  </button>
+                  <button
+                    type="button"
+                    className={`status-pill pill-completed ${taskStatusFilter === 'completed' ? 'active' : ''}`}
+                    onClick={() => setTaskStatusFilter(taskStatusFilter === 'completed' ? 'all' : 'completed')}
+                  >
+                    <span className="pill-dot dot-completed" />
+                    <span>Completed</span>
+                    <span className="pill-badge">{tasks.filter(t => t.status === 'completed').length}</span>
+                  </button>
+                </div>
+              </header>
+              <div className={`manager-task-list ${taskStatusFilter !== 'all' ? 'single-column' : ''}`}>
+                {(taskStatusFilter === 'all' ? columns : columns.filter(c => c.status === taskStatusFilter)).map((column) => {
+                  const colTasks = tasks.filter((task) => task.status === column.status);
+                  return (
+                    <div key={column.status} className="manager-task-column">
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                        <h4 style={{ margin: 0 }}>{column.title} ({colTasks.length})</h4>
+                        {taskStatusFilter !== 'all' && (
+                          <button
+                            type="button"
+                            className="view-all-cols-btn"
+                            onClick={() => setTaskStatusFilter('all')}
+                          >
+                            View All Columns
+                          </button>
+                        )}
+                      </div>
+                      <div className={taskStatusFilter !== 'all' ? 'manager-cards-grid' : ''}>
+                        {colTasks.map((task) => (
+                          <TaskCard
+                            key={task._id}
+                            task={task}
+                            onEdit={(item) => { setEditingTask(item); setTaskFormOpen(true); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                            onDelete={removeTask}
+                            onStatusChange={changeTaskStatus}
+                            canDelete={false}
+                            onDetails={() => {}}
+                          />
+                        ))}
+                      </div>
+                      {colTasks.length === 0 && (
+                        <p className="kanban-empty" style={{ padding: '24px', textAlign: 'center', color: '#94a3b8' }}>
+                          No tasks in {column.title}
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </section>
           </div>
@@ -1757,6 +1831,11 @@ function ManagerDashboard({ user, logout, setView, activeTab, onTabChange }) {
       {/* VIEW: DIRECT MESSAGES (CHAT) */}
       {tab === 'chat' && (
         <ChatPage user={user} />
+      )}
+
+      {/* VIEW: GOVERNMENT HOLIDAYS */}
+      {tab === 'holidays' && (
+        <HolidayCalendar user={user} setView={setView} />
       )}
       {/* Task Review Modal */}
       {reviewModalTask && (

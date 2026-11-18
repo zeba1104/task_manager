@@ -314,6 +314,7 @@ function MyAttendance({ user, isManager = false, refreshSignal = 0 }) {
                   const isWorkingNow = Boolean(record.clockIn && !record.clockOut);
                   const hasClocked = Boolean(record.clockIn);
                   const isOnLeave = Boolean(record.status === 'on-leave' || record.status === 'On Leave' || record.isOnLeave);
+                  const isAbsent = Boolean(record.status === 'absent' || record.status === 'Absent' || record.isAbsent);
 
                   let statusBadge = null;
                   if (isOnLeave) {
@@ -328,23 +329,27 @@ function MyAttendance({ user, isManager = false, refreshSignal = 0 }) {
                         <span className="live-pulse-dot" /> Working Now
                       </span>
                     );
+                  } else if (isAbsent) {
+                    statusBadge = <span className="shift-badge shift-absent">Absent</span>;
                   } else if (hasClocked && record.clockOut) {
                     if (dynamicSecs >= 28800) {
                       statusBadge = <span className="shift-badge shift-full">Full Shift (8h+)</span>;
-                    } else if (dynamicSecs >= 14400) {
-                      statusBadge = <span className="shift-badge shift-standard">Standard Shift</span>;
+                    } else if (dynamicSecs >= 18000) {
+                      statusBadge = <span className="shift-badge shift-standard">Standard Shift (5h+)</span>;
+                    } else if (dynamicSecs >= 12600) {
+                      statusBadge = <span className="shift-badge shift-partial">Partial Day (3.5h - 5h)</span>;
                     } else {
-                      statusBadge = <span className="shift-badge shift-partial">Partial Day</span>;
+                      statusBadge = <span className="shift-badge shift-short">Short Shift (&lt; 3.5h)</span>;
                     }
                   } else {
-                    statusBadge = <span className="shift-badge shift-off">Not Clocked</span>;
+                    statusBadge = <span className="shift-badge shift-absent">Absent</span>;
                   }
 
                   const recordDate = new Date(record.date);
                   const isToday = record.date === todayStr;
 
                   return (
-                    <tr key={record._id} className={isWorkingNow ? 'row-active-shift' : isOnLeave ? 'row-leave-shift' : ''}>
+                    <tr key={record._id} className={isWorkingNow ? 'row-active-shift' : isOnLeave ? 'row-leave-shift' : isAbsent ? 'row-absent-shift' : ''}>
                       <td className="attendance-date-cell">
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                           <strong>
@@ -365,7 +370,7 @@ function MyAttendance({ user, isManager = false, refreshSignal = 0 }) {
                             <Clock size={12} /> {formatTime(record.clockIn)}
                           </span>
                         ) : (
-                          <span className="text-muted">--:--</span>
+                          <span className="time-pill absent">--:--</span>
                         )}
                       </td>
 
@@ -383,7 +388,7 @@ function MyAttendance({ user, isManager = false, refreshSignal = 0 }) {
                             <span className="live-pulse-dot" /> In Progress
                           </span>
                         ) : (
-                          <span className="text-muted">--:--</span>
+                          <span className="time-pill absent">--:--</span>
                         )}
                       </td>
 
