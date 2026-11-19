@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import {
   Menu,
   Search,
@@ -13,6 +13,12 @@ import {
   Clock,
   CheckCheck,
   MessageSquare,
+  CheckSquare,
+  Briefcase,
+  Users,
+  Layers,
+  Palmtree,
+  X,
 } from 'lucide-react';
 import axios from '../api/axios';
 import Sidebar from './Sidebar';
@@ -194,12 +200,192 @@ function AppLayout({
     }
   };
 
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [selectedSearchIndex, setSelectedSearchIndex] = useState(0);
   const searchInputRef = useRef(null);
+  const searchWrapRef = useRef(null);
+
+  // Close search popover on outside click
+  useEffect(() => {
+    const handleOutsideClick = (e) => {
+      if (searchWrapRef.current && !searchWrapRef.current.contains(e.target)) {
+        setSearchOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => document.removeEventListener('mousedown', handleOutsideClick);
+  }, []);
+
+  const searchItems = useMemo(() => {
+    const role = user?.role || 'Employee';
+    return [
+      {
+        id: 'dashboard',
+        title: 'Operations Dashboard',
+        desc: 'Workspace overview, performance metrics & activity',
+        category: 'Pages',
+        icon: <Layers size={16} />,
+        action: () => {
+          if (role === 'Admin') onNavigate({ view: 'admin' });
+          else if (role === 'Manager') onNavigate({ view: 'manager', tab: 'dashboard' });
+          else onNavigate({ view: 'employee', tab: 'dashboard' });
+        },
+        keywords: 'dashboard overview home kpi stats summary operations'
+      },
+      {
+        id: 'tasks',
+        title: 'Tasks & Kanban Board',
+        desc: 'Interactive task boards, backlog, sprints & status',
+        category: 'Pages',
+        icon: <CheckSquare size={16} />,
+        action: () => {
+          if (role === 'Employee') onNavigate({ view: 'employee', tab: 'tasks' });
+          else onNavigate({ view: 'tasks' });
+        },
+        keywords: 'tasks kanban board todo in progress completed workflow sprint'
+      },
+      {
+        id: 'projects',
+        title: 'Projects & Milestones',
+        desc: 'Project tracking, progress indicators & deliverables',
+        category: 'Pages',
+        icon: <Briefcase size={16} />,
+        action: () => {
+          if (role === 'Admin') onNavigate({ view: 'admin' });
+          else if (role === 'Manager') onNavigate({ view: 'manager', tab: 'projects' });
+          else onNavigate({ view: 'employee', tab: 'projects' });
+        },
+        keywords: 'projects portfolios milestones deliverables active'
+      },
+      {
+        id: 'attendance',
+        title: 'Attendance & Shifts',
+        desc: 'Shift check-in/out, logs, monthly duration & history',
+        category: 'Pages',
+        icon: <Clock size={16} />,
+        action: () => {
+          if (role === 'Admin') onNavigate({ view: 'attendance' });
+          else if (role === 'Manager') onNavigate({ view: 'manager', tab: 'attendance' });
+          else onNavigate({ view: 'employee', tab: 'attendance' });
+        },
+        keywords: 'attendance shifts check-in clock-in clock-out time work hours'
+      },
+      {
+        id: 'leaves',
+        title: 'Leave & Quota Balances',
+        desc: 'Annual, sick, casual leave quotas & approval tracking',
+        category: 'Pages',
+        icon: <CalendarDays size={16} />,
+        action: () => {
+          if (role === 'Admin') onNavigate({ view: 'admin-leaves' });
+          else if (role === 'Manager') onNavigate({ view: 'manager', tab: 'leave' });
+          else onNavigate({ view: 'employee', tab: 'leave' });
+        },
+        keywords: 'leave quota balances apply vacation sick casual maternity approval'
+      },
+      {
+        id: 'announcements',
+        title: 'Broadcast Announcements',
+        desc: 'Company-wide updates, notices, memos & guidelines',
+        category: 'Pages',
+        icon: <Megaphone size={16} />,
+        action: () => {
+          if (role === 'Admin') onNavigate({ view: 'announcements' });
+          else if (role === 'Manager') onNavigate({ view: 'manager', tab: 'announcements' });
+          else onNavigate({ view: 'employee', tab: 'announcements' });
+        },
+        keywords: 'announcements news updates broadcast notices memo company'
+      },
+      {
+        id: 'holidays',
+        title: 'Government & National Holidays',
+        desc: 'Statutory holiday calendar and observed festivals',
+        category: 'Pages',
+        icon: <Palmtree size={16} />,
+        action: () => {
+          if (role === 'Admin') onNavigate({ view: 'holidays' });
+          else if (role === 'Manager') onNavigate({ view: 'manager', tab: 'holidays' });
+          else onNavigate({ view: 'employee', tab: 'holidays' });
+        },
+        keywords: 'holidays calendar festival national public diwali eid republic'
+      },
+      {
+        id: 'chat',
+        title: 'Direct Messages & Chat',
+        desc: 'Direct communication with managers and team members',
+        category: 'Pages',
+        icon: <MessageSquare size={16} />,
+        action: () => {
+          if (role === 'Admin') onNavigate({ view: 'chat' });
+          else if (role === 'Manager') onNavigate({ view: 'manager', tab: 'chat' });
+          else onNavigate({ view: 'employee', tab: 'chat' });
+        },
+        keywords: 'chat direct messages messaging communication team discussion dm'
+      },
+      ...(role === 'Admin' || role === 'Manager' ? [{
+        id: 'directory',
+        title: role === 'Admin' ? 'Members & Governance Directory' : 'Team Members Directory',
+        desc: 'Manage staff, employee profiles, roles & credentials',
+        category: 'Pages',
+        icon: <Users size={16} />,
+        action: () => {
+          if (role === 'Admin') onNavigate({ view: 'employees' });
+          else onNavigate({ view: 'manager', tab: 'team' });
+        },
+        keywords: 'employees members directory staff managers profiles roster users'
+      }] : []),
+      {
+        id: 'profile',
+        title: 'Account Settings & Security',
+        desc: 'Profile information, password management & preferences',
+        category: 'Settings',
+        icon: <Settings size={16} />,
+        action: () => {
+          if (role === 'Admin') onNavigate({ view: 'admin' });
+          else if (role === 'Manager') onNavigate({ view: 'manager', tab: 'profile' });
+          else onNavigate({ view: 'employee', tab: 'profile' });
+        },
+        keywords: 'settings profile account password security email personal'
+      },
+      {
+        id: 'toggle-theme',
+        title: isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode',
+        desc: isDarkMode ? 'Activate clean daylight theme' : 'Activate eye-friendly dark workspace theme',
+        category: 'Actions',
+        icon: isDarkMode ? <Sun size={16} /> : <Moon size={16} />,
+        action: () => toggleTheme(),
+        keywords: 'theme dark light mode appearance color toggle night sun moon'
+      }
+    ];
+  }, [user, isDarkMode, onNavigate]);
+
+  const filteredSearchItems = useMemo(() => {
+    if (!searchQuery.trim()) {
+      return searchItems.slice(0, 6);
+    }
+    const q = searchQuery.toLowerCase().trim();
+    return searchItems.filter(
+      (item) =>
+        item.title.toLowerCase().includes(q) ||
+        item.desc.toLowerCase().includes(q) ||
+        item.category.toLowerCase().includes(q) ||
+        item.keywords.toLowerCase().includes(q)
+    );
+  }, [searchItems, searchQuery]);
+
+  const handleSelectSearchItem = (item) => {
+    item.action();
+    setSearchQuery('');
+    setSearchOpen(false);
+    searchInputRef.current?.blur();
+  };
 
   useEffect(() => {
     const handleKeyDown = (e) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
+        setSearchOpen(true);
         searchInputRef.current?.focus();
       }
     };
@@ -292,23 +478,100 @@ function AppLayout({
               <span className="breadcrumb-current">{breadcrumb.current}</span>
             </nav>
 
-            {/* Global Search Bar with ⌘K badge */}
-            <div className="topbar-search-wrap">
+            {/* Global Search Bar with ⌘K badge & interactive Command Palette */}
+            <div className="topbar-search-wrap" ref={searchWrapRef}>
               <Search size={15} className="search-icon" />
               <input
                 ref={searchInputRef}
                 type="text"
-                placeholder="Search..."
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setSearchOpen(true);
+                  setSelectedSearchIndex(0);
+                }}
+                onFocus={() => setSearchOpen(true)}
+                onKeyDown={(e) => {
+                  if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    setSelectedSearchIndex((prev) => (prev + 1) % (filteredSearchItems.length || 1));
+                  } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    setSelectedSearchIndex((prev) => (prev - 1 + (filteredSearchItems.length || 1)) % (filteredSearchItems.length || 1));
+                  } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (filteredSearchItems[selectedSearchIndex]) {
+                      handleSelectSearchItem(filteredSearchItems[selectedSearchIndex]);
+                    }
+                  } else if (e.key === 'Escape') {
+                    setSearchOpen(false);
+                    searchInputRef.current?.blur();
+                  }
+                }}
+                placeholder="Search pages, actions, modules..."
                 className="topbar-search-input"
                 aria-label="Search"
               />
-              <span
-                className="search-kbd-shortcut"
-                onClick={() => searchInputRef.current?.focus()}
-                title="Press Ctrl+K or ⌘K to search"
-              >
-                ⌘K
-              </span>
+              {searchQuery ? (
+                <button
+                  type="button"
+                  className="search-clear-btn"
+                  onClick={() => {
+                    setSearchQuery('');
+                    searchInputRef.current?.focus();
+                  }}
+                  title="Clear search"
+                >
+                  <X size={13} />
+                </button>
+              ) : (
+                <span
+                  className="search-kbd-shortcut"
+                  onClick={() => {
+                    setSearchOpen(true);
+                    searchInputRef.current?.focus();
+                  }}
+                  title="Press Ctrl+K or ⌘K to search"
+                >
+                  ⌘K
+                </span>
+              )}
+
+              {/* Command Palette Dropdown */}
+              {searchOpen && (
+                <div className="topbar-search-popover">
+                  <div className="popover-header-row">
+                    <span>{searchQuery ? `Matching Results (${filteredSearchItems.length})` : 'Quick Navigation & Shortcuts'}</span>
+                    <span>Taskflow Search</span>
+                  </div>
+                  <div className="popover-results-list">
+                    {filteredSearchItems.length === 0 ? (
+                      <div className="popover-empty">
+                        No matches found for "{searchQuery}". Try searching for tasks, projects, attendance, or settings.
+                      </div>
+                    ) : (
+                      filteredSearchItems.map((item, idx) => (
+                        <div
+                          key={item.id}
+                          className={`popover-item ${idx === selectedSearchIndex ? 'is-selected' : ''}`}
+                          onClick={() => handleSelectSearchItem(item)}
+                          onMouseEnter={() => setSelectedSearchIndex(idx)}
+                        >
+                          <div className="popover-item-icon">{item.icon}</div>
+                          <div className="popover-item-text">
+                            <div className="popover-item-title">{item.title}</div>
+                            <div className="popover-item-desc">{item.desc}</div>
+                          </div>
+                          <span className="popover-item-badge">{item.category}</span>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                  <div className="popover-footer">
+                    <span>↑↓ to navigate · ↵ to select · ESC to exit</span>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 

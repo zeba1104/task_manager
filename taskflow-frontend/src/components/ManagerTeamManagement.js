@@ -199,11 +199,15 @@ export default function ManagerTeamManagement({ manager }) {
     let list = teamData.employees || [];
 
     if (search.trim()) {
-      const q = search.toLowerCase();
+      const q = search.trim().toLowerCase();
       list = list.filter(e =>
         (e.name && e.name.toLowerCase().includes(q)) ||
         (e.employeeId && e.employeeId.toLowerCase().includes(q)) ||
-        (e.email && e.email.toLowerCase().includes(q))
+        (e.email && e.email.toLowerCase().includes(q)) ||
+        (e.designation && e.designation.toLowerCase().includes(q)) ||
+        (e.department && e.department.toLowerCase().includes(q)) ||
+        (e.team && e.team.toLowerCase().includes(q)) ||
+        (e.role && e.role.toLowerCase().includes(q))
       );
     }
 

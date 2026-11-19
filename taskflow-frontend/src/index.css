@@ -26572,5 +26572,480 @@ body.dark-theme .btn-history-pill:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
 }
 
+/* =========================================================================
+   5. UNIFIED ENTERPRISE SEARCH BAR SYSTEM & COMMAND PALETTE
+   ========================================================================= */
+
+/* All Search Wrappers Across Platform (Employee, Manager, Tasks, Projects, Chat, Topbar) */
+.employee-search,
+.topbar-search-wrap,
+.manager-search-box,
+.ann-search-wrap,
+.holiday-search-box,
+.chat-search-wrap,
+.filter-input-wrap,
+.task-search-wrap,
+.search-wrapper,
+.search-box,
+.search-bar {
+  display: flex !important;
+  align-items: center !important;
+  position: relative !important;
+  height: 42px !important;
+  min-height: 42px !important;
+  padding: 0 14px !important;
+  gap: 10px !important;
+  background: #f8fafc !important;
+  border: 1.5px solid #cbd5e1 !important;
+  border-radius: 10px !important;
+  color: #475569 !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03) !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-sizing: border-box !important;
+}
+
+.employee-search:hover,
+.topbar-search-wrap:hover,
+.manager-search-box:hover,
+.ann-search-wrap:hover,
+.holiday-search-box:hover,
+.chat-search-wrap:hover,
+.filter-input-wrap:hover,
+.task-search-wrap:hover,
+.search-wrapper:hover,
+.search-box:hover,
+.search-bar:hover {
+  border-color: #94a3b8 !important;
+  background: #ffffff !important;
+}
+
+.employee-search:focus-within,
+.topbar-search-wrap:focus-within,
+.manager-search-box:focus-within,
+.ann-search-wrap:focus-within,
+.holiday-search-box:focus-within,
+.chat-search-wrap:focus-within,
+.filter-input-wrap:focus-within,
+.task-search-wrap:focus-within,
+.search-wrapper:focus-within,
+.search-box:focus-within,
+.search-bar:focus-within {
+  border-color: #2563eb !important;
+  background: #ffffff !important;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.16), 0 2px 6px rgba(0, 0, 0, 0.04) !important;
+}
+
+/* Reset Inner Input inside Search Wrappers - completely eliminates double-box / nested box */
+.employee-search input,
+.topbar-search-wrap input,
+.manager-search-box input,
+.ann-search-wrap input,
+.holiday-search-box input,
+.chat-search-wrap input,
+.filter-input-wrap input,
+.task-search-wrap input,
+.search-wrapper input,
+.search-box input,
+.search-bar input {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  min-height: unset !important;
+  height: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  font-size: 13.5px !important;
+  font-weight: 500 !important;
+  color: #0f172a !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  flex: 1 1 auto !important;
+}
+
+/* Search Icons styling & interactive transition */
+.employee-search svg,
+.topbar-search-wrap svg.search-icon,
+.manager-search-box svg.search-icon,
+.ann-search-wrap svg.ann-search-icon,
+.holiday-search-box svg.search-icon,
+.chat-search-wrap svg,
+.filter-input-wrap svg.filter-icon,
+.task-search-wrap svg {
+  color: #64748b !important;
+  flex-shrink: 0 !important;
+  transition: color 0.18s ease, transform 0.18s ease !important;
+}
+
+.employee-search:focus-within svg,
+.topbar-search-wrap:focus-within svg.search-icon,
+.manager-search-box:focus-within svg.search-icon,
+.ann-search-wrap:focus-within svg.ann-search-icon,
+.holiday-search-box:focus-within svg.search-icon,
+.chat-search-wrap:focus-within svg,
+.filter-input-wrap:focus-within svg.filter-icon,
+.task-search-wrap:focus-within svg {
+  color: #2563eb !important;
+}
+
+/* Clear Buttons */
+.search-clear-btn,
+.filter-clear-btn,
+.clear-btn {
+  border: none !important;
+  background: transparent !important;
+  color: #94a3b8 !important;
+  padding: 4px !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 6px !important;
+  transition: all 0.18s ease !important;
+  flex-shrink: 0 !important;
+}
+
+.search-clear-btn:hover,
+.filter-clear-btn:hover,
+.clear-btn:hover {
+  background: #e2e8f0 !important;
+  color: #0f172a !important;
+  transform: scale(1.1) !important;
+}
+
+/* Dark Mode Search Bar Styles */
+[data-theme="dark"] .employee-search,
+body.dark-theme .employee-search,
+[data-theme="dark"] .topbar-search-wrap,
+body.dark-theme .topbar-search-wrap,
+[data-theme="dark"] .manager-search-box,
+body.dark-theme .manager-search-box,
+[data-theme="dark"] .ann-search-wrap,
+body.dark-theme .ann-search-wrap,
+[data-theme="dark"] .holiday-search-box,
+body.dark-theme .holiday-search-box,
+[data-theme="dark"] .chat-search-wrap,
+body.dark-theme .chat-search-wrap,
+[data-theme="dark"] .filter-input-wrap,
+body.dark-theme .filter-input-wrap,
+[data-theme="dark"] .task-search-wrap,
+body.dark-theme .task-search-wrap,
+[data-theme="dark"] .search-wrapper,
+body.dark-theme .search-wrapper,
+[data-theme="dark"] .search-box,
+body.dark-theme .search-box,
+[data-theme="dark"] .search-bar,
+body.dark-theme .search-bar {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #cbd5e1 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) !important;
+}
+
+[data-theme="dark"] .employee-search:hover,
+body.dark-theme .employee-search:hover,
+[data-theme="dark"] .topbar-search-wrap:hover,
+body.dark-theme .topbar-search-wrap:hover,
+[data-theme="dark"] .manager-search-box:hover,
+body.dark-theme .manager-search-box:hover,
+[data-theme="dark"] .ann-search-wrap:hover,
+body.dark-theme .ann-search-wrap:hover,
+[data-theme="dark"] .holiday-search-box:hover,
+body.dark-theme .holiday-search-box:hover,
+[data-theme="dark"] .chat-search-wrap:hover,
+body.dark-theme .chat-search-wrap:hover,
+[data-theme="dark"] .filter-input-wrap:hover,
+body.dark-theme .filter-input-wrap:hover,
+[data-theme="dark"] .task-search-wrap:hover,
+body.dark-theme .task-search-wrap:hover,
+[data-theme="dark"] .search-wrapper:hover,
+body.dark-theme .search-wrapper:hover,
+[data-theme="dark"] .search-box:hover,
+body.dark-theme .search-box:hover,
+[data-theme="dark"] .search-bar:hover,
+body.dark-theme .search-bar:hover {
+  border-color: #475569 !important;
+  background: #1e293b !important;
+}
+
+[data-theme="dark"] .employee-search:focus-within,
+body.dark-theme .employee-search:focus-within,
+[data-theme="dark"] .topbar-search-wrap:focus-within,
+body.dark-theme .topbar-search-wrap:focus-within,
+[data-theme="dark"] .manager-search-box:focus-within,
+body.dark-theme .manager-search-box:focus-within,
+[data-theme="dark"] .ann-search-wrap:focus-within,
+body.dark-theme .ann-search-wrap:focus-within,
+[data-theme="dark"] .holiday-search-box:focus-within,
+body.dark-theme .holiday-search-box:focus-within,
+[data-theme="dark"] .chat-search-wrap:focus-within,
+body.dark-theme .chat-search-wrap:focus-within,
+[data-theme="dark"] .filter-input-wrap:focus-within,
+body.dark-theme .filter-input-wrap:focus-within,
+[data-theme="dark"] .task-search-wrap:focus-within,
+body.dark-theme .task-search-wrap:focus-within,
+[data-theme="dark"] .search-wrapper:focus-within,
+body.dark-theme .search-wrapper:focus-within,
+[data-theme="dark"] .search-box:focus-within,
+body.dark-theme .search-box:focus-within,
+[data-theme="dark"] .search-bar:focus-within,
+body.dark-theme .search-bar:focus-within {
+  border-color: #60a5fa !important;
+  background: #0b1329 !important;
+  box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.22) !important;
+}
+
+[data-theme="dark"] .employee-search input,
+body.dark-theme .employee-search input,
+[data-theme="dark"] .topbar-search-wrap input,
+body.dark-theme .topbar-search-wrap input,
+[data-theme="dark"] .manager-search-box input,
+body.dark-theme .manager-search-box input,
+[data-theme="dark"] .ann-search-wrap input,
+body.dark-theme .ann-search-wrap input,
+[data-theme="dark"] .holiday-search-box input,
+body.dark-theme .holiday-search-box input,
+[data-theme="dark"] .chat-search-wrap input,
+body.dark-theme .chat-search-wrap input,
+[data-theme="dark"] .filter-input-wrap input,
+body.dark-theme .filter-input-wrap input,
+[data-theme="dark"] .task-search-wrap input,
+body.dark-theme .task-search-wrap input,
+[data-theme="dark"] .search-wrapper input,
+body.dark-theme .search-wrapper input,
+[data-theme="dark"] .search-box input,
+body.dark-theme .search-box input,
+[data-theme="dark"] .search-bar input,
+body.dark-theme .search-bar input {
+  color: #f8fafc !important;
+  background: transparent !important;
+}
+
+[data-theme="dark"] .employee-search svg,
+[data-theme="dark"] .topbar-search-wrap svg.search-icon,
+[data-theme="dark"] .manager-search-box svg.search-icon,
+[data-theme="dark"] .ann-search-wrap svg.ann-search-icon,
+[data-theme="dark"] .holiday-search-box svg.search-icon,
+[data-theme="dark"] .chat-search-wrap svg,
+[data-theme="dark"] .filter-input-wrap svg.filter-icon,
+[data-theme="dark"] .task-search-wrap svg {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .employee-search:focus-within svg,
+[data-theme="dark"] .topbar-search-wrap:focus-within svg.search-icon,
+[data-theme="dark"] .manager-search-box:focus-within svg.search-icon,
+[data-theme="dark"] .ann-search-wrap:focus-within svg.ann-search-icon,
+[data-theme="dark"] .holiday-search-box:focus-within svg.search-icon,
+[data-theme="dark"] .chat-search-wrap:focus-within svg,
+[data-theme="dark"] .filter-input-wrap:focus-within svg.filter-icon,
+[data-theme="dark"] .task-search-wrap:focus-within svg {
+  color: #60a5fa !important;
+}
+
+[data-theme="dark"] .search-clear-btn:hover,
+[data-theme="dark"] .filter-clear-btn:hover,
+[data-theme="dark"] .clear-btn:hover {
+  background: #334155 !important;
+  color: #f8fafc !important;
+}
+
+/* Global Topbar Search Command Popover */
+.topbar-search-popover {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 380px;
+  max-width: 90vw;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 12px 36px -4px rgba(15, 23, 42, 0.16), 0 4px 12px rgba(0, 0, 0, 0.06);
+  z-index: 1050;
+  overflow: hidden;
+  animation: popoverFadeIn 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes popoverFadeIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.popover-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px 6px 14px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.popover-results-list {
+  max-height: 320px;
+  overflow-y: auto;
+  padding: 6px;
+}
+
+.popover-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-decoration: none;
+  color: inherit;
+}
+
+.popover-item:hover,
+.popover-item.is-selected {
+  background: #eff6ff;
+  transform: translateX(2px);
+}
+
+.popover-item-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f1f5f9;
+  color: #2563eb;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.popover-item:hover .popover-item-icon,
+.popover-item.is-selected .popover-item-icon {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.popover-item-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.popover-item-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.popover-item:hover .popover-item-title {
+  color: #1d4ed8;
+}
+
+.popover-item-desc {
+  font-size: 11.5px;
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.popover-item-badge {
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 5px;
+  background: #f1f5f9;
+  color: #475569;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.popover-empty {
+  padding: 24px 16px;
+  text-align: center;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.popover-footer {
+  padding: 8px 14px;
+  background: #f8fafc;
+  border-top: 1px solid #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+/* Dark mode for popover */
+[data-theme="dark"] .topbar-search-popover,
+body.dark-theme .topbar-search-popover {
+  background: #0f172a;
+  border-color: #334155;
+  box-shadow: 0 16px 40px -4px rgba(0, 0, 0, 0.6);
+}
+
+[data-theme="dark"] .popover-header-row,
+body.dark-theme .popover-header-row {
+  color: #94a3b8;
+  border-bottom-color: #1e293b;
+}
+
+[data-theme="dark"] .popover-item:hover,
+body.dark-theme .popover-item:hover,
+[data-theme="dark"] .popover-item.is-selected,
+body.dark-theme .popover-item.is-selected {
+  background: #1e293b;
+}
+
+[data-theme="dark"] .popover-item-icon,
+body.dark-theme .popover-item-icon {
+  background: #1e293b;
+  color: #60a5fa;
+}
+
+[data-theme="dark"] .popover-item:hover .popover-item-icon,
+body.dark-theme .popover-item:hover .popover-item-icon,
+[data-theme="dark"] .popover-item.is-selected .popover-item-icon,
+body.dark-theme .popover-item.is-selected .popover-item-icon {
+  background: #3b82f6;
+  color: #ffffff;
+}
+
+[data-theme="dark"] .popover-item-title,
+body.dark-theme .popover-item-title {
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .popover-item:hover .popover-item-title,
+body.dark-theme .popover-item:hover .popover-item-title {
+  color: #93c5fd;
+}
+
+[data-theme="dark"] .popover-item-desc,
+body.dark-theme .popover-item-desc {
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .popover-item-badge,
+body.dark-theme .popover-item-badge {
+  background: #1e293b;
+  color: #cbd5e1;
+}
+
+[data-theme="dark"] .popover-footer,
+body.dark-theme .popover-footer {
+  background: #0b1329;
+  border-top-color: #1e293b;
+  color: #64748b;
+}
+
+
 
 

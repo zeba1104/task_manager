@@ -699,7 +699,11 @@ function EmployeeManager({ fetchEmployees, setView, tasks = [], initialShowForm 
             user.employeeId,
             user.designation,
             user.department,
-            user.team
+            user.team,
+            user.role,
+            user.phone,
+            user.employmentType,
+            ...(Array.isArray(user.teams) ? user.teams : [])
         ];
         return pool.some((v) => String(v || '').toLowerCase().includes(normalizedSearch));
     }, [normalizedSearch]);
@@ -898,6 +902,20 @@ function EmployeeManager({ fetchEmployees, setView, tasks = [], initialShowForm 
                         }}
                         placeholder={`Search ${activeDirectoryTab} by name, ID, email, or role...`}
                     />
+                    {search && (
+                        <button
+                            type="button"
+                            className="clear-btn"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                setSearch('');
+                                setCurrentPage(1);
+                            }}
+                            title="Clear search"
+                        >
+                            <X size={14} />
+                        </button>
+                    )}
                 </label>
 
                 {/* Department filter */}

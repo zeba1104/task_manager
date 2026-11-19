@@ -18,7 +18,7 @@ import AppLayout from '../components/AppLayout';
 import HolidayCalendar from '../components/HolidayCalendar';
 import Swal from '../utils/swalConfig';
 import { getProjects } from '../api/adminApi';
-import { Calendar } from 'lucide-react';
+import { Calendar, Search, X } from 'lucide-react';
 
 const boardColumns = [
   { status: 'pending', title: 'To Do' },
@@ -174,7 +174,16 @@ function Dashboard() {
   let displayTasks = tasks;
   
   if (categoryFilter) {
-      displayTasks = displayTasks.filter(t => t.category?.toLowerCase().includes(categoryFilter.toLowerCase()));
+      const q = categoryFilter.trim().toLowerCase();
+      displayTasks = displayTasks.filter(t =>
+        (t.title && t.title.toLowerCase().includes(q)) ||
+        (t.description && t.description.toLowerCase().includes(q)) ||
+        (t.project && t.project.toLowerCase().includes(q)) ||
+        (t.category && t.category.toLowerCase().includes(q)) ||
+        (t.priority && t.priority.toLowerCase().includes(q)) ||
+        (t.status && t.status.toLowerCase().includes(q)) ||
+        (t.user?.name && t.user.name.toLowerCase().includes(q))
+      );
   }
   
   if (user?.role === 'Admin' || user?.role === 'Manager') {
@@ -269,7 +278,26 @@ function Dashboard() {
 
       <div className="task-toolbar">
         <div className="filters">
-          <input type="text" placeholder="Filter by category" value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)} />
+          <div className="task-search-wrap">
+            <Search size={15} />
+            <input
+              type="text"
+              placeholder="Search tasks by title, project, or category..."
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+              aria-label="Search tasks"
+            />
+            {categoryFilter && (
+              <button
+                type="button"
+                className="clear-btn"
+                onClick={() => setCategoryFilter('')}
+                title="Clear task search"
+              >
+                <X size={13} />
+              </button>
+            )}
+          </div>
           {(user?.role === 'Admin' || user?.role === 'Manager') && (
             <button className="btn-ghost btn-small" onClick={() => setShowFilters(!showFilters)}>
               {showFilters ? 'Hide Advanced Filters' : 'Advanced Filters'}
