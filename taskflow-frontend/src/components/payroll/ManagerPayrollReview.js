@@ -174,7 +174,7 @@ export default function ManagerPayrollReview({ user }) {
         <div className="payroll-hero-top">
           <span className="payroll-hero-badge">
             <ShieldCheck size={14} />
-            HIERARCHICAL REPORTING MANAGER REVIEW
+            MANAGER GOVERNANCE &amp; ATTENDANCE AUDIT
           </span>
           <span className="payroll-hero-period-pill">
             <Sparkles size={12} color="#a5b4fc" style={{ marginRight: '4px' }} />

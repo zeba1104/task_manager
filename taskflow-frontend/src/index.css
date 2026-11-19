@@ -25276,13 +25276,13 @@ label span.text-danger {
 }
 
 /* Universal Text Inputs, Numbers, Dates, Password fields across all forms */
-input[type="text"]:not(.topbar-search-input):not(.employee-search input):not(.task-search-wrap input):not(.search-box input):not(.manager-search-box input):not(.ann-search-wrap input):not(.holiday-search-box input):not(.chat-search-wrap input),
+input[type="text"]:not(.topbar-search-input):not(.employee-search input):not(.task-search-wrap input):not(.search-box input):not(.manager-search-box input):not(.ann-search-wrap input):not(.holiday-search-box input):not(.chat-search-wrap input):not(.payroll-search-input-wrap input),
 input[type="email"],
 input[type="password"],
 input[type="number"],
 input[type="date"],
 input[type="datetime-local"],
-input[type="search"]:not(.topbar-search-input):not(.employee-search input):not(.task-search-wrap input):not(.search-box input):not(.manager-search-box input):not(.ann-search-wrap input):not(.holiday-search-box input):not(.chat-search-wrap input),
+input[type="search"]:not(.topbar-search-input):not(.employee-search input):not(.task-search-wrap input):not(.search-box input):not(.manager-search-box input):not(.ann-search-wrap input):not(.holiday-search-box input):not(.chat-search-wrap input):not(.payroll-search-input-wrap input),
 .form-control,
 .form-group input,
 .task-form-row input,
@@ -25318,13 +25318,13 @@ textarea::placeholder,
 }
 
 /* Input Hover State (Light Mode) */
-input[type="text"]:not(.topbar-search-input):not(.employee-search input):not(.task-search-wrap input):not(.search-box input):not(.manager-search-box input):not(.ann-search-wrap input):not(.holiday-search-box input):not(.chat-search-wrap input):hover,
+input[type="text"]:not(.topbar-search-input):not(.employee-search input):not(.task-search-wrap input):not(.search-box input):not(.manager-search-box input):not(.ann-search-wrap input):not(.holiday-search-box input):not(.chat-search-wrap input):not(.payroll-search-input-wrap input):hover,
 input[type="email"]:hover,
 input[type="password"]:hover,
 input[type="number"]:hover,
 input[type="date"]:hover,
 input[type="datetime-local"]:hover,
-input[type="search"]:not(.topbar-search-input):not(.employee-search input):not(.task-search-wrap input):not(.search-box input):not(.manager-search-box input):not(.ann-search-wrap input):not(.holiday-search-box input):not(.chat-search-wrap input):hover,
+input[type="search"]:not(.topbar-search-input):not(.employee-search input):not(.task-search-wrap input):not(.search-box input):not(.manager-search-box input):not(.ann-search-wrap input):not(.holiday-search-box input):not(.chat-search-wrap input):not(.payroll-search-input-wrap input):hover,
 .form-control:hover,
 .form-group input:hover,
 .task-form-row input:hover,
@@ -25338,13 +25338,13 @@ input[type="search"]:not(.topbar-search-input):not(.employee-search input):not(.
 }
 
 /* Input Focused State (Light Mode) */
-input[type="text"]:not(.topbar-search-input):not(.employee-search input):not(.task-search-wrap input):not(.search-box input):not(.manager-search-box input):not(.ann-search-wrap input):not(.holiday-search-box input):not(.chat-search-wrap input):focus,
+input[type="text"]:not(.topbar-search-input):not(.employee-search input):not(.task-search-wrap input):not(.search-box input):not(.manager-search-box input):not(.ann-search-wrap input):not(.holiday-search-box input):not(.chat-search-wrap input):not(.payroll-search-input-wrap input):focus,
 input[type="email"]:focus,
 input[type="password"]:focus,
 input[type="number"]:focus,
 input[type="date"]:focus,
 input[type="datetime-local"]:focus,
-input[type="search"]:not(.topbar-search-input):not(.employee-search input):not(.task-search-wrap input):not(.search-box input):not(.manager-search-box input):not(.ann-search-wrap input):not(.holiday-search-box input):not(.chat-search-wrap input):focus,
+input[type="search"]:not(.topbar-search-input):not(.employee-search input):not(.task-search-wrap input):not(.search-box input):not(.manager-search-box input):not(.ann-search-wrap input):not(.holiday-search-box input):not(.chat-search-wrap input):not(.payroll-search-input-wrap input):focus,
 .form-control:focus,
 .form-group input:focus,
 .task-form-row input:focus,
@@ -25360,8 +25360,8 @@ input[type="search"]:not(.topbar-search-input):not(.employee-search input):not(.
 }
 
 /* Dark Mode Universal Text Inputs */
-[data-theme="dark"] input[type="text"]:not(.topbar-search-input):not(.employee-search input):not(.task-search-wrap input):not(.search-box input):not(.manager-search-box input):not(.ann-search-wrap input):not(.holiday-search-box input):not(.chat-search-wrap input),
-body.dark-theme input[type="text"]:not(.topbar-search-input):not(.employee-search input):not(.task-search-wrap input):not(.search-box input):not(.manager-search-box input):not(.ann-search-wrap input):not(.holiday-search-box input):not(.chat-search-wrap input),
+[data-theme="dark"] input[type="text"]:not(.topbar-search-input):not(.employee-search input):not(.task-search-wrap input):not(.search-box input):not(.manager-search-box input):not(.ann-search-wrap input):not(.holiday-search-box input):not(.chat-search-wrap input):not(.payroll-search-input-wrap input),
+body.dark-theme input[type="text"]:not(.topbar-search-input):not(.employee-search input):not(.task-search-wrap input):not(.search-box input):not(.manager-search-box input):not(.ann-search-wrap input):not(.holiday-search-box input):not(.chat-search-wrap input):not(.payroll-search-input-wrap input),
 [data-theme="dark"] input[type="email"],
 body.dark-theme input[type="email"],
 [data-theme="dark"] input[type="password"],
