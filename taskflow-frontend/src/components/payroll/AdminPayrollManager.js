@@ -12,7 +12,9 @@ import {
   Search,
   HelpCircle,
   Check,
-  X
+  X,
+  Calendar,
+  Building2
 } from 'lucide-react';
 import {
   getAllPayrolls,
@@ -366,62 +368,71 @@ export default function AdminPayrollManager({ user }) {
         </button>
       </div>
 
-      {/* 2. Page Header & Date / Actions */}
-      <div className="payroll-header-row">
-        <div className="payroll-header-info">
-          <div className="payroll-title-icon-box">
-            <CreditCard size={24} />
-          </div>
-          <div>
-            <h1 className="payroll-main-title">Salary &amp; Payroll Management</h1>
-            <p className="payroll-subtitle">
+      {/* 2. Page Header Hero Banner (Matching the signature midnight theme) */}
+      <div className="payroll-hero-banner">
+        <div className="payroll-hero-top">
+          <span className="payroll-hero-badge">
+            <Building2 size={14} /> ADMIN OPERATIONS &amp; PAYROLL DISBURSEMENT
+          </span>
+          <span className="payroll-hero-period-pill">
+            <Calendar size={13} /> {MONTH_NAMES[selectedMonth - 1]} {selectedYear}
+          </span>
+        </div>
+
+        <div className="payroll-hero-body">
+          <div className="payroll-hero-text">
+            <h1 className="payroll-hero-title">Salary &amp; Payroll Management</h1>
+            <p className="payroll-hero-subtitle">
               Admin Operations Control • Configure structures, review attendance deductions, and execute RazorpayX payouts.
             </p>
           </div>
-        </div>
 
-        {/* Toolbar Controls */}
-        <div className="payroll-controls-bar">
-          <select
-            value={selectedMonth}
-            onChange={(e) => setSelectedMonth(Number(e.target.value))}
-            className="payroll-select"
-          >
-            {MONTH_NAMES.map((m, idx) => (
-              <option key={idx} value={idx + 1}>{m}</option>
-            ))}
-          </select>
+          <div className="payroll-hero-actions">
+            <div className="hero-selectors-wrap">
+              <select
+                value={selectedMonth}
+                onChange={(e) => setSelectedMonth(Number(e.target.value))}
+                className="hero-select"
+              >
+                {MONTH_NAMES.map((m, idx) => (
+                  <option key={idx} value={idx + 1}>{m}</option>
+                ))}
+              </select>
 
-          <select
-            value={selectedYear}
-            onChange={(e) => setSelectedYear(Number(e.target.value))}
-            className="payroll-select"
-          >
-            {[2025, 2026, 2027].map((yr) => (
-              <option key={yr} value={yr}>{yr}</option>
-            ))}
-          </select>
+              <select
+                value={selectedYear}
+                onChange={(e) => setSelectedYear(Number(e.target.value))}
+                className="hero-select"
+              >
+                {[2025, 2026, 2027].map((yr) => (
+                  <option key={yr} value={yr}>{yr}</option>
+                ))}
+              </select>
+            </div>
 
-          <button
-            type="button"
-            onClick={handleGenerate}
-            disabled={loading}
-            className="btn-generate-payroll"
-          >
-            <RefreshCw size={14} className={loading ? 'spinning' : ''} />
-            <span>Generate Payroll</span>
-          </button>
+            <button
+              type="button"
+              onClick={handleGenerate}
+              disabled={loading}
+              className="btn-hero-approve"
+              style={{ background: '#4f46e5', borderColor: 'rgba(255, 255, 255, 0.25)' }}
+            >
+              <RefreshCw size={14} className={loading ? 'spinning' : ''} />
+              <span>Generate Payroll</span>
+            </button>
 
-          <button
-            type="button"
-            onClick={handleBatchPayout}
-            disabled={loading || (kpis?.readyForPaymentCount || 0) === 0}
-            className="btn-batch-payout"
-            title="Execute payouts for all Ready for Payment records"
-          >
-            <Send size={14} />
-            <span>Batch Payout ({kpis?.readyForPaymentCount || 0})</span>
-          </button>
+            <button
+              type="button"
+              onClick={handleBatchPayout}
+              disabled={loading || (kpis?.readyForPaymentCount || 0) === 0}
+              className="btn-hero-approve"
+              style={{ background: '#10b981', borderColor: 'rgba(255, 255, 255, 0.25)' }}
+              title="Execute payouts for all Ready for Payment records"
+            >
+              <Send size={14} />
+              <span>Batch Payout ({kpis?.readyForPaymentCount || 0})</span>
+            </button>
+          </div>
         </div>
       </div>
 

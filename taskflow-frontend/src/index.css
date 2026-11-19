@@ -12704,11 +12704,26 @@ body.dark-theme .act-pill-btn.active {
   align-items: center;
   flex-wrap: wrap;
   gap: 16px;
-  background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
+  background: linear-gradient(135deg, #1e1b4b 0%, #312e81 40%, #0f172a 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
   border-radius: 18px;
   padding: 24px 28px;
   color: #ffffff;
-  box-shadow: 0 4px 16px rgba(79, 70, 229, 0.2);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 12px 32px rgba(30, 27, 75, 0.35) !important;
+}
+
+.manager-leave-hero::before {
+  content: '';
+  position: absolute;
+  top: -60px;
+  right: -60px;
+  width: 260px;
+  height: 260px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.22) 0%, transparent 70%);
+  pointer-events: none;
 }
 
 .hero-badge-pill {
@@ -12717,8 +12732,9 @@ body.dark-theme .act-pill-btn.active {
   gap: 6px;
   padding: 3px 10px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.2);
-  color: #ffffff;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #e0e7ff;
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
