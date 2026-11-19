@@ -3154,25 +3154,33 @@ body.dark-theme .swal2-cancel.btn-ghost:hover {
 
 .minimal-btn {
   width: 100%;
-  padding: 14px;
-  background: #111827;
+  padding: 13px 20px;
+  background: #2563eb;
   color: #ffffff;
-  border: none;
+  border: 1px solid #1d4ed8;
   border-radius: 10px;
-  font-size: 15px;
+  font-size: 14.5px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
   margin-top: 10px;
+  box-shadow: 0 3px 10px rgba(37, 99, 235, 0.25);
 }
 
 .minimal-btn:hover {
-  background: #374151;
-  transform: translateY(-1px);
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+  border-color: #1e40af;
+  transform: translateY(-2.5px) scale(1.01);
+  box-shadow: 0 10px 24px -4px rgba(37, 99, 235, 0.45);
 }
 
 .minimal-btn:active {
-  transform: translateY(0);
+  transform: translateY(1px) scale(0.98);
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
 }
 
 .minimal-footer {
@@ -25847,5 +25855,722 @@ body.dark-theme .leave-empty-state p {
 [data-theme="dark"] .modern-task-form .task-form-header-bar p {
   color: #94a3b8;
 }
+
+/* =========================================================================
+   4. INTERACTIVE FORM SYSTEM & COMPREHENSIVE BUTTON HOVER EFFECTS
+   ========================================================================= */
+
+/* Interactive Label Focus Highlight */
+.form-group:focus-within > label,
+.form-field-group:focus-within > label,
+.form-group-field:focus-within > label,
+.docs-field:focus-within > label,
+label:focus-within {
+  color: #2563eb !important;
+  transition: color 0.18s ease !important;
+}
+
+[data-theme="dark"] .form-group:focus-within > label,
+[data-theme="dark"] .form-field-group:focus-within > label,
+[data-theme="dark"] .form-group-field:focus-within > label,
+[data-theme="dark"] .docs-field:focus-within > label,
+[data-theme="dark"] label:focus-within {
+  color: #60a5fa !important;
+}
+
+/* Interactive Input Hover & Focus Enhancements Across All Forms */
+input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+textarea,
+select {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease !important;
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):hover:not(:disabled),
+textarea:hover:not(:disabled),
+select:hover:not(:disabled) {
+  border-color: #94a3b8 !important;
+}
+
+[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):hover:not(:disabled),
+[data-theme="dark"] textarea:hover:not(:disabled),
+[data-theme="dark"] select:hover:not(:disabled) {
+  border-color: #64748b !important;
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):focus,
+textarea:focus,
+select:focus {
+  border-color: #2563eb !important;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.16) !important;
+  background-color: #ffffff !important;
+  outline: none !important;
+}
+
+[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):focus,
+[data-theme="dark"] textarea:focus,
+[data-theme="dark"] select:focus {
+  border-color: #60a5fa !important;
+  box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.22) !important;
+  background-color: #0f172a !important;
+  outline: none !important;
+}
+
+/* Custom Interactive File Inputs Across All Forms */
+input[type="file"] {
+  padding: 8px 12px !important;
+  background: #f8fafc !important;
+  border: 1.5px dashed #cbd5e1 !important;
+  border-radius: 10px !important;
+  cursor: pointer !important;
+  font-size: 12.5px !important;
+  color: #475569 !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+input[type="file"]:hover {
+  border-color: #2563eb !important;
+  background: #eff6ff !important;
+  color: #1d4ed8 !important;
+  transform: translateY(-1.5px) !important;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1) !important;
+}
+
+input[type="file"]::file-selector-button {
+  padding: 6px 14px !important;
+  border-radius: 7px !important;
+  border: 1px solid #1d4ed8 !important;
+  background: #2563eb !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  font-size: 12px !important;
+  cursor: pointer !important;
+  margin-right: 12px !important;
+  transition: all 0.2s ease !important;
+  box-shadow: 0 1px 3px rgba(37, 99, 235, 0.25) !important;
+}
+
+input[type="file"]::file-selector-button:hover {
+  background: #1d4ed8 !important;
+  transform: scale(1.02) !important;
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.35) !important;
+}
+
+[data-theme="dark"] input[type="file"] {
+  background: #0b1329 !important;
+  border-color: #334155 !important;
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] input[type="file"]:hover {
+  border-color: #60a5fa !important;
+  background: rgba(59, 130, 246, 0.12) !important;
+  color: #93c5fd !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4) !important;
+}
+
+[data-theme="dark"] input[type="file"]::file-selector-button {
+  background: #3b82f6 !important;
+  border-color: #2563eb !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] input[type="file"]::file-selector-button:hover {
+  background: #60a5fa !important;
+}
+
+/* Form Section Blocks */
+.form-section-block {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 18px 20px;
+  margin-bottom: 18px;
+  transition: all 0.2s ease;
+}
+
+.form-section-block:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+.form-section-block .section-title {
+  font-family: var(--font-heading);
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 14px 0;
+  letter-spacing: -0.01em;
+}
+
+[data-theme="dark"] .form-section-block {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+}
+
+[data-theme="dark"] .form-section-block:hover {
+  border-color: #475569 !important;
+}
+
+[data-theme="dark"] .form-section-block .section-title {
+  color: #f8fafc !important;
+}
+
+/* Interactive Routing & Notice Banners in Forms */
+.emp-routing-preview-banner,
+.manager-apply-notice {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-left: 4px solid #2563eb;
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  color: #1e40af;
+}
+
+[data-theme="dark"] .emp-routing-preview-banner,
+[data-theme="dark"] .manager-apply-notice {
+  background: rgba(37, 99, 235, 0.12) !important;
+  border-color: rgba(37, 99, 235, 0.3) !important;
+  border-left-color: #60a5fa !important;
+  color: #93c5fd !important;
+}
+
+/* Universal Button Hover Effects Across Every Form & Modal */
+button[type="submit"],
+.btn-submit,
+.btn-save,
+.btn-create,
+.btn-primary,
+.btn-publish,
+.btn-publish-ann,
+.btn-upload-submit,
+.btn-post-comment,
+.btn-add-milestone,
+.btn-request-chat,
+.btn-chat-send,
+.btn-resume-chat,
+.btn-rerequest-chat,
+.btn-rerequest-pill,
+.action-pill-primary,
+.action-pill-accent,
+.dept-create-btn,
+.btn-card-action.primary {
+  background: #2563eb !important;
+  color: #ffffff !important;
+  border: 1px solid #1d4ed8 !important;
+  border-radius: 10px !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  padding: 9px 18px !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  position: relative !important;
+  overflow: hidden !important;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25) !important;
+}
+
+button[type="submit"]:hover,
+.btn-submit:hover,
+.btn-save:hover,
+.btn-create:hover,
+.btn-primary:hover,
+.btn-publish:hover,
+.btn-publish-ann:hover,
+.btn-upload-submit:hover,
+.btn-post-comment:hover,
+.btn-add-milestone:hover,
+.btn-request-chat:hover,
+.btn-chat-send:hover,
+.btn-resume-chat:hover,
+.btn-rerequest-chat:hover,
+.btn-rerequest-pill:hover,
+.action-pill-primary:hover,
+.action-pill-accent:hover,
+.dept-create-btn:hover,
+.btn-card-action.primary:hover {
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%) !important;
+  border-color: #1e40af !important;
+  transform: translateY(-2.8px) scale(1.015) !important;
+  box-shadow: 0 10px 25px -4px rgba(37, 99, 235, 0.45), 0 4px 10px -2px rgba(37, 99, 235, 0.25) !important;
+}
+
+button[type="submit"]:active,
+.btn-submit:active,
+.btn-save:active,
+.btn-create:active,
+.btn-primary:active,
+.btn-publish:active,
+.btn-publish-ann:active,
+.btn-upload-submit:active,
+.btn-post-comment:active,
+.btn-add-milestone:active,
+.btn-request-chat:active,
+.btn-chat-send:active,
+.btn-resume-chat:active,
+.btn-rerequest-chat:active,
+.btn-rerequest-pill:active,
+.action-pill-primary:active,
+.action-pill-accent:active,
+.dept-create-btn:active,
+.btn-card-action.primary:active {
+  transform: translateY(1px) scale(0.975) !important;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3) !important;
+  transition-duration: 0.08s !important;
+}
+
+/* Ghost & Cancel Buttons Hover Effects */
+button[type="button"].btn-ghost,
+button.btn-cancel,
+.btn-ghost,
+.btn-cancel,
+.btn-secondary,
+.btn-card-action,
+.action-pill-default,
+.action-pill-btn,
+.dept-btn,
+.filter-clear-btn,
+.filter-reset-link,
+.filter-pill-btn,
+.filter-reset-pill,
+.btn-clear-file,
+.btn-remove-selected,
+.btn-conclude-chat,
+.btn-history-resume,
+.attendance-refresh-btn,
+.proj-action-btn {
+  background: #ffffff !important;
+  color: #334155 !important;
+  border: 1.5px solid #e2e8f0 !important;
+  border-radius: 10px !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  padding: 9px 18px !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03) !important;
+}
+
+button[type="button"].btn-ghost:hover:not(:disabled),
+button.btn-cancel:hover,
+.btn-ghost:hover:not(:disabled),
+.btn-cancel:hover,
+.btn-secondary:hover,
+.btn-card-action:hover,
+.action-pill-default:hover,
+.action-pill-btn:hover,
+.dept-btn:hover,
+.filter-clear-btn:hover,
+.filter-reset-link:hover,
+.filter-pill-btn:hover,
+.filter-reset-pill:hover,
+.btn-clear-file:hover,
+.btn-remove-selected:hover,
+.btn-conclude-chat:hover,
+.btn-history-resume:hover,
+.attendance-refresh-btn:hover,
+.proj-action-btn:hover {
+  background: #eff6ff !important;
+  color: #1d4ed8 !important;
+  border-color: #2563eb !important;
+  transform: translateY(-2.5px) scale(1.01) !important;
+  box-shadow: 0 8px 20px -3px rgba(37, 99, 235, 0.2), 0 2px 6px rgba(0, 0, 0, 0.04) !important;
+}
+
+button[type="button"].btn-ghost:active:not(:disabled),
+button.btn-cancel:active,
+.btn-ghost:active:not(:disabled),
+.btn-cancel:active,
+.btn-secondary:active,
+.btn-card-action:active,
+.action-pill-default:active,
+.action-pill-btn:active,
+.dept-btn:active,
+.filter-clear-btn:active,
+.filter-reset-link:active,
+.filter-pill-btn:active,
+.filter-reset-pill:active,
+.btn-clear-file:active,
+.btn-remove-selected:active,
+.btn-conclude-chat:active,
+.btn-history-resume:active,
+.attendance-refresh-btn:active,
+.proj-action-btn:active {
+  transform: translateY(1px) scale(0.975) !important;
+  transition-duration: 0.08s !important;
+}
+
+/* Danger Buttons (Reject, Delete, Clock Out) Hover Effects */
+.btn-danger,
+.btn-delete,
+.btn-leave-reject,
+.leave-reject,
+.btn-clock-out,
+.btn-delete-ann,
+.milestone-delete-btn,
+.btn-doc-delete,
+.btn-reject-chat,
+.icon-btn.danger {
+  background: #ef4444 !important;
+  color: #ffffff !important;
+  border: 1px solid #dc2626 !important;
+  border-radius: 10px !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  padding: 9px 18px !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.25) !important;
+}
+
+.btn-danger:hover,
+.btn-delete:hover,
+.btn-leave-reject:hover,
+.leave-reject:hover,
+.btn-clock-out:hover,
+.btn-delete-ann:hover,
+.milestone-delete-btn:hover,
+.btn-doc-delete:hover,
+.btn-reject-chat:hover,
+.icon-btn.danger:hover {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
+  border-color: #b91c1c !important;
+  transform: translateY(-2.5px) scale(1.015) !important;
+  box-shadow: 0 10px 24px -3px rgba(239, 68, 68, 0.45) !important;
+}
+
+.btn-danger:active,
+.btn-delete:active,
+.btn-leave-reject:active,
+.leave-reject:active,
+.btn-clock-out:active,
+.btn-delete-ann:active,
+.milestone-delete-btn:active,
+.btn-doc-delete:active,
+.btn-reject-chat:active,
+.icon-btn.danger:active {
+  transform: translateY(1px) scale(0.975) !important;
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.3) !important;
+  transition-duration: 0.08s !important;
+}
+
+/* Success Buttons (Approve, Clock In) Hover Effects */
+.btn-leave-approve,
+.leave-approve,
+.btn-clock-in,
+.btn-approve-chat {
+  background: #10b981 !important;
+  color: #ffffff !important;
+  border: 1px solid #059669 !important;
+  border-radius: 10px !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  padding: 9px 18px !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.25) !important;
+}
+
+.btn-leave-approve:hover,
+.leave-approve:hover,
+.btn-clock-in:hover,
+.btn-approve-chat:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+  border-color: #047857 !important;
+  transform: translateY(-2.5px) scale(1.015) !important;
+  box-shadow: 0 10px 24px -3px rgba(16, 185, 129, 0.45) !important;
+}
+
+.btn-leave-approve:active,
+.leave-approve:active,
+.btn-clock-in:active,
+.btn-approve-chat:active {
+  transform: translateY(1px) scale(0.975) !important;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3) !important;
+  transition-duration: 0.08s !important;
+}
+
+/* Admin Override Button Hover Effect */
+.btn-leave-override {
+  background: #8b5cf6 !important;
+  color: #ffffff !important;
+  border: 1px solid #7c3aed !important;
+  border-radius: 10px !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  padding: 9px 16px !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-shadow: 0 2px 6px rgba(139, 92, 246, 0.25) !important;
+}
+
+.btn-leave-override:hover {
+  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%) !important;
+  border-color: #6d28d9 !important;
+  transform: translateY(-2.5px) scale(1.015) !important;
+  box-shadow: 0 10px 24px -3px rgba(139, 92, 246, 0.45) !important;
+}
+
+.btn-leave-override:active {
+  transform: translateY(1px) scale(0.975) !important;
+  box-shadow: 0 2px 6px rgba(139, 92, 246, 0.3) !important;
+  transition-duration: 0.08s !important;
+}
+
+/* Icon Buttons Hover Effects */
+.icon-btn,
+.close-modal-icon-btn,
+.proj-close-btn,
+.modal-close-btn {
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  border-radius: 8px !important;
+  padding: 6px !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #64748b !important;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.icon-btn:hover,
+.close-modal-icon-btn:hover,
+.proj-close-btn:hover,
+.modal-close-btn:hover {
+  background: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+  transform: translateY(-1.5px) scale(1.06) !important;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06) !important;
+}
+
+.icon-btn:active,
+.close-modal-icon-btn:active,
+.proj-close-btn:active,
+.modal-close-btn:active {
+  transform: scale(0.95) !important;
+}
+
+/* Inline Auto-Generate Button */
+.inline-generate-btn {
+  background: #eff6ff !important;
+  border: 1px solid #bfdbfe !important;
+  border-radius: 6px !important;
+  color: #2563eb !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  padding: 2px 8px !important;
+  transition: all 0.2s ease !important;
+  text-decoration: none !important;
+}
+
+.inline-generate-btn:hover {
+  background: #2563eb !important;
+  color: #ffffff !important;
+  border-color: #1d4ed8 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25) !important;
+}
+
+.inline-generate-btn:active {
+  transform: scale(0.96) !important;
+}
+
+/* Audit History Pill Button Hover Effect */
+.btn-history-pill {
+  background: #f1f5f9 !important;
+  color: #475569 !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  font-size: 12px !important;
+  padding: 6px 12px !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  transition: all 0.2s ease !important;
+}
+
+.btn-history-pill:hover {
+  background: #e2e8f0 !important;
+  color: #0f172a !important;
+  border-color: #94a3b8 !important;
+  transform: translateY(-1.5px) !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Dark Mode Hover Overrides for All Buttons */
+[data-theme="dark"] button[type="button"].btn-ghost,
+body.dark-theme button[type="button"].btn-ghost,
+[data-theme="dark"] button.btn-cancel,
+body.dark-theme button.btn-cancel,
+[data-theme="dark"] .btn-ghost,
+body.dark-theme .btn-ghost,
+[data-theme="dark"] .btn-cancel,
+body.dark-theme .btn-cancel,
+[data-theme="dark"] .btn-secondary,
+body.dark-theme .btn-secondary,
+[data-theme="dark"] .btn-card-action,
+body.dark-theme .btn-card-action,
+[data-theme="dark"] .action-pill-default,
+body.dark-theme .action-pill-default,
+[data-theme="dark"] .action-pill-btn,
+body.dark-theme .action-pill-btn,
+[data-theme="dark"] .dept-btn,
+body.dark-theme .dept-btn,
+[data-theme="dark"] .filter-clear-btn,
+body.dark-theme .filter-clear-btn,
+[data-theme="dark"] .filter-reset-link,
+body.dark-theme .filter-reset-link,
+[data-theme="dark"] .filter-pill-btn,
+body.dark-theme .filter-pill-btn,
+[data-theme="dark"] .filter-reset-pill,
+body.dark-theme .filter-reset-pill,
+[data-theme="dark"] .btn-clear-file,
+body.dark-theme .btn-clear-file,
+[data-theme="dark"] .btn-remove-selected,
+body.dark-theme .btn-remove-selected,
+[data-theme="dark"] .btn-conclude-chat,
+body.dark-theme .btn-conclude-chat,
+[data-theme="dark"] .btn-history-resume,
+body.dark-theme .btn-history-resume,
+[data-theme="dark"] .attendance-refresh-btn,
+body.dark-theme .attendance-refresh-btn,
+[data-theme="dark"] .proj-action-btn,
+body.dark-theme .proj-action-btn {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] button[type="button"].btn-ghost:hover:not(:disabled),
+body.dark-theme button[type="button"].btn-ghost:hover:not(:disabled),
+[data-theme="dark"] button.btn-cancel:hover,
+body.dark-theme button.btn-cancel:hover,
+[data-theme="dark"] .btn-ghost:hover:not(:disabled),
+body.dark-theme .btn-ghost:hover:not(:disabled),
+[data-theme="dark"] .btn-cancel:hover,
+body.dark-theme .btn-cancel:hover,
+[data-theme="dark"] .btn-secondary:hover,
+body.dark-theme .btn-secondary:hover,
+[data-theme="dark"] .btn-card-action:hover,
+body.dark-theme .btn-card-action:hover,
+[data-theme="dark"] .action-pill-default:hover,
+body.dark-theme .action-pill-default:hover,
+[data-theme="dark"] .action-pill-btn:hover,
+body.dark-theme .action-pill-btn:hover,
+[data-theme="dark"] .dept-btn:hover,
+body.dark-theme .dept-btn:hover,
+[data-theme="dark"] .filter-clear-btn:hover,
+body.dark-theme .filter-clear-btn:hover,
+[data-theme="dark"] .filter-reset-link:hover,
+body.dark-theme .filter-reset-link:hover,
+[data-theme="dark"] .filter-pill-btn:hover,
+body.dark-theme .filter-pill-btn:hover,
+[data-theme="dark"] .filter-reset-pill:hover,
+body.dark-theme .filter-reset-pill:hover,
+[data-theme="dark"] .btn-clear-file:hover,
+body.dark-theme .btn-clear-file:hover,
+[data-theme="dark"] .btn-remove-selected:hover,
+body.dark-theme .btn-remove-selected:hover,
+[data-theme="dark"] .btn-conclude-chat:hover,
+body.dark-theme .btn-conclude-chat:hover,
+[data-theme="dark"] .btn-history-resume:hover,
+body.dark-theme .btn-history-resume:hover,
+[data-theme="dark"] .attendance-refresh-btn:hover,
+body.dark-theme .attendance-refresh-btn:hover,
+[data-theme="dark"] .proj-action-btn:hover,
+body.dark-theme .proj-action-btn:hover {
+  background: #253348 !important;
+  border-color: #60a5fa !important;
+  color: #93c5fd !important;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4) !important;
+}
+
+[data-theme="dark"] .icon-btn,
+body.dark-theme .icon-btn,
+[data-theme="dark"] .close-modal-icon-btn,
+body.dark-theme .close-modal-icon-btn,
+[data-theme="dark"] .proj-close-btn,
+body.dark-theme .proj-close-btn,
+[data-theme="dark"] .modal-close-btn,
+body.dark-theme .modal-close-btn {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .icon-btn:hover,
+body.dark-theme .icon-btn:hover,
+[data-theme="dark"] .close-modal-icon-btn:hover,
+body.dark-theme .close-modal-icon-btn:hover,
+[data-theme="dark"] .proj-close-btn:hover,
+body.dark-theme .proj-close-btn:hover,
+[data-theme="dark"] .modal-close-btn:hover,
+body.dark-theme .modal-close-btn:hover {
+  background: #1e293b !important;
+  border-color: #475569 !important;
+  color: #60a5fa !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+}
+
+[data-theme="dark"] .inline-generate-btn,
+body.dark-theme .inline-generate-btn {
+  background: rgba(37, 99, 235, 0.15) !important;
+  border-color: rgba(96, 165, 250, 0.3) !important;
+  color: #93c5fd !important;
+}
+
+[data-theme="dark"] .inline-generate-btn:hover,
+body.dark-theme .inline-generate-btn:hover {
+  background: #2563eb !important;
+  color: #ffffff !important;
+  border-color: #60a5fa !important;
+}
+
+[data-theme="dark"] .btn-history-pill,
+body.dark-theme .btn-history-pill {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .btn-history-pill:hover,
+body.dark-theme .btn-history-pill:hover {
+  background: #1e293b !important;
+  border-color: #60a5fa !important;
+  color: #f8fafc !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
 
 
