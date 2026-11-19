@@ -32,6 +32,8 @@ import {
   Layers,
   UserCheck,
   CheckSquare,
+  Clock,
+  TrendingUp,
   Paperclip,
   UploadCloud,
   Trash2,
@@ -480,29 +482,25 @@ function AdminDashboard({ tasks, employees, user, logout, setView, onAddEmployee
     document.body.removeChild(link);
   };
 
-  const StatCard = ({ label, value, color, onClick }) => (
+  const StatCard = ({ icon: Icon, label, value, colorClass, subtitle, onClick }) => (
     <div
+      className={`dashboard-stat-card ${onClick ? 'is-clickable' : ''}`}
       onClick={onClick}
-      style={{
-        background: 'var(--bg-card, #ffffff)',
-        border: '1px solid var(--border-color, rgba(0,0,0,0.06))',
-        borderRadius: '12px',
-        padding: '24px 28px',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        boxShadow: 'var(--card-shadow, 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 10px 15px -3px rgba(0, 0, 0, 0.1))',
-        position: 'relative',
-        overflow: 'hidden',
-        cursor: onClick ? 'pointer' : 'default',
-        transition: 'all 0.18s ease',
-      }}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={onClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); } } : undefined}
     >
-      <div style={{
-        position: 'absolute', top: 0, left: 0, width: '4px', height: '100%', background: color
-      }} />
-      <span style={{ fontFamily: 'Inter', fontSize: '36px', fontWeight: 700, color: 'var(--text-primary, #111827)', lineHeight: 1 }}>{value}</span>
-      <span style={{ fontSize: '13px', color: 'var(--text-muted, #6b7280)', marginTop: '10px', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 600 }}>{label}</span>
+      <div className="stat-card-header">
+        <div className={`stat-icon-bubble ${colorClass}`}>
+          <Icon size={20} strokeWidth={2.2} />
+        </div>
+        {onClick && <span className="stat-card-arrow" title="View details">→</span>}
+      </div>
+      <div className="stat-card-content">
+        <span className="stat-card-value">{value ?? 0}</span>
+        <span className="stat-card-label">{label}</span>
+        {subtitle && <span className="stat-card-subtitle">{subtitle}</span>}
+      </div>
     </div>
   );
 
@@ -522,32 +520,50 @@ function AdminDashboard({ tasks, employees, user, logout, setView, onAddEmployee
 
       {/* Top Stat Cards - Grid */}
       <div className="admin-stat-grid">
-        <StatCard label="Total Employees" value={stats.totalEmployees} color="#6366f1" />
-        <StatCard label="Total Managers" value={stats.totalManagers} color="#8b5cf6" />
-        <StatCard label="Departments" value={stats.totalDepartments} color="#0f766e" />
-        <StatCard label="Teams" value={stats.totalTeams} color="#0891b2" />
-        <StatCard label="Active Projects" value={stats.activeProjects} color="#c2410c" />
-        <StatCard label="Total Tasks" value={stats.totalTasks} color="#3b82f6" onClick={() => setView('tasks')} />
-        <StatCard label="Completed Tasks" value={stats.completedTasks} color="#10b981" onClick={() => setView('tasks')} />
-        <StatCard label="Pending Tasks" value={stats.pendingTasks} color="#f59e0b" onClick={() => setView('tasks')} />
-        <StatCard label="In Progress" value={stats.inProgressTasks} color="#0ea5e9" onClick={() => setView('tasks')} />
-        <StatCard label="Overdue Tasks" value={stats.overdueTasks} color="#f43f5e" onClick={() => setView('tasks')} />
+        <StatCard icon={Users} label="Total Employees" value={stats.totalEmployees} colorClass="bubble-indigo" subtitle="Registered staff" />
+        <StatCard icon={ShieldCheck} label="Total Managers" value={stats.totalManagers} colorClass="bubble-purple" subtitle="Department leads" />
+        <StatCard icon={Building2} label="Departments" value={stats.totalDepartments} colorClass="bubble-teal" subtitle="Active divisions" onClick={() => setView('admin-departments')} />
+        <StatCard icon={Layers} label="Teams" value={stats.totalTeams} colorClass="bubble-cyan" subtitle="Working squads" />
+        <StatCard icon={Briefcase} label="Active Projects" value={stats.activeProjects} colorClass="bubble-orange" subtitle="In delivery" onClick={() => setView('tasks')} />
+        <StatCard icon={CheckSquare} label="Total Tasks" value={stats.totalTasks} colorClass="bubble-blue" subtitle="All task items" onClick={() => setView('tasks')} />
+        <StatCard icon={CheckCircle2} label="Completed Tasks" value={stats.completedTasks} colorClass="bubble-emerald" subtitle="Done & delivered" onClick={() => setView('tasks')} />
+        <StatCard icon={Clock} label="Pending Tasks" value={stats.pendingTasks} colorClass="bubble-amber" subtitle="To do backlog" onClick={() => setView('tasks')} />
+        <StatCard icon={TrendingUp} label="In Progress" value={stats.inProgressTasks} colorClass="bubble-sky" subtitle="Active working" onClick={() => setView('tasks')} />
+        <StatCard icon={AlertTriangle} label="Overdue Tasks" value={stats.overdueTasks} colorClass="bubble-rose" subtitle="Requires attention" onClick={() => setView('tasks')} />
       </div>
 
       {overviewError && <p className="error-text" role="alert">{overviewError}</p>}
 
-      <section className="admin-quick-actions" aria-label="Admin quick actions">
-        <div>
+      <section className="dashboard-quick-actions-bar" aria-label="Admin quick actions">
+        <div className="quick-actions-info">
           <h3>Quick actions</h3>
           <p>Manage your organization from one place.</p>
         </div>
-        <div className="admin-quick-action-buttons">
-          <button type="button" className="btn-primary btn-small" onClick={() => onAddEmployee('Employee')}><UserPlus size={16} />Add Employee</button>
-          <button type="button" className="btn-primary btn-small add-mgr-btn" onClick={() => onAddEmployee('Manager')} style={{ background: 'linear-gradient(135deg, #6366f1, #4f46e5)', borderColor: '#4f46e5' }}><ShieldCheck size={16} />Add Manager</button>
-          <button type="button" className="btn-ghost btn-small" onClick={() => openAction('department')}><Building2 size={16} />Create department</button>
-          <button type="button" className="btn-ghost btn-small" onClick={() => openAction('project')}><FolderPlus size={16} />Create project</button>
-          <button type="button" className="btn-ghost btn-small" onClick={() => openProjectDocModal()}><Paperclip size={16} />Project documents</button>
-          <button type="button" className="btn-ghost btn-small" onClick={() => openAction('announcement')}><Megaphone size={16} />Publish announcement</button>
+        <div className="quick-actions-list">
+          <button type="button" className="action-pill-btn action-pill-primary" onClick={() => onAddEmployee('Employee')}>
+            <UserPlus size={15} />
+            <span>Add Employee</span>
+          </button>
+          <button type="button" className="action-pill-btn action-pill-accent" onClick={() => onAddEmployee('Manager')}>
+            <ShieldCheck size={15} />
+            <span>Add Manager</span>
+          </button>
+          <button type="button" className="action-pill-btn action-pill-default" onClick={() => openAction('department')}>
+            <Building2 size={15} />
+            <span>Create department</span>
+          </button>
+          <button type="button" className="action-pill-btn action-pill-default" onClick={() => openAction('project')}>
+            <FolderPlus size={15} />
+            <span>Create project</span>
+          </button>
+          <button type="button" className="action-pill-btn action-pill-default" onClick={() => openProjectDocModal()}>
+            <Paperclip size={15} />
+            <span>Project documents</span>
+          </button>
+          <button type="button" className="action-pill-btn action-pill-default" onClick={() => openAction('announcement')}>
+            <Megaphone size={15} />
+            <span>Publish announcement</span>
+          </button>
         </div>
       </section>
 

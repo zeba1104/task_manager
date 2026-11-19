@@ -29,6 +29,10 @@ import {
   Bell,
   Activity,
   MessageSquare,
+  Layers,
+  Briefcase,
+  CheckSquare,
+  TrendingUp,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import axios from '../api/axios';
@@ -969,15 +973,117 @@ function ManagerDashboard({ user, logout, setView, activeTab, onTabChange }) {
             );
           })()}
 
+          {/* Top Stat Cards - Grid */}
           <div className="manager-stat-grid">
-            <div><strong>{totals.employees || 0}</strong><span>Assigned employees</span></div>
-            <div><strong>{totals.teams || 0}</strong><span>Teams</span></div>
-            <div><strong>{totals.projects || 0}</strong><span>Assigned projects</span></div>
-            <div style={{ cursor: 'pointer' }} onClick={() => setView('tasks')} title="View Task Management Board"><strong>{totals.tasks || 0}</strong><span>Assigned tasks</span></div>
-            <div style={{ cursor: 'pointer' }} onClick={() => setView('tasks')} title="View Task Management Board"><strong>{taskStats.pendingTasks || 0}</strong><span>Pending</span></div>
-            <div style={{ cursor: 'pointer' }} onClick={() => setView('tasks')} title="View Task Management Board"><strong>{taskStats.inProgressTasks || 0}</strong><span>In progress</span></div>
-            <div style={{ cursor: 'pointer' }} onClick={() => setView('tasks')} title="View Task Management Board"><strong>{taskStats.completedTasks || 0}</strong><span>Completed</span></div>
-            <div style={{ cursor: 'pointer' }} onClick={() => setView('tasks')} title="View Task Management Board"><strong>{taskStats.overdueTasks || 0}</strong><span>Overdue</span></div>
+            <div className="dashboard-stat-card">
+              <div className="stat-card-header">
+                <div className="stat-icon-bubble bubble-indigo">
+                  <Users size={20} strokeWidth={2.2} />
+                </div>
+              </div>
+              <div className="stat-card-content">
+                <span className="stat-card-value">{totals.employees || 0}</span>
+                <span className="stat-card-label">Assigned employees</span>
+                <span className="stat-card-subtitle">Team members</span>
+              </div>
+            </div>
+
+            <div className="dashboard-stat-card">
+              <div className="stat-card-header">
+                <div className="stat-icon-bubble bubble-cyan">
+                  <Layers size={20} strokeWidth={2.2} />
+                </div>
+              </div>
+              <div className="stat-card-content">
+                <span className="stat-card-value">{totals.teams || 0}</span>
+                <span className="stat-card-label">Teams</span>
+                <span className="stat-card-subtitle">Managed squads</span>
+              </div>
+            </div>
+
+            <div className="dashboard-stat-card is-clickable" onClick={() => setView('tasks')} role="button" tabIndex={0} title="View Projects">
+              <div className="stat-card-header">
+                <div className="stat-icon-bubble bubble-orange">
+                  <Briefcase size={20} strokeWidth={2.2} />
+                </div>
+                <span className="stat-card-arrow" title="View details">→</span>
+              </div>
+              <div className="stat-card-content">
+                <span className="stat-card-value">{totals.projects || 0}</span>
+                <span className="stat-card-label">Assigned projects</span>
+                <span className="stat-card-subtitle">Active projects</span>
+              </div>
+            </div>
+
+            <div className="dashboard-stat-card is-clickable" onClick={() => setView('tasks')} role="button" tabIndex={0} title="View Task Management Board">
+              <div className="stat-card-header">
+                <div className="stat-icon-bubble bubble-blue">
+                  <CheckSquare size={20} strokeWidth={2.2} />
+                </div>
+                <span className="stat-card-arrow" title="View tasks">→</span>
+              </div>
+              <div className="stat-card-content">
+                <span className="stat-card-value">{totals.tasks || 0}</span>
+                <span className="stat-card-label">Assigned tasks</span>
+                <span className="stat-card-subtitle">Across all teams</span>
+              </div>
+            </div>
+
+            <div className="dashboard-stat-card is-clickable" onClick={() => setView('tasks')} role="button" tabIndex={0} title="View Task Management Board">
+              <div className="stat-card-header">
+                <div className="stat-icon-bubble bubble-amber">
+                  <Clock size={20} strokeWidth={2.2} />
+                </div>
+                <span className="stat-card-arrow" title="View tasks">→</span>
+              </div>
+              <div className="stat-card-content">
+                <span className="stat-card-value">{taskStats.pendingTasks || 0}</span>
+                <span className="stat-card-label">Pending</span>
+                <span className="stat-card-subtitle">To do backlog</span>
+              </div>
+            </div>
+
+            <div className="dashboard-stat-card is-clickable" onClick={() => setView('tasks')} role="button" tabIndex={0} title="View Task Management Board">
+              <div className="stat-card-header">
+                <div className="stat-icon-bubble bubble-sky">
+                  <TrendingUp size={20} strokeWidth={2.2} />
+                </div>
+                <span className="stat-card-arrow" title="View tasks">→</span>
+              </div>
+              <div className="stat-card-content">
+                <span className="stat-card-value">{taskStats.inProgressTasks || 0}</span>
+                <span className="stat-card-label">In progress</span>
+                <span className="stat-card-subtitle">Being worked on</span>
+              </div>
+            </div>
+
+            <div className="dashboard-stat-card is-clickable" onClick={() => setView('tasks')} role="button" tabIndex={0} title="View Task Management Board">
+              <div className="stat-card-header">
+                <div className="stat-icon-bubble bubble-emerald">
+                  <CheckCircle2 size={20} strokeWidth={2.2} />
+                </div>
+                <span className="stat-card-arrow" title="View tasks">→</span>
+              </div>
+              <div className="stat-card-content">
+                <span className="stat-card-value">{taskStats.completedTasks || 0}</span>
+                <span className="stat-card-label">Completed</span>
+                <span className="stat-card-subtitle">Successfully done</span>
+              </div>
+            </div>
+
+            <div className="dashboard-stat-card is-clickable" onClick={() => setView('tasks')} role="button" tabIndex={0} title="View Task Management Board">
+              <div className="stat-card-header">
+                <div className="stat-icon-bubble bubble-rose">
+                  <AlertTriangle size={20} strokeWidth={2.2} />
+                </div>
+                <span className="stat-card-arrow" title="View tasks">→</span>
+              </div>
+              <div className="stat-card-content">
+                <span className="stat-card-value">{taskStats.overdueTasks || 0}</span>
+                <span className="stat-card-label">Overdue</span>
+                <span className="stat-card-subtitle">Needs attention</span>
+              </div>
+            </div>
           </div>
 
           <section className="manager-attendance-summary">
@@ -993,13 +1099,53 @@ function ManagerDashboard({ user, logout, setView, activeTab, onTabChange }) {
             </div>
           </section>
 
-          <section className="manager-quick-actions">
-            <button className="btn-primary btn-small" onClick={() => { setEditingTask(null); setAction(''); setTaskFormOpen(true); }}>
-              <ClipboardList size={15} /> Assign task
-            </button>
-            <button className="btn-ghost btn-small" onClick={() => setAction('project')}>
-              <FolderPlus size={15} /> Create project
-            </button>
+          <section className="dashboard-quick-actions-bar" aria-label="Manager quick actions">
+            <div className="quick-actions-info">
+              <h3>Quick actions</h3>
+              <p>Team management and workflow shortcuts.</p>
+            </div>
+            <div className="quick-actions-list">
+              <button
+                type="button"
+                className="action-pill-btn action-pill-primary"
+                onClick={() => { setEditingTask(null); setAction(''); setTaskFormOpen(true); }}
+              >
+                <ClipboardList size={15} />
+                <span>Assign task</span>
+              </button>
+              <button
+                type="button"
+                className="action-pill-btn action-pill-default"
+                onClick={() => setAction('project')}
+              >
+                <FolderPlus size={15} />
+                <span>Create project</span>
+              </button>
+              <button
+                type="button"
+                className="action-pill-btn action-pill-default"
+                onClick={() => setView('tasks')}
+              >
+                <CheckSquare size={15} />
+                <span>Task Board</span>
+              </button>
+              <button
+                type="button"
+                className="action-pill-btn action-pill-default"
+                onClick={() => setView('attendance')}
+              >
+                <Clock size={15} />
+                <span>Team Attendance</span>
+              </button>
+              <button
+                type="button"
+                className="action-pill-btn action-pill-default"
+                onClick={() => setView('announcements')}
+              >
+                <Megaphone size={15} />
+                <span>Announcements</span>
+              </button>
+            </div>
           </section>
 
           {taskFormOpen && (

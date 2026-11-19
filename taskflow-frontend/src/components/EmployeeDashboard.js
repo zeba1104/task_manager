@@ -75,6 +75,7 @@ import {
   Layers,
   UserCheck,
   FileUp,
+  CheckSquare,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -1127,39 +1128,167 @@ export default function EmployeeDashboard({ user, logout, setView, activeTab, on
 
           {/* Workload KPIs Grid */}
           <div className="manager-stat-grid employee-stat-grid">
-            <div className="stat-card">
-              <strong>{stats.totalProjects || 0}</strong>
-              <span>Assigned Projects</span>
+            <div className="dashboard-stat-card is-clickable" onClick={() => setView && setView('tasks')} role="button" tabIndex={0} title="View Projects">
+              <div className="stat-card-header">
+                <div className="stat-icon-bubble bubble-orange">
+                  <Briefcase size={20} strokeWidth={2.2} />
+                </div>
+                <span className="stat-card-arrow" title="View details">→</span>
+              </div>
+              <div className="stat-card-content">
+                <span className="stat-card-value">{stats.totalProjects || 0}</span>
+                <span className="stat-card-label">Assigned Projects</span>
+                <span className="stat-card-subtitle">Active assignments</span>
+              </div>
             </div>
-            <div className="stat-card" style={{ cursor: 'pointer' }} onClick={() => setView && setView('tasks')} title="View Task Management Board">
-              <strong>{stats.totalTasks || 0}</strong>
-              <span>Total Tasks</span>
+
+            <div className="dashboard-stat-card is-clickable" onClick={() => setView && setView('tasks')} role="button" tabIndex={0} title="View Task Management Board">
+              <div className="stat-card-header">
+                <div className="stat-icon-bubble bubble-blue">
+                  <CheckSquare size={20} strokeWidth={2.2} />
+                </div>
+                <span className="stat-card-arrow" title="View tasks">→</span>
+              </div>
+              <div className="stat-card-content">
+                <span className="stat-card-value">{stats.totalTasks || 0}</span>
+                <span className="stat-card-label">Total Tasks</span>
+                <span className="stat-card-subtitle">Assigned to you</span>
+              </div>
             </div>
-            <div className="stat-card" style={{ cursor: 'pointer' }} onClick={() => setView && setView('tasks')} title="View Task Management Board">
-              <strong className="text-amber">{stats.pendingTasks || 0}</strong>
-              <span>To Do (Pending)</span>
+
+            <div className="dashboard-stat-card is-clickable" onClick={() => setView && setView('tasks')} role="button" tabIndex={0} title="View Task Management Board">
+              <div className="stat-card-header">
+                <div className="stat-icon-bubble bubble-amber">
+                  <Clock size={20} strokeWidth={2.2} />
+                </div>
+                <span className="stat-card-arrow" title="View tasks">→</span>
+              </div>
+              <div className="stat-card-content">
+                <span className="stat-card-value">{stats.pendingTasks || 0}</span>
+                <span className="stat-card-label">To Do (Pending)</span>
+                <span className="stat-card-subtitle">Awaiting start</span>
+              </div>
             </div>
-            <div className="stat-card" style={{ cursor: 'pointer' }} onClick={() => setView && setView('tasks')} title="View Task Management Board">
-              <strong className="text-blue">{stats.inProgressTasks || 0}</strong>
-              <span>In Progress</span>
+
+            <div className="dashboard-stat-card is-clickable" onClick={() => setView && setView('tasks')} role="button" tabIndex={0} title="View Task Management Board">
+              <div className="stat-card-header">
+                <div className="stat-icon-bubble bubble-sky">
+                  <TrendingUp size={20} strokeWidth={2.2} />
+                </div>
+                <span className="stat-card-arrow" title="View tasks">→</span>
+              </div>
+              <div className="stat-card-content">
+                <span className="stat-card-value">{stats.inProgressTasks || 0}</span>
+                <span className="stat-card-label">In Progress</span>
+                <span className="stat-card-subtitle">Currently working</span>
+              </div>
             </div>
-            <div className="stat-card" style={{ cursor: 'pointer' }} onClick={() => setView && setView('tasks')} title="View Task Management Board">
-              <strong className="text-purple">{stats.inReviewTasks || 0}</strong>
-              <span>Under Review</span>
+
+            <div className="dashboard-stat-card is-clickable" onClick={() => setView && setView('tasks')} role="button" tabIndex={0} title="View Task Management Board">
+              <div className="stat-card-header">
+                <div className="stat-icon-bubble bubble-purple">
+                  <UserCheck size={20} strokeWidth={2.2} />
+                </div>
+                <span className="stat-card-arrow" title="View tasks">→</span>
+              </div>
+              <div className="stat-card-content">
+                <span className="stat-card-value">{stats.inReviewTasks || 0}</span>
+                <span className="stat-card-label">Under Review</span>
+                <span className="stat-card-subtitle">Pending approval</span>
+              </div>
             </div>
-            <div className="stat-card" style={{ cursor: 'pointer' }} onClick={() => setView && setView('tasks')} title="View Task Management Board">
-              <strong className="text-emerald">{stats.completedTasks || 0}</strong>
-              <span>Completed</span>
+
+            <div className="dashboard-stat-card is-clickable" onClick={() => setView && setView('tasks')} role="button" tabIndex={0} title="View Task Management Board">
+              <div className="stat-card-header">
+                <div className="stat-icon-bubble bubble-emerald">
+                  <CheckCircle2 size={20} strokeWidth={2.2} />
+                </div>
+                <span className="stat-card-arrow" title="View tasks">→</span>
+              </div>
+              <div className="stat-card-content">
+                <span className="stat-card-value">{stats.completedTasks || 0}</span>
+                <span className="stat-card-label">Completed</span>
+                <span className="stat-card-subtitle">Verified done</span>
+              </div>
             </div>
-            <div className="stat-card highlight-overdue" style={{ cursor: 'pointer' }} onClick={() => setView && setView('tasks')} title="View Task Management Board">
-              <strong className={stats.overdueTasks > 0 ? 'text-red' : ''}>{stats.overdueTasks || 0}</strong>
-              <span>Overdue Tasks</span>
+
+            <div className="dashboard-stat-card is-clickable" onClick={() => setView && setView('tasks')} role="button" tabIndex={0} title="View Task Management Board">
+              <div className="stat-card-header">
+                <div className="stat-icon-bubble bubble-rose">
+                  <AlertTriangle size={20} strokeWidth={2.2} />
+                </div>
+                <span className="stat-card-arrow" title="View tasks">→</span>
+              </div>
+              <div className="stat-card-content">
+                <span className="stat-card-value">{stats.overdueTasks || 0}</span>
+                <span className="stat-card-label">Overdue Tasks</span>
+                <span className="stat-card-subtitle">Requires attention</span>
+              </div>
             </div>
-            <div className="stat-card">
-              <strong className="text-emerald">{stats.completionRate || 0}%</strong>
-              <span>Completion Rate</span>
+
+            <div className="dashboard-stat-card">
+              <div className="stat-card-header">
+                <div className="stat-icon-bubble bubble-teal">
+                  <Target size={20} strokeWidth={2.2} />
+                </div>
+              </div>
+              <div className="stat-card-content">
+                <span className="stat-card-value">{stats.completionRate || 0}%</span>
+                <span className="stat-card-label">Completion Rate</span>
+                <span className="stat-card-subtitle">Overall efficiency</span>
+              </div>
             </div>
           </div>
+
+          {/* Quick Actions Bar */}
+          <section className="dashboard-quick-actions-bar" aria-label="Employee quick actions">
+            <div className="quick-actions-info">
+              <h3>Quick actions</h3>
+              <p>Your daily workflow shortcuts.</p>
+            </div>
+            <div className="quick-actions-list">
+              <button
+                type="button"
+                className="action-pill-btn action-pill-primary"
+                onClick={() => setView && setView('tasks')}
+              >
+                <CheckSquare size={15} />
+                <span>Task Board</span>
+              </button>
+              <button
+                type="button"
+                className="action-pill-btn action-pill-default"
+                onClick={() => setView && setView('attendance')}
+              >
+                <Clock size={15} />
+                <span>My Attendance</span>
+              </button>
+              <button
+                type="button"
+                className="action-pill-btn action-pill-default"
+                onClick={openApplyLeaveModal}
+              >
+                <CalendarDays size={15} />
+                <span>Apply Leave</span>
+              </button>
+              <button
+                type="button"
+                className="action-pill-btn action-pill-default"
+                onClick={() => setView && setView('holidays')}
+              >
+                <Palmtree size={15} />
+                <span>Holidays</span>
+              </button>
+              <button
+                type="button"
+                className="action-pill-btn action-pill-default"
+                onClick={() => setView && setView('announcements')}
+              >
+                <Megaphone size={15} />
+                <span>Announcements</span>
+              </button>
+            </div>
+          </section>
 
           {/* 2-Column Dashboard Grid */}
           <div className="employee-columns-grid">
