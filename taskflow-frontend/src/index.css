@@ -23320,3 +23320,404 @@ body.dark-theme .action-pill-default:hover {
   border-color: #475569 !important;
   color: #ffffff !important;
 }
+
+
+/* ==========================================================================
+   Admin Leave Management & Dark Mode Overrides
+   ========================================================================== */
+
+/* Full Width Panel across grid */
+.admin-full-width-panel {
+  grid-column: 1 / -1 !important;
+  width: 100% !important;
+}
+
+/* Leave Management Section in Dark Mode */
+[data-theme="dark"] .admin-leave-mgmt-section,
+body.dark-theme .admin-leave-mgmt-section {
+  background: #1e293b !important;
+  border: 1px solid #334155 !important;
+}
+
+[data-theme="dark"] .leave-mgmt-title h3,
+body.dark-theme .leave-mgmt-title h3 {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .leave-mgmt-title p,
+body.dark-theme .leave-mgmt-title p {
+  color: #94a3b8 !important;
+}
+
+/* Leave Filter Buttons in Dark Mode */
+[data-theme="dark"] .leave-filter-btn,
+body.dark-theme .leave-filter-btn {
+  background: #0f172a !important;
+  border: 1px solid #334155 !important;
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .leave-filter-btn:hover:not(.active),
+body.dark-theme .leave-filter-btn:hover:not(.active) {
+  background: #1e293b !important;
+  border-color: #475569 !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .leave-filter-btn.active,
+body.dark-theme .leave-filter-btn.active {
+  background: #3b82f6 !important;
+  border-color: #3b82f6 !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .leave-filter-count,
+body.dark-theme .leave-filter-count {
+  background: #334155 !important;
+  color: #e2e8f0 !important;
+}
+
+[data-theme="dark"] .leave-filter-btn.active .leave-filter-count,
+body.dark-theme .leave-filter-btn.active .leave-filter-count {
+  background: rgba(255, 255, 255, 0.25) !important;
+  color: #ffffff !important;
+}
+
+/* Leave Card in Dark Mode */
+[data-theme="dark"] .admin-leave-card,
+body.dark-theme .admin-leave-card {
+  background: #1e293b !important;
+  border: 1px solid #334155 !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.25) !important;
+}
+
+[data-theme="dark"] .admin-leave-card:hover,
+body.dark-theme .admin-leave-card:hover {
+  border-color: #475569 !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Requester Line in Dark Mode */
+[data-theme="dark"] .requester-name-line strong,
+body.dark-theme .requester-name-line strong {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .requester-sub-line,
+body.dark-theme .requester-sub-line {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .requester-sub-line b,
+body.dark-theme .requester-sub-line b {
+  color: #cbd5e1 !important;
+}
+
+/* Leave Type Badge */
+[data-theme="dark"] .leave-type-pill,
+body.dark-theme .leave-type-pill {
+  background: #0f172a !important;
+  border: 1px solid #334155 !important;
+  color: #cbd5e1 !important;
+}
+
+/* Routing Notices */
+[data-theme="dark"] .leave-forwarded-notice,
+body.dark-theme .leave-forwarded-notice {
+  background: rgba(245, 158, 11, 0.12) !important;
+  border: 1px solid rgba(245, 158, 11, 0.28) !important;
+  color: #fcd34d !important;
+}
+
+[data-theme="dark"] .leave-manager-req-notice,
+body.dark-theme .leave-manager-req-notice {
+  background: rgba(139, 92, 246, 0.12) !important;
+  border: 1px solid rgba(139, 92, 246, 0.28) !important;
+  color: #c4b5fd !important;
+}
+
+/* Leave Details Grid in Dark Mode */
+[data-theme="dark"] .leave-details-grid,
+body.dark-theme .leave-details-grid {
+  background: #0f172a !important;
+  border: 1px solid #334155 !important;
+}
+
+[data-theme="dark"] .detail-label,
+body.dark-theme .detail-label {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .detail-val,
+body.dark-theme .detail-val,
+[data-theme="dark"] .detail-val b,
+body.dark-theme .detail-val b {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .detail-val-dates,
+body.dark-theme .detail-val-dates {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .detail-val-dates strong,
+body.dark-theme .detail-val-dates strong {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .days-badge,
+body.dark-theme .days-badge {
+  background: #334155 !important;
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .approver-role-sub,
+body.dark-theme .approver-role-sub {
+  color: #94a3b8 !important;
+}
+
+/* CRITICAL: Leave Reason & Rejection Boxes in Dark Mode */
+[data-theme="dark"] .leave-reason-box,
+body.dark-theme .leave-reason-box {
+  background: #0f172a !important;
+  border: 1px solid #334155 !important;
+  border-left: 3px solid #818cf8 !important;
+}
+
+[data-theme="dark"] .leave-reason-box .reason-label,
+body.dark-theme .leave-reason-box .reason-label {
+  color: #818cf8 !important;
+}
+
+[data-theme="dark"] .leave-reason-box .reason-text,
+body.dark-theme .leave-reason-box .reason-text,
+[data-theme="dark"] .leave-reason-box p,
+body.dark-theme .leave-reason-box p {
+  color: #e2e8f0 !important;
+}
+
+[data-theme="dark"] .leave-rejection-box,
+body.dark-theme .leave-rejection-box {
+  background: rgba(239, 68, 68, 0.12) !important;
+  border: 1px solid rgba(239, 68, 68, 0.28) !important;
+  border-left: 3px solid #ef4444 !important;
+  color: #fca5a5 !important;
+}
+
+[data-theme="dark"] .leave-rejection-box .rejection-label,
+body.dark-theme .leave-rejection-box .rejection-label {
+  color: #f87171 !important;
+}
+
+[data-theme="dark"] .leave-rejection-box .rejection-text,
+body.dark-theme .leave-rejection-box .rejection-text,
+[data-theme="dark"] .leave-rejection-box p,
+body.dark-theme .leave-rejection-box p {
+  color: #fca5a5 !important;
+}
+
+/* Supporting Document in Dark Mode */
+[data-theme="dark"] .leave-document-row,
+body.dark-theme .leave-document-row {
+  background: #0f172a !important;
+  border: 1px solid #334155 !important;
+}
+
+[data-theme="dark"] .leave-document-row .doc-name,
+body.dark-theme .leave-document-row .doc-name {
+  color: #93c5fd !important;
+}
+
+[data-theme="dark"] .doc-link-btn,
+body.dark-theme .doc-link-btn {
+  background: #1e293b !important;
+  border: 1px solid #3b82f6 !important;
+  color: #60a5fa !important;
+}
+
+[data-theme="dark"] .doc-link-btn:hover,
+body.dark-theme .doc-link-btn:hover {
+  background: #2563eb !important;
+  color: #ffffff !important;
+}
+
+/* Leave Actions Footer & Buttons in Dark Mode */
+[data-theme="dark"] .leave-card-actions,
+body.dark-theme .leave-card-actions {
+  border-top: 1px solid #334155 !important;
+}
+
+[data-theme="dark"] .btn-history-pill,
+body.dark-theme .btn-history-pill {
+  background: #0f172a !important;
+  border: 1px solid #334155 !important;
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .btn-history-pill:hover,
+body.dark-theme .btn-history-pill:hover {
+  background: #1e293b !important;
+  border-color: #475569 !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .btn-leave-override,
+body.dark-theme .btn-leave-override {
+  background: rgba(139, 92, 246, 0.15) !important;
+  border: 1px solid rgba(139, 92, 246, 0.35) !important;
+  color: #c4b5fd !important;
+}
+
+[data-theme="dark"] .btn-leave-override:hover,
+body.dark-theme .btn-leave-override:hover {
+  background: rgba(139, 92, 246, 0.28) !important;
+  border-color: #a78bfa !important;
+  color: #ede9fe !important;
+}
+
+[data-theme="dark"] .btn-leave-approve,
+body.dark-theme .btn-leave-approve {
+  background: #15803d !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .btn-leave-approve:hover,
+body.dark-theme .btn-leave-approve:hover {
+  background: #16a34a !important;
+}
+
+[data-theme="dark"] .btn-leave-reject,
+body.dark-theme .btn-leave-reject {
+  background: #b91c1c !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .btn-leave-reject:hover,
+body.dark-theme .btn-leave-reject:hover {
+  background: #dc2626 !important;
+}
+
+/* Modals in Dark Mode (History & Override) */
+[data-theme="dark"] .leave-history-modal,
+body.dark-theme .leave-history-modal,
+[data-theme="dark"] .leave-override-modal,
+body.dark-theme .leave-override-modal {
+  background: #1e293b !important;
+  border: 1px solid #334155 !important;
+}
+
+[data-theme="dark"] .history-target-summary,
+body.dark-theme .history-target-summary {
+  background: #0f172a !important;
+  border: 1px solid #334155 !important;
+}
+
+[data-theme="dark"] .history-target-summary h4,
+body.dark-theme .history-target-summary h4 {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .history-target-summary p,
+body.dark-theme .history-target-summary p {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .history-target-summary p b,
+body.dark-theme .history-target-summary p b {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .history-target-summary .routing-note,
+body.dark-theme .history-target-summary .routing-note {
+  background: rgba(99, 102, 241, 0.12) !important;
+  border: 1px solid rgba(99, 102, 241, 0.25) !important;
+  color: #c7d2fe !important;
+}
+
+[data-theme="dark"] .timeline-node .node-content,
+body.dark-theme .timeline-node .node-content {
+  background: #0f172a !important;
+  border: 1px solid #334155 !important;
+}
+
+[data-theme="dark"] .timeline-node .node-action,
+body.dark-theme .timeline-node .node-action {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .timeline-node .node-time,
+body.dark-theme .timeline-node .node-time {
+  color: #64748b !important;
+}
+
+[data-theme="dark"] .timeline-node .node-performer,
+body.dark-theme .timeline-node .node-performer {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .timeline-node .node-performer b,
+body.dark-theme .timeline-node .node-performer b {
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .timeline-node .node-details,
+body.dark-theme .timeline-node .node-details {
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .override-summary-card,
+body.dark-theme .override-summary-card {
+  background: #0f172a !important;
+  border: 1px solid #334155 !important;
+}
+
+[data-theme="dark"] .summary-row span,
+body.dark-theme .summary-row span {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .summary-row strong,
+body.dark-theme .summary-row strong {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .form-textarea-elevated,
+body.dark-theme .form-textarea-elevated {
+  background: #0f172a !important;
+  border: 1px solid #334155 !important;
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .form-textarea-elevated:focus,
+body.dark-theme .form-textarea-elevated:focus {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25) !important;
+}
+
+[data-theme="dark"] .override-audit-notice,
+body.dark-theme .override-audit-notice {
+  background: rgba(245, 158, 11, 0.12) !important;
+  border: 1px solid rgba(245, 158, 11, 0.25) !important;
+  color: #fcd34d !important;
+}
+
+[data-theme="dark"] .toggle-pill,
+body.dark-theme .toggle-pill {
+  background: #0f172a !important;
+  border: 1px solid #334155 !important;
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .toggle-pill.is-active-approve,
+body.dark-theme .toggle-pill.is-active-approve {
+  background: rgba(16, 185, 129, 0.2) !important;
+  border-color: #10b981 !important;
+  color: #34d399 !important;
+}
+
+[data-theme="dark"] .toggle-pill.is-active-reject,
+body.dark-theme .toggle-pill.is-active-reject {
+  background: rgba(239, 68, 68, 0.2) !important;
+  border-color: #ef4444 !important;
+  color: #f87171 !important;
+}
