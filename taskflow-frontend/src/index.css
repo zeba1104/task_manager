@@ -1459,8 +1459,8 @@ body.dark-theme .dept-btn-activate:hover {
   box-shadow: 0 2px 8px rgba(20, 40, 50, 0.035);
 }
 
-.manager-stat-grid strong { color: #263640; font-size: 24px; font-variant-numeric: tabular-nums; }
-.manager-stat-grid span { color: #73818a; font-size: 10px; font-weight: 700; text-transform: uppercase; }
+.manager-stat-grid > div:not(.dashboard-stat-card) strong { color: #263640; font-size: 24px; font-variant-numeric: tabular-nums; }
+.manager-stat-grid > div:not(.dashboard-stat-card) span { color: #73818a; font-size: 10px; font-weight: 700; text-transform: uppercase; }
 .manager-attendance-summary { margin-bottom: 16px; }
 
 .manager-quick-actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 16px; }
@@ -7616,8 +7616,8 @@ body.dark-theme .header-date-badge {
   color: var(--text) !important;
 }
 
-[data-theme="dark"] .admin-stat-grid > div span:first-of-type,
-[data-theme="dark"] .manager-stat-grid > div strong,
+[data-theme="dark"] .admin-stat-grid > div:not(.dashboard-stat-card) span:first-of-type,
+[data-theme="dark"] .manager-stat-grid > div:not(.dashboard-stat-card) strong,
 [data-theme="dark"] .dashboard-summary-grid > div span:first-of-type {
   color: var(--text) !important;
 }
@@ -7832,19 +7832,19 @@ body.dark-theme .employee-stats-grid > div {
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.25) !important;
 }
 
-[data-theme="dark"] .manager-stat-grid > div strong,
-body.dark-theme .manager-stat-grid > div strong,
-[data-theme="dark"] .admin-stat-grid > div span:first-of-type,
-body.dark-theme .admin-stat-grid > div span:first-of-type {
+[data-theme="dark"] .manager-stat-grid > div:not(.dashboard-stat-card) strong,
+body.dark-theme .manager-stat-grid > div:not(.dashboard-stat-card) strong,
+[data-theme="dark"] .admin-stat-grid > div:not(.dashboard-stat-card) span:first-of-type,
+body.dark-theme .admin-stat-grid > div:not(.dashboard-stat-card) span:first-of-type {
   color: #f8fafc !important;
   font-size: 28px !important;
   font-weight: 700 !important;
 }
 
-[data-theme="dark"] .manager-stat-grid > div span,
-body.dark-theme .manager-stat-grid > div span,
-[data-theme="dark"] .admin-stat-grid > div span:last-of-type,
-body.dark-theme .admin-stat-grid > div span:last-of-type {
+[data-theme="dark"] .manager-stat-grid > div:not(.dashboard-stat-card) span,
+body.dark-theme .manager-stat-grid > div:not(.dashboard-stat-card) span,
+[data-theme="dark"] .admin-stat-grid > div:not(.dashboard-stat-card) span:last-of-type,
+body.dark-theme .admin-stat-grid > div:not(.dashboard-stat-card) span:last-of-type {
   color: #cbd5e1 !important;
   font-size: 11px !important;
   font-weight: 600 !important;
@@ -23405,8 +23405,8 @@ body.dark-theme .assignment-meta-val {
 
 .dashboard-stat-card .stat-card-value {
   display: block !important;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
-  font-size: 28px !important;
+  font-family: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif !important;
+  font-size: 34px !important;
   font-weight: 800 !important;
   color: #0f172a !important;
   line-height: 1.15 !important;
@@ -23610,6 +23610,10 @@ body.dark-theme .employee-stat-grid > .dashboard-stat-card:hover {
 [data-theme="dark"] .dashboard-stat-card .stat-card-value,
 body.dark-theme .dashboard-stat-card .stat-card-value {
   color: #f8fafc !important;
+  font-size: 34px !important;
+  font-weight: 800 !important;
+  font-family: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif !important;
+  line-height: 1.15 !important;
 }
 
 [data-theme="dark"] .dashboard-stat-card .stat-card-label,
