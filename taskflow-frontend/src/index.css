@@ -13576,13 +13576,21 @@ body.dark-theme .breadcrumb-current {
   flex-shrink: 0;
 }
 
-.topbar-search-input {
-  border: none;
-  outline: none;
-  background: transparent;
-  font-size: 13px;
-  color: #0f172a;
-  width: 100%;
+.topbar-search-input,
+.topbar-search-input:focus,
+.topbar-search-input:hover,
+.topbar-search-input:active {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  font-size: 13.5px !important;
+  color: #0f172a !important;
+  width: 100% !important;
+  min-height: unset !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
 }
 
 .topbar-search-input::placeholder {
@@ -25268,13 +25276,13 @@ label span.text-danger {
 }
 
 /* Universal Text Inputs, Numbers, Dates, Password fields across all forms */
-input[type="text"],
+input[type="text"]:not(.topbar-search-input):not(.employee-search input):not(.task-search-wrap input):not(.search-box input):not(.manager-search-box input):not(.ann-search-wrap input):not(.holiday-search-box input):not(.chat-search-wrap input),
 input[type="email"],
 input[type="password"],
 input[type="number"],
 input[type="date"],
 input[type="datetime-local"],
-input[type="search"],
+input[type="search"]:not(.topbar-search-input):not(.employee-search input):not(.task-search-wrap input):not(.search-box input):not(.manager-search-box input):not(.ann-search-wrap input):not(.holiday-search-box input):not(.chat-search-wrap input),
 .form-control,
 .form-group input,
 .task-form-row input,
@@ -25310,13 +25318,13 @@ textarea::placeholder,
 }
 
 /* Input Hover State (Light Mode) */
-input[type="text"]:hover,
+input[type="text"]:not(.topbar-search-input):not(.employee-search input):not(.task-search-wrap input):not(.search-box input):not(.manager-search-box input):not(.ann-search-wrap input):not(.holiday-search-box input):not(.chat-search-wrap input):hover,
 input[type="email"]:hover,
 input[type="password"]:hover,
 input[type="number"]:hover,
 input[type="date"]:hover,
 input[type="datetime-local"]:hover,
-input[type="search"]:hover,
+input[type="search"]:not(.topbar-search-input):not(.employee-search input):not(.task-search-wrap input):not(.search-box input):not(.manager-search-box input):not(.ann-search-wrap input):not(.holiday-search-box input):not(.chat-search-wrap input):hover,
 .form-control:hover,
 .form-group input:hover,
 .task-form-row input:hover,
@@ -25330,13 +25338,13 @@ input[type="search"]:hover,
 }
 
 /* Input Focused State (Light Mode) */
-input[type="text"]:focus,
+input[type="text"]:not(.topbar-search-input):not(.employee-search input):not(.task-search-wrap input):not(.search-box input):not(.manager-search-box input):not(.ann-search-wrap input):not(.holiday-search-box input):not(.chat-search-wrap input):focus,
 input[type="email"]:focus,
 input[type="password"]:focus,
 input[type="number"]:focus,
 input[type="date"]:focus,
 input[type="datetime-local"]:focus,
-input[type="search"]:focus,
+input[type="search"]:not(.topbar-search-input):not(.employee-search input):not(.task-search-wrap input):not(.search-box input):not(.manager-search-box input):not(.ann-search-wrap input):not(.holiday-search-box input):not(.chat-search-wrap input):focus,
 .form-control:focus,
 .form-group input:focus,
 .task-form-row input:focus,
@@ -25352,8 +25360,8 @@ input[type="search"]:focus,
 }
 
 /* Dark Mode Universal Text Inputs */
-[data-theme="dark"] input[type="text"],
-body.dark-theme input[type="text"],
+[data-theme="dark"] input[type="text"]:not(.topbar-search-input):not(.employee-search input):not(.task-search-wrap input):not(.search-box input):not(.manager-search-box input):not(.ann-search-wrap input):not(.holiday-search-box input):not(.chat-search-wrap input),
+body.dark-theme input[type="text"]:not(.topbar-search-input):not(.employee-search input):not(.task-search-wrap input):not(.search-box input):not(.manager-search-box input):not(.ann-search-wrap input):not(.holiday-search-box input):not(.chat-search-wrap input),
 [data-theme="dark"] input[type="email"],
 body.dark-theme input[type="email"],
 [data-theme="dark"] input[type="password"],
@@ -25879,25 +25887,25 @@ label:focus-within {
 }
 
 /* Interactive Input Hover & Focus Enhancements Across All Forms */
-input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not(.topbar-search-input):not([type="search"]),
 textarea,
 select {
   transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease !important;
 }
 
-input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):hover:not(:disabled),
+input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not(.topbar-search-input):not([type="search"]):hover:not(:disabled),
 textarea:hover:not(:disabled),
 select:hover:not(:disabled) {
   border-color: #94a3b8 !important;
 }
 
-[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):hover:not(:disabled),
+[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not(.topbar-search-input):not([type="search"]):hover:not(:disabled),
 [data-theme="dark"] textarea:hover:not(:disabled),
 [data-theme="dark"] select:hover:not(:disabled) {
   border-color: #64748b !important;
 }
 
-input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):focus,
+input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not(.topbar-search-input):not([type="search"]):focus,
 textarea:focus,
 select:focus {
   border-color: #2563eb !important;
@@ -25906,7 +25914,7 @@ select:focus {
   outline: none !important;
 }
 
-[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):focus,
+[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not(.topbar-search-input):not([type="search"]):focus,
 [data-theme="dark"] textarea:focus,
 [data-theme="dark"] select:focus {
   border-color: #60a5fa !important;
@@ -26635,22 +26643,135 @@ body.dark-theme .btn-history-pill:hover {
   box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.16), 0 2px 6px rgba(0, 0, 0, 0.04) !important;
 }
 
+/* Dedicated Topbar Search Bar Focus & Hover Animation Effects */
+.topbar-search-wrap {
+  width: 260px !important;
+  height: 38px !important;
+  min-height: 38px !important;
+  padding: 0 12px !important;
+  background: #f8fafc !important;
+  border: 1.5px solid #cbd5e1 !important;
+  border-radius: 10px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  position: relative !important;
+  transition: width 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03) !important;
+  cursor: text !important;
+}
+
+.topbar-search-wrap:hover {
+  border-color: #94a3b8 !important;
+  background: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+}
+
+.topbar-search-wrap:focus-within {
+  width: 330px !important;
+  border-color: #2563eb !important;
+  background: #ffffff !important;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.16), 0 4px 14px rgba(37, 99, 235, 0.1) !important;
+}
+
+.topbar-search-wrap:focus-within .search-icon {
+  color: #2563eb !important;
+  transform: scale(1.08) !important;
+}
+
+.topbar-search-wrap:focus-within .search-kbd-shortcut {
+  background: #eff6ff !important;
+  border-color: #bfdbfe !important;
+  color: #2563eb !important;
+}
+
+[data-theme="dark"] .topbar-search-wrap,
+body.dark-theme .topbar-search-wrap {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) !important;
+}
+
+[data-theme="dark"] .topbar-search-wrap:hover,
+body.dark-theme .topbar-search-wrap:hover {
+  background: #1e293b !important;
+  border-color: #475569 !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5) !important;
+}
+
+[data-theme="dark"] .topbar-search-wrap:focus-within,
+body.dark-theme .topbar-search-wrap:focus-within {
+  background: #0b1329 !important;
+  border-color: #60a5fa !important;
+  box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.22), 0 4px 16px rgba(0, 0, 0, 0.6) !important;
+}
+
+[data-theme="dark"] .topbar-search-wrap:focus-within .search-icon,
+body.dark-theme .topbar-search-wrap:focus-within .search-icon {
+  color: #60a5fa !important;
+}
+
+[data-theme="dark"] .topbar-search-wrap:focus-within .search-kbd-shortcut,
+body.dark-theme .topbar-search-wrap:focus-within .search-kbd-shortcut {
+  background: rgba(37, 99, 235, 0.2) !important;
+  border-color: rgba(96, 165, 250, 0.4) !important;
+  color: #93c5fd !important;
+}
+
 /* Reset Inner Input inside Search Wrappers - completely eliminates double-box / nested box */
 .employee-search input,
+.employee-search input:focus,
+.employee-search input:hover,
+.employee-search input:active,
 .topbar-search-wrap input,
+.topbar-search-wrap input:focus,
+.topbar-search-wrap input:hover,
+.topbar-search-wrap input:active,
+.topbar-search-input,
+.topbar-search-input:focus,
+.topbar-search-input:hover,
+.topbar-search-input:active,
+input.topbar-search-input,
+input.topbar-search-input:focus,
+input.topbar-search-input:hover,
+input.topbar-search-input:active,
 .manager-search-box input,
+.manager-search-box input:focus,
+.manager-search-box input:hover,
+.manager-search-box input:active,
 .ann-search-wrap input,
+.ann-search-wrap input:focus,
+.ann-search-wrap input:hover,
 .holiday-search-box input,
+.holiday-search-box input:focus,
+.holiday-search-box input:hover,
 .chat-search-wrap input,
+.chat-search-wrap input:focus,
+.chat-search-wrap input:hover,
 .filter-input-wrap input,
+.filter-input-wrap input:focus,
+.filter-input-wrap input:hover,
 .task-search-wrap input,
+.task-search-wrap input:focus,
+.task-search-wrap input:hover,
 .search-wrapper input,
+.search-wrapper input:focus,
+.search-wrapper input:hover,
 .search-box input,
-.search-bar input {
+.search-box input:focus,
+.search-box input:hover,
+.search-bar input,
+.search-bar input:focus,
+.search-bar input:hover {
   border: none !important;
+  border-width: 0 !important;
+  border-style: none !important;
+  border-color: transparent !important;
   outline: none !important;
   box-shadow: none !important;
   background: transparent !important;
+  background-color: transparent !important;
+  border-radius: 0 !important;
   min-height: unset !important;
   height: 100% !important;
   padding: 0 !important;
@@ -26796,29 +26917,93 @@ body.dark-theme .search-bar:focus-within {
 }
 
 [data-theme="dark"] .employee-search input,
+[data-theme="dark"] .employee-search input:focus,
+[data-theme="dark"] .employee-search input:hover,
 body.dark-theme .employee-search input,
+body.dark-theme .employee-search input:focus,
+body.dark-theme .employee-search input:hover,
 [data-theme="dark"] .topbar-search-wrap input,
+[data-theme="dark"] .topbar-search-wrap input:focus,
+[data-theme="dark"] .topbar-search-wrap input:hover,
 body.dark-theme .topbar-search-wrap input,
+body.dark-theme .topbar-search-wrap input:focus,
+body.dark-theme .topbar-search-wrap input:hover,
+[data-theme="dark"] .topbar-search-input,
+[data-theme="dark"] .topbar-search-input:focus,
+[data-theme="dark"] .topbar-search-input:hover,
+body.dark-theme .topbar-search-input,
+body.dark-theme .topbar-search-input:focus,
+body.dark-theme .topbar-search-input:hover,
+[data-theme="dark"] input.topbar-search-input,
+[data-theme="dark"] input.topbar-search-input:focus,
+[data-theme="dark"] input.topbar-search-input:hover,
+body.dark-theme input.topbar-search-input,
+body.dark-theme input.topbar-search-input:focus,
+body.dark-theme input.topbar-search-input:hover,
 [data-theme="dark"] .manager-search-box input,
+[data-theme="dark"] .manager-search-box input:focus,
+[data-theme="dark"] .manager-search-box input:hover,
 body.dark-theme .manager-search-box input,
+body.dark-theme .manager-search-box input:focus,
+body.dark-theme .manager-search-box input:hover,
 [data-theme="dark"] .ann-search-wrap input,
+[data-theme="dark"] .ann-search-wrap input:focus,
+[data-theme="dark"] .ann-search-wrap input:hover,
 body.dark-theme .ann-search-wrap input,
+body.dark-theme .ann-search-wrap input:focus,
+body.dark-theme .ann-search-wrap input:hover,
 [data-theme="dark"] .holiday-search-box input,
+[data-theme="dark"] .holiday-search-box input:focus,
+[data-theme="dark"] .holiday-search-box input:hover,
 body.dark-theme .holiday-search-box input,
+body.dark-theme .holiday-search-box input:focus,
+body.dark-theme .holiday-search-box input:hover,
 [data-theme="dark"] .chat-search-wrap input,
+[data-theme="dark"] .chat-search-wrap input:focus,
+[data-theme="dark"] .chat-search-wrap input:hover,
 body.dark-theme .chat-search-wrap input,
+body.dark-theme .chat-search-wrap input:focus,
+body.dark-theme .chat-search-wrap input:hover,
 [data-theme="dark"] .filter-input-wrap input,
+[data-theme="dark"] .filter-input-wrap input:focus,
+[data-theme="dark"] .filter-input-wrap input:hover,
 body.dark-theme .filter-input-wrap input,
+body.dark-theme .filter-input-wrap input:focus,
+body.dark-theme .filter-input-wrap input:hover,
 [data-theme="dark"] .task-search-wrap input,
+[data-theme="dark"] .task-search-wrap input:focus,
+[data-theme="dark"] .task-search-wrap input:hover,
 body.dark-theme .task-search-wrap input,
+body.dark-theme .task-search-wrap input:focus,
+body.dark-theme .task-search-wrap input:hover,
 [data-theme="dark"] .search-wrapper input,
+[data-theme="dark"] .search-wrapper input:focus,
+[data-theme="dark"] .search-wrapper input:hover,
 body.dark-theme .search-wrapper input,
+body.dark-theme .search-wrapper input:focus,
+body.dark-theme .search-wrapper input:hover,
 [data-theme="dark"] .search-box input,
+[data-theme="dark"] .search-box input:focus,
+[data-theme="dark"] .search-box input:hover,
 body.dark-theme .search-box input,
+body.dark-theme .search-box input:focus,
+body.dark-theme .search-box input:hover,
 [data-theme="dark"] .search-bar input,
-body.dark-theme .search-bar input {
-  color: #f8fafc !important;
+[data-theme="dark"] .search-bar input:focus,
+[data-theme="dark"] .search-bar input:hover,
+body.dark-theme .search-bar input,
+body.dark-theme .search-bar input:focus,
+body.dark-theme .search-bar input:hover {
+  border: none !important;
+  border-width: 0 !important;
+  border-style: none !important;
+  border-color: transparent !important;
+  outline: none !important;
+  box-shadow: none !important;
   background: transparent !important;
+  background-color: transparent !important;
+  border-radius: 0 !important;
+  color: #f8fafc !important;
 }
 
 [data-theme="dark"] .employee-search svg,
