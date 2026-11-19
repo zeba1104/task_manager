@@ -24,6 +24,12 @@ export const ROLE_NAVIGATION = {
         icon: 'CheckSquare',
         view: 'tasks',
       },
+      {
+        id: 'admin-payroll',
+        label: 'Salary & Payroll',
+        icon: 'Banknote',
+        view: 'payroll',
+      },
     ],
     quick: [
       {
@@ -139,6 +145,12 @@ export const ROLE_NAVIGATION = {
         ],
       },
       {
+        id: 'manager-payroll',
+        label: 'Team Payroll',
+        icon: 'Banknote',
+        view: 'payroll',
+      },
+      {
         id: 'manager-profile',
         label: 'Settings',
         icon: 'UserCheck',
@@ -206,6 +218,12 @@ export const ROLE_NAVIGATION = {
         icon: 'CalendarDays',
         view: 'employee',
         tab: 'leave',
+      },
+      {
+        id: 'employee-payroll',
+        label: 'My Salary & Payslips',
+        icon: 'Banknote',
+        view: 'payroll',
       },
       {
         id: 'employee-profile',

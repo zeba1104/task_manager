@@ -16,6 +16,9 @@ import ChatPage from '../components/ChatPage';
 import FocusMode from '../components/FocusMode';
 import AppLayout from '../components/AppLayout';
 import HolidayCalendar from '../components/HolidayCalendar';
+import AdminPayrollManager from '../components/payroll/AdminPayrollManager';
+import ManagerPayrollReview from '../components/payroll/ManagerPayrollReview';
+import EmployeeSalaryPortal from '../components/payroll/EmployeeSalaryPortal';
 import Swal from '../utils/swalConfig';
 import { getProjects } from '../api/adminApi';
 import { Calendar, Search, X } from 'lucide-react';
@@ -258,6 +261,14 @@ function Dashboard() {
         <AnnouncementsPage user={user} />
       ) : view === 'chat' ? (
         <ChatPage user={user} />
+      ) : view === 'payroll' ? (
+        user?.role === 'Admin' ? (
+          <AdminPayrollManager user={user} setView={setView} />
+        ) : user?.role === 'Manager' ? (
+          <ManagerPayrollReview user={user} setView={setView} />
+        ) : (
+          <EmployeeSalaryPortal user={user} setView={setView} />
+        )
       ) : view === 'manager' && user?.role === 'Manager' ? (
         <ManagerDashboard user={user} logout={logout} setView={setView} activeTab={managerTab} onTabChange={setManagerTab} />
       ) : view === 'employee' && user?.role === 'Employee' ? (

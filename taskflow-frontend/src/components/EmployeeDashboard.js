@@ -32,6 +32,7 @@ import MyAttendance from './MyAttendance';
 import AnnouncementsPage from './AnnouncementsPage';
 import ChatPage from './ChatPage';
 import HolidayCalendar from './HolidayCalendar';
+import EmployeeSalaryPortal from './payroll/EmployeeSalaryPortal';
 import {
   Calendar,
   Clock,
@@ -2501,6 +2502,13 @@ export default function EmployeeDashboard({ user, logout, setView, activeTab, on
          ========================================================================= */}
       {tab === 'holidays' && (
         <HolidayCalendar user={user} setView={setView} />
+      )}
+
+      {/* =========================================================================
+          TAB 10: MY SALARY & PAYSLIPS
+         ========================================================================= */}
+      {tab === 'payroll' && (
+        <EmployeeSalaryPortal user={user} setView={setView} />
       )}
 
       {/* =========================================================================

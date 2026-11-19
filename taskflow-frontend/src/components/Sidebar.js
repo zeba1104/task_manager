@@ -19,6 +19,8 @@ import {
   ChevronDown,
   X,
   Sparkles,
+  Banknote,
+  CreditCard,
 } from 'lucide-react';
 import { getNavigationForRole } from '../config/navigationConfig';
 import UserAvatar from './UserAvatar';
@@ -37,6 +39,8 @@ const ICON_MAP = {
   Building2,
   Megaphone,
   MessageSquare,
+  Banknote,
+  CreditCard,
 };
 
 function Sidebar({

@@ -19,6 +19,7 @@ import {
   Layers,
   Palmtree,
   X,
+  Landmark,
 } from 'lucide-react';
 import axios from '../api/axios';
 import Sidebar from './Sidebar';
@@ -322,6 +323,17 @@ function AppLayout({
           else onNavigate({ view: 'employee', tab: 'chat' });
         },
         keywords: 'chat direct messages messaging communication team discussion dm'
+      },
+      {
+        id: 'payroll',
+        title: role === 'Admin' ? 'Salary & Payroll Management' : (role === 'Manager' ? 'Team Payroll & Attendance Review' : 'My Salary & Payslips'),
+        desc: 'Compensation, monthly attendance calculations, RazorpayX payouts & official payslips',
+        category: 'Pages',
+        icon: <Landmark size={16} />,
+        action: () => {
+          onNavigate({ view: 'payroll' });
+        },
+        keywords: 'salary payroll payslip payouts razorpay test mode bank account earnings deductions compensation take-home'
       },
       ...(role === 'Admin' || role === 'Manager' ? [{
         id: 'directory',

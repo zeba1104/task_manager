@@ -68,6 +68,7 @@ import MyAttendance from './MyAttendance';
 import AnnouncementsPage from './AnnouncementsPage';
 import ChatPage from './ChatPage';
 import HolidayCalendar from './HolidayCalendar';
+import ManagerPayrollReview from './payroll/ManagerPayrollReview';
 import Swal from '../utils/swalConfig';
 
 const columns = [
@@ -2078,6 +2079,11 @@ function ManagerDashboard({ user, logout, setView, activeTab, onTabChange }) {
       {/* VIEW: GOVERNMENT HOLIDAYS */}
       {tab === 'holidays' && (
         <HolidayCalendar user={user} setView={setView} />
+      )}
+
+      {/* VIEW: TEAM PAYROLL & SALARY REVIEW */}
+      {tab === 'payroll' && (
+        <ManagerPayrollReview user={user} setView={setView} />
       )}
       {/* Task Review Modal */}
       {reviewModalTask && (
