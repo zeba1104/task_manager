@@ -277,7 +277,7 @@ export default function ManagerPayrollReview({ user }) {
                 return (
                   <tr key={payroll._id}>
                     <td>
-                      <div className="emp-name-text">{emp.name}</div>
+                      <div className="emp-name-text">{emp.name || 'Team Member'}</div>
                       <div className="emp-sub-text">
                         {emp.employeeId || 'TF-EMP'} • {emp.designation || 'Specialist'}
                       </div>

@@ -432,6 +432,24 @@ body.dark-theme .kpi-amount.blue {
   border-collapse: collapse;
   text-align: left;
   font-size: 13px;
+  min-width: 820px;
+}
+
+.payroll-table th:first-child,
+.payroll-table td:first-child {
+  position: sticky;
+  left: 0;
+  background: var(--panel, #ffffff);
+  z-index: 2;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="dark"] .payroll-table th:first-child,
+[data-theme="dark"] .payroll-table td:first-child,
+body.dark-theme .payroll-table th:first-child,
+body.dark-theme .payroll-table td:first-child {
+  background: #1e293b;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3);
 }
 
 .payroll-table th {
