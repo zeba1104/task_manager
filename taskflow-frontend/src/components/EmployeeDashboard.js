@@ -11,6 +11,7 @@ import {
   getMyProjects,
   getProjectDetails,
   uploadProjectDocument,
+  toggleProjectMilestone,
   addProjectComment,
   getMyTasks,
   getTaskDetails,
@@ -70,6 +71,10 @@ import {
   Building2,
   Hash,
   ShieldCheck,
+  Target,
+  Layers,
+  UserCheck,
+  FileUp,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -582,6 +587,61 @@ export default function EmployeeDashboard({ user, logout, setView, activeTab, on
       setProjectCommentText('');
     } catch (err) {
       Swal.fire({ title: 'Error', text: err.response?.data?.message || 'Could not add comment', icon: 'error' });
+    } finally {
+      setProjectBusy(false);
+    }
+  };
+
+  // Projects: Toggle Milestone Complete
+  const handleToggleMilestone = async (milestoneId, newCompleted) => {
+    if (!selectedProject) return;
+    setProjectBusy(true);
+    try {
+      const res = await toggleProjectMilestone(selectedProject.project._id, milestoneId, {
+        completed: newCompleted,
+      });
+      const updatedMilestones = res.data.milestones || res.data;
+      const updatedProgress = res.data.progress !== undefined ? res.data.progress : selectedProject.project.progress;
+      const updatedStatus = res.data.status || selectedProject.project.status;
+
+      setSelectedProject((prev) => ({
+        ...prev,
+        project: {
+          ...prev.project,
+          milestones: updatedMilestones,
+          progress: updatedProgress,
+          status: updatedStatus,
+        },
+      }));
+
+      // Update in projectsList as well
+      setProjectsList((prev) =>
+        prev.map((p) =>
+          p.project?._id === selectedProject.project._id
+            ? {
+                ...p,
+                project: { ...p.project, progress: updatedProgress, status: updatedStatus },
+                completedMilestones: updatedMilestones.filter((m) => m.completed).length,
+              }
+            : p
+        )
+      );
+
+      Swal.fire({
+        title: newCompleted ? 'Milestone Completed!' : 'Marked as Pending',
+        text: newCompleted
+          ? 'Great job! Project progress has been updated.'
+          : 'Milestone status set to pending.',
+        icon: 'success',
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    } catch (err) {
+      Swal.fire({
+        title: 'Error',
+        text: err.response?.data?.message || 'Could not update milestone status',
+        icon: 'error',
+      });
     } finally {
       setProjectBusy(false);
     }
@@ -2287,89 +2347,323 @@ export default function EmployeeDashboard({ user, logout, setView, activeTab, on
       {selectedProject && (
         <div className="manager-modal-backdrop" onMouseDown={(e) => { if (e.target === e.currentTarget) setSelectedProject(null); }}>
           <div className="manager-modal-box project-detail-modal" role="dialog" aria-modal="true">
-            <header className="manager-modal-header">
+            {/* Elevated Header */}
+            <header className="manager-modal-header proj-modal-header-elevated">
               <div className="project-detail-heading">
                 <div className="heading-tags">
-                  <span className={`priority-tag priority-${selectedProject.project?.priority?.toLowerCase()}`}>
-                    {selectedProject.project?.priority}
+                  <span className={`priority-tag priority-${(selectedProject.project?.priority || 'normal').toLowerCase()}`}>
+                    <span className="priority-dot" />
+                    {selectedProject.project?.priority || 'Normal'} Priority
                   </span>
-                  <span className="dept-tag">{selectedProject.project?.department?.name}</span>
+                  {selectedProject.project?.department?.name && (
+                    <span className="dept-tag">
+                      <Building2 size={12} />
+                      {selectedProject.project.department.name}
+                    </span>
+                  )}
+                  <span className="status-tag-subtle">
+                    {selectedProject.project?.status || 'Active'}
+                  </span>
                 </div>
                 <h3>{selectedProject.project?.name}</h3>
               </div>
-              <button className="icon-btn" onClick={() => setSelectedProject(null)}><X size={20} /></button>
+              <button
+                type="button"
+                className="proj-close-btn"
+                onClick={() => setSelectedProject(null)}
+                aria-label="Close modal"
+                title="Close"
+              >
+                <X size={18} />
+              </button>
             </header>
 
+            {/* Elevated Progress Strip */}
             <div className="modal-progress-strip">
               <div className="strip-labels">
-                <span>Project Progress: <b>{selectedProject.project?.progress || 0}%</b></span>
-                <span>Deadline: <b>{selectedProject.project?.deadline ? new Date(selectedProject.project.deadline).toLocaleDateString() : 'N/A'}</b></span>
+                <div className="strip-left">
+                  <span className="strip-title">Project Progress</span>
+                  <span className="proj-completion-pill">
+                    <strong>{selectedProject.project?.progress || 0}%</strong> Completed
+                  </span>
+                </div>
+                <div className="strip-right">
+                  <div className={`proj-deadline-chip ${selectedProject.project?.deadline && new Date(selectedProject.project.deadline) < new Date() && (selectedProject.project?.progress || 0) < 100 ? 'is-overdue' : ''}`}>
+                    <Clock size={13} />
+                    <span>Deadline: <strong>{selectedProject.project?.deadline ? new Date(selectedProject.project.deadline).toLocaleDateString() : 'N/A'}</strong></span>
+                    {selectedProject.project?.deadline && new Date(selectedProject.project.deadline) < new Date() && (selectedProject.project?.progress || 0) < 100 && (
+                      <span className="overdue-micro-badge"><AlertTriangle size={11} /> Overdue</span>
+                    )}
+                  </div>
+                </div>
               </div>
               <div className="workload-bar-track">
-                <div className="workload-bar-fill" style={{ width: `${selectedProject.project?.progress || 0}%` }} />
+                <div
+                  className="workload-bar-fill proj-bar-gradient"
+                  style={{ width: `${Math.min(100, Math.max(0, selectedProject.project?.progress || 0))}%` }}
+                />
               </div>
             </div>
 
-            <div className="modal-subnav">
-              <button className={projectDetailTab === 'overview' ? 'active' : ''} onClick={() => setProjectDetailTab('overview')}>
-                Objectives &amp; Deliverables
+            {/* Modern Tab Bar */}
+            <div className="modal-subnav proj-modal-subnav">
+              <button
+                type="button"
+                className={projectDetailTab === 'overview' ? 'active' : ''}
+                onClick={() => setProjectDetailTab('overview')}
+              >
+                <Target size={15} />
+                <span>Overview &amp; Deliverables</span>
               </button>
-              <button className={projectDetailTab === 'milestones' ? 'active' : ''} onClick={() => setProjectDetailTab('milestones')}>
-                Milestones ({selectedProject.project?.milestones?.length || 0})
+              <button
+                type="button"
+                className={projectDetailTab === 'milestones' ? 'active' : ''}
+                onClick={() => setProjectDetailTab('milestones')}
+              >
+                <CheckCircle2 size={15} />
+                <span>Milestones</span>
+                <span className="tab-pill-count">{selectedProject.project?.milestones?.length || 0}</span>
               </button>
-              <button className={projectDetailTab === 'tasks' ? 'active' : ''} onClick={() => setProjectDetailTab('tasks')}>
-                My Tasks in this Project ({selectedProject.myTasks?.length || 0})
+              <button
+                type="button"
+                className={projectDetailTab === 'tasks' ? 'active' : ''}
+                onClick={() => setProjectDetailTab('tasks')}
+              >
+                <Briefcase size={15} />
+                <span>My Tasks</span>
+                <span className="tab-pill-count">{selectedProject.myTasks?.length || 0}</span>
               </button>
-              <button className={projectDetailTab === 'documents' ? 'active' : ''} onClick={() => setProjectDetailTab('documents')}>
-                Documents ({selectedProject.project?.documents?.length || 0})
+              <button
+                type="button"
+                className={projectDetailTab === 'documents' ? 'active' : ''}
+                onClick={() => setProjectDetailTab('documents')}
+              >
+                <Paperclip size={15} />
+                <span>Documents</span>
+                <span className="tab-pill-count">{selectedProject.project?.documents?.length || 0}</span>
               </button>
-              <button className={projectDetailTab === 'comments' ? 'active' : ''} onClick={() => setProjectDetailTab('comments')}>
-                Updates &amp; Comments ({selectedProject.project?.comments?.length || 0})
+              <button
+                type="button"
+                className={projectDetailTab === 'comments' ? 'active' : ''}
+                onClick={() => setProjectDetailTab('comments')}
+              >
+                <MessageSquare size={15} />
+                <span>Updates &amp; Comments</span>
+                <span className="tab-pill-count">{selectedProject.project?.comments?.length || 0}</span>
               </button>
             </div>
 
-            <div className="modal-body-scroll">
+            <div className="modal-body-scroll proj-modal-scroll">
+              {/* TAB 1: OVERVIEW & DELIVERABLES */}
               {projectDetailTab === 'overview' && (
                 <div className="detail-overview-tab">
-                  <div className="overview-section">
-                    <h4>Description</h4>
-                    <p className="p-box">{selectedProject.project?.description || 'No description provided.'}</p>
+                  {/* Hero Description Card */}
+                  <div className="proj-scope-card proj-desc-hero-card">
+                    <div className="scope-card-header">
+                      <div className="scope-icon-wrap icon-blue">
+                        <FileText size={16} />
+                      </div>
+                      <h4>Project Overview &amp; Description</h4>
+                    </div>
+                    <p className="scope-card-body">
+                      {selectedProject.project?.description || 'No detailed description provided for this project.'}
+                    </p>
                   </div>
-                  <div className="overview-section">
-                    <h4>Strategic Objectives</h4>
-                    <p className="p-box">{selectedProject.project?.objectives || 'No objectives stated.'}</p>
+
+                  {/* 2-Column Scope Grid */}
+                  <div className="overview-cards-grid">
+                    <div className="proj-scope-card">
+                      <div className="scope-card-header">
+                        <div className="scope-icon-wrap icon-purple">
+                          <Target size={16} />
+                        </div>
+                        <h4>Strategic Objectives</h4>
+                      </div>
+                      <p className="scope-card-body">
+                        {selectedProject.project?.objectives || 'No specific strategic objectives documented.'}
+                      </p>
+                    </div>
+
+                    <div className="proj-scope-card">
+                      <div className="scope-card-header">
+                        <div className="scope-icon-wrap icon-emerald">
+                          <Layers size={16} />
+                        </div>
+                        <h4>Requirements &amp; Deliverables Specifications</h4>
+                      </div>
+                      <p className="scope-card-body">
+                        {selectedProject.project?.requirements || 'No specific technical requirements documented.'}
+                      </p>
+                    </div>
                   </div>
-                  <div className="overview-section">
-                    <h4>Requirements &amp; Expected Deliverables</h4>
-                    <p className="p-box">{selectedProject.project?.requirements || 'No requirements stated.'}</p>
+
+                  {/* 4 Metadata Cards */}
+                  <div className="overview-meta-cards">
+                    <div className="meta-metric-card">
+                      <div className="meta-icon-bubble bubble-emerald">
+                        <Briefcase size={16} />
+                      </div>
+                      <div className="meta-text">
+                        <span className="meta-label">Project Manager</span>
+                        <strong className="meta-value">{selectedProject.project?.manager?.name || 'Unassigned'}</strong>
+                      </div>
+                    </div>
+
+                    <div className="meta-metric-card">
+                      <div className="meta-icon-bubble bubble-purple">
+                        <UserCheck size={16} />
+                      </div>
+                      <div className="meta-text">
+                        <span className="meta-label">Project Lead</span>
+                        <strong className="meta-value">{selectedProject.project?.teamLead?.name || 'Unassigned'}</strong>
+                      </div>
+                    </div>
+
+                    <div className="meta-metric-card">
+                      <div className="meta-icon-bubble bubble-blue">
+                        <Calendar size={16} />
+                      </div>
+                      <div className="meta-text">
+                        <span className="meta-label">Start Date</span>
+                        <strong className="meta-value">
+                          {selectedProject.project?.startDate ? new Date(selectedProject.project.startDate).toLocaleDateString() : 'N/A'}
+                        </strong>
+                      </div>
+                    </div>
+
+                    <div className="meta-metric-card">
+                      <div className={`meta-icon-bubble ${selectedProject.project?.deadline && new Date(selectedProject.project.deadline) < new Date() && (selectedProject.project?.progress || 0) < 100 ? 'bubble-red' : 'bubble-amber'}`}>
+                        <Clock size={16} />
+                      </div>
+                      <div className="meta-text">
+                        <span className="meta-label">Target Deadline</span>
+                        <strong className={`meta-value ${selectedProject.project?.deadline && new Date(selectedProject.project.deadline) < new Date() && (selectedProject.project?.progress || 0) < 100 ? 'text-red' : ''}`}>
+                          {selectedProject.project?.deadline ? new Date(selectedProject.project.deadline).toLocaleDateString() : 'N/A'}
+                        </strong>
+                      </div>
+                    </div>
                   </div>
-                  <div className="overview-meta-grid">
-                    <div><span>Manager:</span><strong>{selectedProject.project?.manager?.name}</strong></div>
-                    <div><span>Project Lead:</span><strong>{selectedProject.project?.teamLead?.name || 'Unassigned'}</strong></div>
-                    <div><span>Start Date:</span><strong>{selectedProject.project?.startDate ? new Date(selectedProject.project.startDate).toLocaleDateString() : 'N/A'}</strong></div>
-                    <div><span>Deadline:</span><strong>{selectedProject.project?.deadline ? new Date(selectedProject.project.deadline).toLocaleDateString() : 'N/A'}</strong></div>
+
+                  {/* Associated Tasks Breakdown for Employee */}
+                  <div className="overview-task-stats-elevated">
+                    <div className="section-head-row">
+                      <div className="section-head-left">
+                        <Layers size={16} className="text-blue" />
+                        <h4>My Assigned Tasks Breakdown</h4>
+                      </div>
+                      <span className="stats-total-pill">{selectedProject.myTasks?.length || 0} Total Assigned</span>
+                    </div>
+
+                    <div className="overview-task-metrics-grid">
+                      <div className="stat-box-card">
+                        <span className="stat-box-label">Assigned to Me</span>
+                        <strong className="stat-box-val">{selectedProject.myTasks?.length || 0}</strong>
+                      </div>
+                      <div className="stat-box-card border-emerald">
+                        <span className="stat-box-label">Completed</span>
+                        <strong className="stat-box-val text-emerald">
+                          {selectedProject.myTasks?.filter(t => t.status === 'completed').length || 0}
+                        </strong>
+                      </div>
+                      <div className="stat-box-card border-blue">
+                        <span className="stat-box-label">In Progress</span>
+                        <strong className="stat-box-val text-blue">
+                          {selectedProject.myTasks?.filter(t => t.status === 'in-process' || t.status === 'in-progress').length || 0}
+                        </strong>
+                      </div>
+                      <div className="stat-box-card border-amber">
+                        <span className="stat-box-label">Pending / To Do</span>
+                        <strong className="stat-box-val text-amber">
+                          {selectedProject.myTasks?.filter(t => t.status === 'pending' || t.status === 'todo').length || 0}
+                        </strong>
+                      </div>
+                      <div className="stat-box-card border-indigo rate-card">
+                        <span className="stat-box-label">My Completion</span>
+                        <strong className="stat-box-val text-indigo">
+                          {(selectedProject.myTasks?.length || 0) > 0
+                            ? Math.round(((selectedProject.myTasks?.filter(t => t.status === 'completed').length || 0) / (selectedProject.myTasks?.length || 1)) * 100)
+                            : 0}%
+                        </strong>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
 
+              {/* TAB 2: MILESTONES & DELIVERABLES */}
               {projectDetailTab === 'milestones' && (
                 <div className="detail-milestones-tab">
-                  <h4>Project Milestones Checklist</h4>
-                  {selectedProject.project?.milestones?.length === 0 ? (
-                    <p className="text-muted">No milestones defined for this project.</p>
+                  <div className="section-head-row">
+                    <div className="section-head-left">
+                      <CheckCircle2 size={16} className="text-emerald" />
+                      <h4>Project Milestones Checklist</h4>
+                    </div>
+                    <span className="milestones-progress-pill">
+                      {selectedProject.project?.milestones?.filter(m => m.completed).length || 0} of {selectedProject.project?.milestones?.length || 0} completed
+                    </span>
+                  </div>
+
+                  {(!selectedProject.project?.milestones || selectedProject.project.milestones.length === 0) ? (
+                    <div className="proj-empty-card">
+                      <CheckCircle2 size={32} className="empty-icon text-muted" />
+                      <h5>No milestones configured yet</h5>
+                      <p>Project leadership has not scheduled specific milestone deliverables for this project.</p>
+                    </div>
                   ) : (
-                    <div className="milestone-cards-list">
-                      {selectedProject.project?.milestones?.map((m) => (
-                        <div key={m._id} className={`milestone-item-row ${m.completed ? 'completed' : ''}`}>
-                          <CheckCircle2 size={18} className={m.completed ? 'text-emerald' : 'text-muted'} />
-                          <div className="milestone-content">
-                            <strong>{m.title}</strong>
-                            {m.deliverables && <p className="milestone-deliverable"><b>Expected Deliverable:</b> {m.deliverables}</p>}
-                            {m.dueDate && <small>Due: {new Date(m.dueDate).toLocaleDateString()}</small>}
+                    <div className="milestone-card-list">
+                      {selectedProject.project.milestones.map((m) => (
+                        <div key={m._id} className={`milestone-card-item ${m.completed ? 'is-completed' : ''}`}>
+                          <div className="milestone-check-col">
+                            <button
+                              type="button"
+                              className="milestone-toggle-check-btn"
+                              onClick={() => handleToggleMilestone(m._id, !m.completed)}
+                              disabled={projectBusy}
+                              title={m.completed ? 'Click to mark as Pending' : 'Click to mark as Completed'}
+                              aria-label={m.completed ? 'Mark as Pending' : 'Mark as Completed'}
+                            >
+                              <CheckCircle2 size={22} className={m.completed ? 'text-emerald' : 'text-muted'} />
+                            </button>
                           </div>
-                          <span className={`status-badge ${m.completed ? 'status-completed' : 'status-pending'}`}>
-                            {m.completed ? 'Completed' : 'Pending'}
-                          </span>
+                          <div className="milestone-info-col">
+                            <div className="milestone-title-line">
+                              <strong className={`milestone-title ${m.completed ? 'completed-text' : ''}`}>{m.title}</strong>
+                              {m.dueDate && (
+                                <span className="milestone-due-badge">
+                                  <Calendar size={12} />
+                                  Due {new Date(m.dueDate).toLocaleDateString()}
+                                </span>
+                              )}
+                            </div>
+                            {m.deliverables && (
+                              <div className="milestone-deliverable-line">
+                                <span className="deliverable-label">Deliverable:</span>
+                                <span className="deliverable-text">{m.deliverables}</span>
+                              </div>
+                            )}
+                            {m.description && (
+                              <p className="milestone-desc-text">{m.description}</p>
+                            )}
+                          </div>
+                          <div className="milestone-actions-col">
+                            <button
+                              type="button"
+                              className={`milestone-status-action-btn ${m.completed ? 'is-completed' : 'is-pending'}`}
+                              onClick={() => handleToggleMilestone(m._id, !m.completed)}
+                              disabled={projectBusy}
+                              title={m.completed ? 'Click to mark as Pending' : 'Click to mark as Completed'}
+                            >
+                              {m.completed ? (
+                                <>
+                                  <Check size={14} /> Completed
+                                </>
+                              ) : (
+                                <>
+                                  <CheckCircle2 size={14} /> Mark as Complete
+                                </>
+                              )}
+                            </button>
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -2377,114 +2671,268 @@ export default function EmployeeDashboard({ user, logout, setView, activeTab, on
                 </div>
               )}
 
+              {/* TAB 3: MY TASKS */}
               {projectDetailTab === 'tasks' && (
                 <div className="detail-tasks-tab">
-                  <h4>My Tasks in {selectedProject.project?.name}</h4>
-                  {selectedProject.myTasks?.length === 0 ? (
-                    <p className="text-muted">No tasks currently assigned to you for this project.</p>
+                  <div className="section-head-row">
+                    <div className="section-head-left">
+                      <Briefcase size={16} className="text-blue" />
+                      <h4>My Tasks in {selectedProject.project?.name}</h4>
+                    </div>
+                    <span className="stats-total-pill">{selectedProject.myTasks?.length || 0} Tasks</span>
+                  </div>
+
+                  {(!selectedProject.myTasks || selectedProject.myTasks.length === 0) ? (
+                    <div className="proj-empty-card">
+                      <Briefcase size={32} className="empty-icon text-muted" />
+                      <h5>No tasks assigned to you in this project</h5>
+                      <p>You have not been assigned any specific tasks for this project yet.</p>
+                    </div>
                   ) : (
-                    <table className="manager-table">
-                      <thead>
-                        <tr>
-                          <th>Task Title</th>
-                          <th>Priority</th>
-                          <th>Status</th>
-                          <th>Deadline</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {selectedProject.myTasks?.map((t) => (
-                          <tr key={t._id}>
-                            <td><strong>{t.title}</strong></td>
-                            <td><span className={`badge-priority priority-${t.priority}`}>{t.priority}</span></td>
-                            <td><span className={`status-badge status-${t.status}`}>{t.status}</span></td>
-                            <td>{t.deadline ? new Date(t.deadline).toLocaleDateString() : 'N/A'}</td>
+                    <div className="proj-table-card">
+                      <table className="proj-data-table">
+                        <thead>
+                          <tr>
+                            <th>Task Title</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>Deadline</th>
+                            <th>Action</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                        </thead>
+                        <tbody>
+                          {selectedProject.myTasks.map((t) => (
+                            <tr key={t._id}>
+                              <td><strong>{t.title}</strong></td>
+                              <td>
+                                <span className={`badge-priority priority-${(t.priority || 'medium').toLowerCase()}`}>
+                                  <span className="priority-indicator-dot" />
+                                  {t.priority}
+                                </span>
+                              </td>
+                              <td>
+                                <span className={`task-status-chip status-${t.status}`}>
+                                  {t.status === 'in-process' ? 'In Progress' : t.status === 'in-review' ? 'Under Review' : t.status === 'completed' ? 'Completed' : 'To Do'}
+                                </span>
+                              </td>
+                              <td>{t.deadline ? new Date(t.deadline).toLocaleDateString() : 'N/A'}</td>
+                              <td>
+                                <button
+                                  type="button"
+                                  className="btn-ghost btn-small"
+                                  onClick={() => {
+                                    setSelectedProject(null);
+                                    openTask(t._id);
+                                  }}
+                                >
+                                  Open Task
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   )}
                 </div>
               )}
 
+              {/* TAB 4: DOCUMENTS */}
               {projectDetailTab === 'documents' && (
                 <div className="detail-documents-tab">
-                  <div className="document-upload-box">
-                    <h5>Upload Project Document / File</h5>
-                    <form onSubmit={handleProjectDocUpload} className="document-upload-form">
+                  <div className="document-uploader-card">
+                    <div className="uploader-header">
+                      <FileUp size={16} className="text-blue" />
+                      <div>
+                        <h5>Upload Project Document / Deliverable</h5>
+                        <p>Attach project specifications, architecture notes, designs, or spreadsheets.</p>
+                      </div>
+                    </div>
+                    <form onSubmit={handleProjectDocUpload} className="document-upload-composer">
                       <input
                         type="file"
+                        id="emp-proj-doc-file-input"
+                        style={{ display: 'none' }}
                         onChange={(e) => setProjectDocFile(e.target.files?.[0] || null)}
-                        required
                       />
-                      <button type="submit" className="btn-primary btn-small" disabled={projectBusy || !projectDocFile}>
-                        <Upload size={14} /> Upload
-                      </button>
+                      {!projectDocFile ? (
+                        <label htmlFor="emp-proj-doc-file-input" className="file-drop-zone">
+                          <Upload size={22} className="upload-zone-icon" />
+                          <div className="upload-zone-text">
+                            <span className="upload-main-text">Click to browse file from your device</span>
+                            <span className="upload-sub-text">Supported: PDF, DOCX, XLSX, PNG, JPG (up to 25MB)</span>
+                          </div>
+                        </label>
+                      ) : (
+                        <div className="file-selected-card">
+                          <div className="selected-file-left">
+                            <FileText size={20} className="text-blue" />
+                            <div className="selected-file-info">
+                              <strong>{projectDocFile.name}</strong>
+                              <small>{(projectDocFile.size / 1024).toFixed(1)} KB</small>
+                            </div>
+                          </div>
+                          <div className="selected-file-actions">
+                            <button
+                              type="button"
+                              className="btn-remove-selected"
+                              onClick={() => setProjectDocFile(null)}
+                            >
+                              <X size={15} /> Remove
+                            </button>
+                            <button type="submit" className="btn-upload-submit" disabled={projectBusy}>
+                              <Upload size={14} />
+                              <span>{projectBusy ? 'Uploading...' : 'Upload File'}</span>
+                            </button>
+                          </div>
+                        </div>
+                      )}
                     </form>
                   </div>
 
-                  <h4>Attached Project Documents ({selectedProject.project?.documents?.length || 0})</h4>
-                  {selectedProject.project?.documents?.length === 0 ? (
-                    <p className="text-muted">No documents uploaded for this project yet.</p>
-                  ) : (
-                    <div className="documents-list">
-                      {selectedProject.project?.documents?.map((doc) => (
-                        <div key={doc._id} className="document-item-row">
-                          <div className="doc-info">
-                            <FileText size={18} className="text-blue" />
-                            <div>
-                              <strong>{doc.title || doc.originalName}</strong>
-                              {doc.title && doc.title !== doc.originalName && (
-                                <span className="doc-sub-filename" style={{ display: 'block', fontSize: '11px', color: 'var(--text-muted)' }}>{doc.originalName}</span>
-                              )}
-                              {doc.notes && (
-                                <p style={{ margin: '3px 0 0', fontSize: '12px', color: 'var(--text-secondary)' }}><em>Note: {doc.notes}</em></p>
-                              )}
-                              <small>{(doc.size / 1024).toFixed(1)} KB · Uploaded by {doc.uploadedBy?.name || 'Admin'} on {new Date(doc.createdAt).toLocaleDateString()}</small>
+                  <div className="documents-section">
+                    <div className="section-head-row">
+                      <div className="section-head-left">
+                        <Paperclip size={16} className="text-blue" />
+                        <h4>Attached Project Documents</h4>
+                      </div>
+                      <span className="stats-total-pill">{selectedProject.project?.documents?.length || 0} Files</span>
+                    </div>
+
+                    {(!selectedProject.project?.documents || selectedProject.project.documents.length === 0) ? (
+                      <div className="proj-empty-card">
+                        <Paperclip size={32} className="empty-icon text-muted" />
+                        <h5>No project documents uploaded yet</h5>
+                        <p>Upload files above to share project assets and documentation with your team.</p>
+                      </div>
+                    ) : (
+                      <div className="documents-grid-list">
+                        {selectedProject.project.documents.map((doc) => (
+                          <div key={doc._id} className="doc-item-card">
+                            <div className="doc-item-left">
+                              <div className="doc-icon-tile">
+                                <FileText size={20} />
+                              </div>
+                              <div className="doc-item-details">
+                                <strong className="doc-item-name" title={doc.originalName}>{doc.title || doc.originalName}</strong>
+                                {doc.title && doc.title !== doc.originalName && (
+                                  <span className="doc-sub-filename" style={{ display: 'block', fontSize: '11px', color: 'var(--text-muted)' }}>{doc.originalName}</span>
+                                )}
+                                {doc.notes && (
+                                  <p className="doc-notes-text" style={{ margin: '3px 0 0', fontSize: '12px', color: 'var(--text-secondary)' }}><em>Note: {doc.notes}</em></p>
+                                )}
+                                <div className="doc-item-meta">
+                                  <span>{(doc.size / 1024).toFixed(1)} KB</span>
+                                  <span className="meta-sep">·</span>
+                                  <span>Uploaded by {doc.uploadedBy?.name || 'Admin'}</span>
+                                  <span className="meta-sep">·</span>
+                                  <span>{new Date(doc.createdAt).toLocaleDateString()}</span>
+                                  {doc.targetAudience && (
+                                    <>
+                                      <span className="meta-sep">·</span>
+                                      <span className="doc-audience-badge" style={{
+                                        fontSize: '11px',
+                                        padding: '2px 8px',
+                                        borderRadius: '6px',
+                                        fontWeight: 600,
+                                        background: doc.targetAudience === 'All' ? '#eff6ff' : '#f0fdf4',
+                                        color: doc.targetAudience === 'All' ? '#1d4ed8' : '#15803d',
+                                        border: `1px solid ${doc.targetAudience === 'All' ? '#bfdbfe' : '#bbf7d0'}`
+                                      }}>
+                                        {doc.targetAudience === 'All' ? 'For Everyone' : 'For Employees'}
+                                      </span>
+                                    </>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                            <div className="doc-item-actions">
+                              <a
+                                href={`/api/manager/projects/${selectedProject.project._id}/documents/${doc._id}?token=${encodeURIComponent(localStorage.getItem('token') || '')}`}
+                                download={doc.originalName}
+                                className="btn-doc-download"
+                                target="_blank"
+                                rel="noreferrer"
+                              >
+                                <Download size={14} />
+                                <span>Download</span>
+                              </a>
                             </div>
                           </div>
-                          <a
-                            href={`/api/manager/projects/${selectedProject.project._id}/documents/${doc._id}?token=${encodeURIComponent(localStorage.getItem('token') || '')}`}
-                            download={doc.originalName}
-                            className="btn-ghost btn-small"
-                            target="_blank"
-                            rel="noreferrer"
-                          >
-                            <Download size={14} /> Download
-                          </a>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
 
+              {/* TAB 5: COMMENTS & UPDATES */}
               {projectDetailTab === 'comments' && (
                 <div className="detail-comments-tab">
-                  <form onSubmit={handleProjectComment} className="comment-post-box">
-                    <textarea
-                      rows={3}
-                      placeholder="Post a project progress update or team comment..."
-                      value={projectCommentText}
-                      onChange={(e) => setProjectCommentText(e.target.value)}
-                      required
-                    />
-                    <button type="submit" className="btn-primary btn-small" disabled={projectBusy || !projectCommentText.trim()}>
-                      <Send size={14} /> Post Update
-                    </button>
-                  </form>
-
-                  <h4>Project Updates &amp; Comments</h4>
-                  <div className="comments-stream">
-                    {selectedProject.project?.comments?.slice().reverse().map((comm, idx) => (
-                      <div key={comm._id || idx} className="comment-card">
-                        <div className="comment-header">
-                          <strong>{comm.user?.name || 'Team Member'}</strong>
-                          <small>{new Date(comm.createdAt).toLocaleString()}</small>
-                        </div>
-                        <p className="comment-body">{comm.text}</p>
+                  <div className="comment-composer-card">
+                    <div className="composer-header">
+                      <MessageSquare size={16} className="text-blue" />
+                      <div>
+                        <h5>Post Project Update or Question</h5>
+                        <p>Share progress updates, questions, or notes with your manager and teammates.</p>
                       </div>
-                    ))}
+                    </div>
+                    <form onSubmit={handleProjectComment} className="comment-composer-form">
+                      <textarea
+                        rows={3}
+                        placeholder="Add a project comment, progress update, or milestone note..."
+                        value={projectCommentText}
+                        onChange={(e) => setProjectCommentText(e.target.value)}
+                        className="comment-textarea-elevated"
+                        required
+                      />
+                      <div className="composer-footer-row">
+                        <span className="composer-hint">Visible to your project manager, leads, and team.</span>
+                        <button
+                          type="submit"
+                          className="btn-post-comment"
+                          disabled={projectBusy || !projectCommentText.trim()}
+                        >
+                          <Send size={14} />
+                          <span>{projectBusy ? 'Posting...' : 'Post Update'}</span>
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+
+                  <div className="comments-stream-section">
+                    <div className="section-head-row">
+                      <div className="section-head-left">
+                        <MessageSquare size={16} className="text-blue" />
+                        <h4>Discussion &amp; Update History</h4>
+                      </div>
+                      <span className="stats-total-pill">{selectedProject.project?.comments?.length || 0} Updates</span>
+                    </div>
+
+                    {(!selectedProject.project?.comments || selectedProject.project.comments.length === 0) ? (
+                      <div className="proj-empty-card">
+                        <MessageSquare size={32} className="empty-icon text-muted" />
+                        <h5>No comments or updates yet</h5>
+                        <p>Post the first update using the composer above to initiate communication with the team.</p>
+                      </div>
+                    ) : (
+                      <div className="comments-timeline-stream">
+                        {selectedProject.project?.comments?.slice().reverse().map((comm, idx) => (
+                          <div key={comm._id || idx} className="comment-timeline-card">
+                            <div className="comment-avatar-circle">
+                              {(comm.user?.name || 'Team Member').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                            </div>
+                            <div className="comment-content-bubble">
+                              <div className="comment-bubble-header">
+                                <strong className="comment-author-name">{comm.user?.name || 'Team Member'}</strong>
+                                <span className="comment-time-pill">{new Date(comm.createdAt).toLocaleString()}</span>
+                              </div>
+                              <p className="comment-bubble-body">{comm.text}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               )}

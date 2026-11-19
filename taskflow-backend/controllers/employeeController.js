@@ -468,6 +468,54 @@ exports.getProjectDetails = async (req, res) => {
     }
 };
 
+exports.toggleProjectMilestone = async (req, res) => {
+    try {
+        const { id, milestoneId } = req.params;
+        const project = await Project.findById(id);
+        if (!project) return res.status(404).json({ message: 'Project not found' });
+
+        const milestone = project.milestones.id(milestoneId);
+        if (!milestone) return res.status(404).json({ message: 'Milestone not found' });
+
+        if (req.body.completed !== undefined) {
+            milestone.completed = Boolean(req.body.completed);
+            milestone.completedAt = milestone.completed ? new Date() : null;
+        }
+
+        // Recalculate project progress
+        const milestones = project.milestones || [];
+        const completedMilestones = milestones.filter(m => m.completed).length;
+        const milestoneProgress = milestones.length ? Math.round((completedMilestones / milestones.length) * 100) : 100;
+
+        const tasks = await Task.find({ project: project.name });
+        const completedTasks = tasks.filter(t => t.status === 'completed').length;
+        const taskProgress = tasks.length ? Math.round((completedTasks / tasks.length) * 100) : milestoneProgress;
+
+        const overallProgress = milestones.length ? Math.round((milestoneProgress + taskProgress) / 2) : taskProgress;
+        project.progress = overallProgress;
+
+        if (overallProgress === 100 || (completedMilestones === milestones.length && (tasks.length === 0 || completedTasks === tasks.length))) {
+            project.progress = 100;
+            project.status = 'Completed';
+        } else if (project.status === 'Completed' && overallProgress < 100) {
+            project.status = 'In Progress';
+        }
+
+        await project.save();
+
+        logActivity(req.userId, `${milestone.completed ? 'completed' : 'reopened'} milestone "${milestone.title}" in project`, 'project', project.name);
+
+        return res.json({
+            milestones: project.milestones,
+            progress: project.progress,
+            status: project.status,
+        });
+    } catch (error) {
+        console.error('toggleProjectMilestone error:', error);
+        return res.status(500).json({ message: 'Could not update milestone status' });
+    }
+};
+
 exports.uploadProjectDocument = async (req, res) => {
     if (!req.file) return res.status(400).json({ message: 'Please select a document to upload' });
     try {

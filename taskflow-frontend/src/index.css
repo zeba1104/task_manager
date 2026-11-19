@@ -8727,6 +8727,27 @@ body.dark-theme .task-modal-footer-elevated {
   border: 1px solid #e0f2fe;
 }
 
+.scope-icon-wrap.icon-emerald {
+  background: #ecfdf5;
+  color: #059669;
+  border: 1px solid #a7f3d0;
+}
+
+.proj-desc-hero-card {
+  margin-bottom: 16px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 18px 20px;
+}
+
+.proj-desc-hero-card .scope-card-body {
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: #334155;
+  margin: 0;
+}
+
 .scope-card-header h4 {
   margin: 0;
   font-size: 14px;
@@ -9195,6 +9216,91 @@ body.dark-theme .task-modal-footer-elevated {
   background: #dcfce7;
   color: #15803d;
   border: 1px solid #bbf7d0;
+}
+
+.milestone-toggle-check-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.milestone-toggle-check-btn:hover:not(:disabled) {
+  transform: scale(1.15);
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.milestone-status-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid transparent;
+}
+
+.milestone-status-action-btn.is-pending {
+  background: #fffbeb;
+  color: #b45309;
+  border-color: #fde68a;
+  box-shadow: 0 1px 3px rgba(245, 158, 11, 0.15);
+}
+
+.milestone-status-action-btn.is-pending:hover:not(:disabled) {
+  background: #10b981;
+  color: #ffffff;
+  border-color: #059669;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  transform: translateY(-1px);
+}
+
+.milestone-status-action-btn.is-completed {
+  background: #ecfdf5;
+  color: #059669;
+  border-color: #a7f3d0;
+}
+
+.milestone-status-action-btn.is-completed:hover:not(:disabled) {
+  background: #fee2e2;
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
+[data-theme="dark"] .milestone-status-action-btn.is-pending,
+body.dark-theme .milestone-status-action-btn.is-pending {
+  background: rgba(245, 158, 11, 0.15) !important;
+  color: #fbbf24 !important;
+  border-color: rgba(245, 158, 11, 0.3) !important;
+}
+
+[data-theme="dark"] .milestone-status-action-btn.is-pending:hover:not(:disabled),
+body.dark-theme .milestone-status-action-btn.is-pending:hover:not(:disabled) {
+  background: #10b981 !important;
+  color: #ffffff !important;
+  border-color: #059669 !important;
+}
+
+[data-theme="dark"] .milestone-status-action-btn.is-completed,
+body.dark-theme .milestone-status-action-btn.is-completed {
+  background: rgba(16, 185, 129, 0.15) !important;
+  color: #34d399 !important;
+  border-color: rgba(16, 185, 129, 0.3) !important;
+}
+
+[data-theme="dark"] .milestone-status-action-btn.is-completed:hover:not(:disabled),
+body.dark-theme .milestone-status-action-btn.is-completed:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.2) !important;
+  color: #f87171 !important;
+  border-color: rgba(239, 68, 68, 0.4) !important;
 }
 
 .chip-pending {

@@ -30,6 +30,7 @@ export const getProjectDetails = (id) => api.get(`/employee/projects/${id}`);
 export const uploadProjectDocument = (id, formData) => api.post(`/employee/projects/${id}/documents`, formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
 });
+export const toggleProjectMilestone = (id, milestoneId, data) => api.put(`/employee/projects/${id}/milestones/${milestoneId}`, data);
 export const addProjectComment = (id, data) => api.post(`/employee/projects/${id}/comments`, data);
 
 // 1.4 My Tasks

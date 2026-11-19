@@ -949,7 +949,7 @@ exports.addProjectMilestone = async (req, res) => {
  * Update milestone status or details.
  */
 exports.updateProjectMilestone = async (req, res) => {
-    if (req.userRole !== 'Manager') return res.status(403).json({ message: 'Manager access required' });
+    if (req.userRole !== 'Manager' && req.userRole !== 'Admin') return res.status(403).json({ message: 'Manager or Admin access required' });
     try {
         const { id, milestoneId } = req.params;
         const project = await Project.findById(id);
@@ -965,6 +965,25 @@ exports.updateProjectMilestone = async (req, res) => {
         if (req.body.completed !== undefined) {
             milestone.completed = Boolean(req.body.completed);
             milestone.completedAt = milestone.completed ? new Date() : null;
+        }
+
+        // Recalculate project progress
+        const milestones = project.milestones || [];
+        const completedMilestones = milestones.filter(m => m.completed).length;
+        const milestoneProgress = milestones.length ? Math.round((completedMilestones / milestones.length) * 100) : 100;
+
+        const tasks = await Task.find({ project: project.name });
+        const completedTasks = tasks.filter(t => t.status === 'completed').length;
+        const taskProgress = tasks.length ? Math.round((completedTasks / tasks.length) * 100) : milestoneProgress;
+
+        const overallProgress = milestones.length ? Math.round((milestoneProgress + taskProgress) / 2) : taskProgress;
+        project.progress = overallProgress;
+
+        if (overallProgress === 100 || (completedMilestones === milestones.length && (tasks.length === 0 || completedTasks === tasks.length))) {
+            project.progress = 100;
+            project.status = 'Completed';
+        } else if (project.status === 'Completed' && overallProgress < 100) {
+            project.status = 'In Progress';
         }
 
         await project.save();

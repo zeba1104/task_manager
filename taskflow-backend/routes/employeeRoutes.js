@@ -14,6 +14,7 @@ const {
     getProjectDetails,
     uploadProjectDocument,
     downloadProjectDocument,
+    toggleProjectMilestone,
     addProjectComment,
     getMyTasks,
     getTaskDetails,
@@ -70,6 +71,7 @@ router.get('/projects/:id', getProjectDetails);
 router.post('/projects/:id/documents', handleDocUpload, uploadProjectDocument);
 router.get('/projects/:id/documents/:docId', downloadProjectDocument);
 router.get('/projects/:id/documents/:docId/download', downloadProjectDocument);
+router.put('/projects/:id/milestones/:milestoneId', toggleProjectMilestone);
 router.post('/projects/:id/comments', addProjectComment);
 
 /* --- 1.4 My Tasks --- */
