@@ -208,12 +208,6 @@ export const ROLE_NAVIGATION = {
         tab: 'leave',
       },
       {
-        id: 'employee-taskboard',
-        label: 'Task Board',
-        icon: 'TrendingUp',
-        view: 'tasks',
-      },
-      {
         id: 'employee-profile',
         label: 'Settings',
         icon: 'UserCheck',
