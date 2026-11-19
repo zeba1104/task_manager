@@ -595,9 +595,10 @@ exports.getRecentNotifications = async (req, res) => {
             const directReports = await User.find({ manager: userId }).select('_id');
             const reportIds = directReports.map(u => u._id);
 
-            const [reviewTasks, teamLeaves, pendingEmployeeChats, adminChatDecisions] = await Promise.all([
+            const [reviewTasks, teamLeaves, managerOwnLeaves, pendingEmployeeChats, adminChatDecisions] = await Promise.all([
                 Task.find({ user: { $in: reportIds }, status: 'in-review' }).populate('user', 'name').sort({ updatedAt: -1 }).limit(6).lean(),
                 LeaveRequest.find({ user: { $in: reportIds }, status: 'pending' }).populate('user', 'name').sort({ createdAt: -1 }).limit(6).lean(),
+                LeaveRequest.find({ user: userId, status: { $in: ['approved', 'rejected'] } }).populate('approver', 'name').sort({ updatedAt: -1 }).limit(5).lean(),
                 ChatSession.find({ recipient: userId, status: 'pending' }).populate('initiator', 'name designation department').sort({ createdAt: -1 }).limit(6).lean(),
                 ChatSession.find({ initiator: userId, type: 'MANAGER_ADMIN', status: { $in: ['approved', 'rejected'] } }).populate('recipient', 'name').sort({ updatedAt: -1 }).limit(5).lean(),
             ]);
@@ -624,6 +625,22 @@ exports.getRecentNotifications = async (req, res) => {
                     priority: 'High',
                     isRead: false,
                     createdAt: l.createdAt,
+                    link: '/dashboard?view=manager&tab=leave'
+                });
+            });
+
+            managerOwnLeaves.forEach((l) => {
+                const isApproved = l.status === 'approved';
+                const sDate = new Date(l.startDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
+                const eDate = new Date(l.endDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+                notifications.push({
+                    _id: `${l._id}_${l.status}`,
+                    title: `Leave Request ${isApproved ? 'Approved' : 'Rejected'}`,
+                    message: `Your ${l.leaveType} leave request (${sDate} — ${eDate}, ${l.totalDays || 1}d) was ${l.status} by ${l.approver?.name || 'Executive Admin'}.${!isApproved && l.rejectionReason ? ` Reason: ${l.rejectionReason}` : ''}`,
+                    type: 'leave',
+                    priority: isApproved ? 'Low' : 'High',
+                    isRead: false,
+                    createdAt: l.reviewedAt || l.updatedAt || l.createdAt,
                     link: '/dashboard?view=manager&tab=leave'
                 });
             });
@@ -664,7 +681,7 @@ exports.getRecentNotifications = async (req, res) => {
 
             const [modTasks, recentLeaves, chatDecisions] = await Promise.all([
                 Task.find({ user: userId, needsModification: true }).sort({ updatedAt: -1 }).limit(5).lean(),
-                LeaveRequest.find({ user: userId }).sort({ updatedAt: -1 }).limit(5).lean(),
+                LeaveRequest.find({ user: userId, status: { $in: ['approved', 'rejected'] } }).populate('approver', 'name').sort({ updatedAt: -1 }).limit(6).lean(),
                 ChatSession.find({
                     initiator: userId,
                     type: 'EMPLOYEE_MANAGER',
@@ -686,18 +703,19 @@ exports.getRecentNotifications = async (req, res) => {
             });
 
             recentLeaves.forEach((l) => {
-                if (l.status === 'approved' || l.status === 'rejected') {
-                    notifications.push({
-                        _id: l._id,
-                        title: `Leave Request ${l.status === 'approved' ? 'Approved' : 'Rejected'}`,
-                        message: `Your ${l.leaveType} leave request was ${l.status}.`,
-                        type: 'leave',
-                        priority: l.status === 'approved' ? 'Low' : 'High',
-                        isRead: false,
-                        createdAt: l.updatedAt || l.createdAt,
-                        link: '/dashboard?view=employee&tab=leave'
-                    });
-                }
+                const isApproved = l.status === 'approved';
+                const sDate = new Date(l.startDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
+                const eDate = new Date(l.endDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+                notifications.push({
+                    _id: `${l._id}_${l.status}`,
+                    title: `Leave Request ${isApproved ? 'Approved' : 'Rejected'}`,
+                    message: `Your ${l.leaveType} leave request (${sDate} — ${eDate}, ${l.totalDays || 1}d) was ${l.status} by ${l.approver?.name || (l.approverRole === 'Admin' ? 'Executive Admin' : 'Reporting Manager')}.${!isApproved && l.rejectionReason ? ` Reason: ${l.rejectionReason}` : ''}`,
+                    type: 'leave',
+                    priority: isApproved ? 'Low' : 'High',
+                    isRead: false,
+                    createdAt: l.reviewedAt || l.updatedAt || l.createdAt,
+                    link: '/dashboard?view=employee&tab=leave'
+                });
             });
 
             chatDecisions.forEach((s) => {

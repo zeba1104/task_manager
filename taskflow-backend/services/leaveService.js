@@ -387,6 +387,27 @@ const processLeaveDecision = async ({
     `Leave Type: ${leaveRequest.leaveType}, Days: ${leaveRequest.totalDays}, Approver Role: ${approverRole}`
   );
 
+  // Automatically dispatch notification email to requester upon approval or rejection
+  try {
+    let requester = leaveRequest.user;
+    if (!requester || !requester.email) {
+      requester = await User.findById(leaveRequest.user?._id || leaveRequest.user);
+    }
+    if (requester && requester.email) {
+      const { sendLeaveDecisionEmail } = require('../config/email');
+      sendLeaveDecisionEmail({
+        leaveRequest,
+        requester,
+        approverName: approver.name,
+        approverRole,
+        status: newStatus,
+        rejectionReason: leaveRequest.rejectionReason,
+      }).catch((mailErr) => console.error('Leave decision email dispatch error:', mailErr.message));
+    }
+  } catch (emailErr) {
+    console.error('Failed to initiate leave decision email:', emailErr.message);
+  }
+
   return {
     success: true,
     leaveRequest,

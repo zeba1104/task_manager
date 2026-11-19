@@ -43,6 +43,7 @@ import {
   Users,
   UserRound,
   X,
+  XCircle,
   Search,
   Star,
   Upload,
@@ -234,6 +235,48 @@ export default function EmployeeDashboard({ user, logout, setView, activeTab, on
     return (type || 'LEAVE').toUpperCase() + ' LEAVE';
   };
 
+  const [dismissedLeaveBannerIds, setDismissedLeaveBannerIds] = useState(() => {
+    try {
+      return JSON.parse(sessionStorage.getItem('taskflow_dismissed_leave_banners') || '[]');
+    } catch {
+      return [];
+    }
+  });
+
+  const dismissLeaveBanner = (id) => {
+    setDismissedLeaveBannerIds((prev) => {
+      const next = [...new Set([...prev, String(id)])];
+      try {
+        sessionStorage.setItem('taskflow_dismissed_leave_banners', JSON.stringify(next));
+      } catch {
+        // Ignore storage error
+      }
+      return next;
+    });
+  };
+
+  const recentLeaveDecision = useMemo(() => {
+    if (!leaveOverview?.leaveRequests?.length) return null;
+    const decided = leaveOverview.leaveRequests.filter(
+      (l) => (l.status === 'approved' || l.status === 'rejected')
+    );
+    if (!decided.length) return null;
+    decided.sort((a, b) => new Date(b.reviewedAt || b.updatedAt || b.approvedAt || b.rejectedAt || b.createdAt) - new Date(a.reviewedAt || a.updatedAt || a.approvedAt || a.rejectedAt || a.createdAt));
+    const latest = decided[0];
+    if (dismissedLeaveBannerIds.includes(String(latest._id))) return null;
+    // Show if decided recently (within last 14 days)
+    const decisionTime = new Date(latest.reviewedAt || latest.updatedAt || latest.approvedAt || latest.rejectedAt || latest.createdAt).getTime();
+    if (Date.now() - decisionTime <= 14 * 24 * 60 * 60 * 1000) {
+      return latest;
+    }
+    return null;
+  }, [leaveOverview, dismissedLeaveBannerIds]);
+
+  const handleViewLeaveTab = () => {
+    setTab('leave');
+    if (onTabChange) onTabChange('leave');
+  };
+
   // Profile Form State
   const [profileData, setProfileData] = useState(null);
   const [profileForm, setProfileForm] = useState({ firstName: '', lastName: '', phone: '' });
@@ -369,6 +412,12 @@ export default function EmployeeDashboard({ user, logout, setView, activeTab, on
   useEffect(() => {
     loadEmployeeLeaves();
   }, [loadEmployeeLeaves]);
+
+  useEffect(() => {
+    if (tab === 'leave') {
+      loadEmployeeLeaves();
+    }
+  }, [tab, loadEmployeeLeaves]);
 
   // Compute total days automatically when start or end date changes
   useEffect(() => {
@@ -999,6 +1048,58 @@ export default function EmployeeDashboard({ user, logout, setView, activeTab, on
                 </div>
               </div>
             </div>
+
+            {/* Prominent Leave Decision Alert Banner (Approved / Rejected) */}
+            {recentLeaveDecision && (
+              <div className={`emp-leave-decision-alert alert-${recentLeaveDecision.status}`}>
+                <div className="alert-icon-side">
+                  {recentLeaveDecision.status === 'approved' ? (
+                    <CheckCircle2 size={22} className="text-emerald" />
+                  ) : (
+                    <XCircle size={22} className="text-rose" />
+                  )}
+                </div>
+                <div className="alert-body-content">
+                  <div className="alert-header-row">
+                    <span className="alert-title-text">
+                      Leave Request {recentLeaveDecision.status === 'approved' ? 'Approved' : 'Rejected'}
+                    </span>
+                    <span className={`alert-status-pill pill-${recentLeaveDecision.status}`}>
+                      {recentLeaveDecision.status.toUpperCase()}
+                    </span>
+                    <span className="alert-date-time">
+                      {new Date(recentLeaveDecision.reviewedAt || recentLeaveDecision.updatedAt || recentLeaveDecision.approvedAt || recentLeaveDecision.rejectedAt || recentLeaveDecision.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                    </span>
+                  </div>
+                  <p className="alert-desc-text">
+                    Your request for <strong>{formatLeaveTypeName(recentLeaveDecision.leaveType)}</strong> ({new Date(recentLeaveDecision.startDate).toLocaleDateString()} &mdash; {new Date(recentLeaveDecision.endDate).toLocaleDateString()}, {recentLeaveDecision.totalDays || 1} {recentLeaveDecision.totalDays === 1 ? 'day' : 'days'}) was <strong>{recentLeaveDecision.status}</strong> by {recentLeaveDecision.approver?.name || (recentLeaveDecision.approverRole === 'Admin' ? 'Executive Admin' : 'Reporting Manager')} ({recentLeaveDecision.approverRole || 'Approver'}).
+                    {recentLeaveDecision.status === 'rejected' && recentLeaveDecision.rejectionReason && (
+                      <span className="alert-reason-block">
+                        <strong>Reason:</strong> {recentLeaveDecision.rejectionReason}
+                      </span>
+                    )}
+                  </p>
+                </div>
+                <div className="alert-action-side">
+                  <button
+                    type="button"
+                    className="btn-alert-redirect"
+                    onClick={handleViewLeaveTab}
+                  >
+                    View in Leave &amp; Quotas &rarr;
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-alert-dismiss"
+                    onClick={() => dismissLeaveBanner(recentLeaveDecision._id)}
+                    title="Dismiss alert"
+                    aria-label="Dismiss alert"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* Today's Shift Clock In / Clock Out Hero Section (Main Dashboard) */}
             {(() => {

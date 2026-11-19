@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import {
   AlertTriangle,
   Calendar,
@@ -11,6 +11,7 @@ import {
   UserRound,
   Users,
   X,
+  XCircle,
   CalendarDays,
   ShieldAlert,
   Clock,
@@ -343,6 +344,40 @@ function ManagerDashboard({ user, logout, setView, activeTab, onTabChange }) {
     return (type || 'LEAVE').toUpperCase() + ' LEAVE';
   };
 
+  const [dismissedManagerLeaveBanners, setDismissedManagerLeaveBanners] = useState(() => {
+    try {
+      return JSON.parse(sessionStorage.getItem('taskflow_dismissed_mgr_leave_banners') || '[]');
+    } catch {
+      return [];
+    }
+  });
+
+  const dismissManagerLeaveBanner = (id) => {
+    setDismissedManagerLeaveBanners((prev) => {
+      const next = [...new Set([...prev, String(id)])];
+      try {
+        sessionStorage.setItem('taskflow_dismissed_mgr_leave_banners', JSON.stringify(next));
+      } catch {}
+      return next;
+    });
+  };
+
+  const recentManagerLeaveDecision = useMemo(() => {
+    if (!leaveOverview?.leaveRequests?.length) return null;
+    const decided = leaveOverview.leaveRequests.filter(
+      (l) => (l.status === 'approved' || l.status === 'rejected')
+    );
+    if (!decided.length) return null;
+    decided.sort((a, b) => new Date(b.reviewedAt || b.updatedAt || b.approvedAt || b.rejectedAt || b.createdAt) - new Date(a.reviewedAt || a.updatedAt || a.approvedAt || a.rejectedAt || a.createdAt));
+    const latest = decided[0];
+    if (dismissedManagerLeaveBanners.includes(String(latest._id))) return null;
+    const decisionTime = new Date(latest.reviewedAt || latest.updatedAt || latest.approvedAt || latest.rejectedAt || latest.createdAt).getTime();
+    if (Date.now() - decisionTime <= 14 * 24 * 60 * 60 * 1000) {
+      return latest;
+    }
+    return null;
+  }, [leaveOverview, dismissedManagerLeaveBanners]);
+
   const loadManagerLeaves = async () => {
     try {
       const [mineRes, teamRes] = await Promise.all([
@@ -359,6 +394,12 @@ function ManagerDashboard({ user, logout, setView, activeTab, onTabChange }) {
   useEffect(() => {
     loadManagerLeaves();
   }, []);
+
+  useEffect(() => {
+    if (tab === 'leave') {
+      loadManagerLeaves();
+    }
+  }, [tab]);
 
   // Compute total days automatically when start or end date changes
   useEffect(() => {
@@ -821,6 +862,61 @@ function ManagerDashboard({ user, logout, setView, activeTab, onTabChange }) {
       {/* VIEW: OVERVIEW */}
       {tab === 'overview' && (
         <>
+          {/* Prominent Manager Personal Leave Decision Alert Banner */}
+          {recentManagerLeaveDecision && (
+            <div className={`emp-leave-decision-alert alert-${recentManagerLeaveDecision.status}`}>
+              <div className="alert-icon-side">
+                {recentManagerLeaveDecision.status === 'approved' ? (
+                  <CheckCircle2 size={22} className="text-emerald" />
+                ) : (
+                  <XCircle size={22} className="text-rose" />
+                )}
+              </div>
+              <div className="alert-body-content">
+                <div className="alert-header-row">
+                  <span className="alert-title-text">
+                    Personal Leave Request {recentManagerLeaveDecision.status === 'approved' ? 'Approved' : 'Rejected'}
+                  </span>
+                  <span className={`alert-status-pill pill-${recentManagerLeaveDecision.status}`}>
+                    {recentManagerLeaveDecision.status.toUpperCase()}
+                  </span>
+                  <span className="alert-date-time">
+                    {new Date(recentManagerLeaveDecision.reviewedAt || recentManagerLeaveDecision.updatedAt || recentManagerLeaveDecision.approvedAt || recentManagerLeaveDecision.rejectedAt || recentManagerLeaveDecision.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                  </span>
+                </div>
+                <p className="alert-desc-text">
+                  Your request for <strong>{formatLeaveTypeName(recentManagerLeaveDecision.leaveType)}</strong> ({new Date(recentManagerLeaveDecision.startDate).toLocaleDateString()} &mdash; {new Date(recentManagerLeaveDecision.endDate).toLocaleDateString()}, {recentManagerLeaveDecision.totalDays || 1} {recentManagerLeaveDecision.totalDays === 1 ? 'day' : 'days'}) was <strong>{recentManagerLeaveDecision.status}</strong> by Executive Administration.
+                  {recentManagerLeaveDecision.status === 'rejected' && recentManagerLeaveDecision.rejectionReason && (
+                    <span className="alert-reason-block">
+                      <strong>Reason:</strong> {recentManagerLeaveDecision.rejectionReason}
+                    </span>
+                  )}
+                </p>
+              </div>
+              <div className="alert-action-side">
+                <button
+                  type="button"
+                  className="btn-alert-redirect"
+                  onClick={() => {
+                    setTab('leave');
+                    if (onTabChange) onTabChange('leave');
+                  }}
+                >
+                  View in Leave &amp; Quotas &rarr;
+                </button>
+                <button
+                  type="button"
+                  className="btn-alert-dismiss"
+                  onClick={() => dismissManagerLeaveBanner(recentManagerLeaveDecision._id)}
+                  title="Dismiss alert"
+                  aria-label="Dismiss alert"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Manager's Personal Clock In / Clock Out Hero Section */}
           {(() => {
             const isManagerOnLeave = Boolean(

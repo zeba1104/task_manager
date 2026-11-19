@@ -521,23 +521,6 @@ exports.confirmLeaveAction = async (req, res) => {
   const leave = result.leaveRequest;
   const isApproved = result.action === 'approved';
 
-  // Send decision email asynchronously
-  try {
-    const requester = await User.findById(leave.user);
-    if (requester?.email) {
-      sendLeaveDecisionEmail({
-        leaveRequest: leave,
-        requester,
-        approverName: result.approverName,
-        approverRole: result.approverRole,
-        status: leave.status,
-        rejectionReason: leave.rejectionReason,
-      }).catch((e) => console.error('Decision email error:', e.message));
-    }
-  } catch (err) {
-    console.error('Failed to notify requester:', err.message);
-  }
-
   const successHtml = `
     <div class="status-icon-wrap ${isApproved ? 'icon-success' : 'icon-rejected'}">
       ${isApproved ? '✓' : '✕'}

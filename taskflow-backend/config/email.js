@@ -241,6 +241,10 @@ const sendLeaveDecisionEmail = async ({
     status,
     rejectionReason,
 }) => {
+    if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
+        console.warn('SMTP is not configured; skipping leave decision email dispatch.');
+        return;
+    }
     const transporter = getTransporter();
 
     const isApproved = status === 'approved';

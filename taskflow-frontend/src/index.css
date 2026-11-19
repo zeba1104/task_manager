@@ -24094,3 +24094,265 @@ body.dark-theme .toggle-pill.is-active-reject {
   border-color: #ef4444 !important;
   color: #f87171 !important;
 }
+
+/* =========================================================================
+   LEAVE DECISION IN-DASHBOARD ALERT BANNER (LIGHT & DARK MODES)
+   ========================================================================= */
+.emp-leave-decision-alert {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  border-radius: 14px;
+  margin-bottom: 22px;
+  position: relative;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+}
+
+.emp-leave-decision-alert.alert-approved {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-left: 5px solid #16a34a;
+}
+
+.emp-leave-decision-alert.alert-rejected {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-left: 5px solid #dc2626;
+}
+
+.emp-leave-decision-alert .alert-icon-side {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+}
+
+.alert-approved .alert-icon-side {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.alert-rejected .alert-icon-side {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.emp-leave-decision-alert .alert-body-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.emp-leave-decision-alert .alert-header-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+  flex-wrap: wrap;
+}
+
+.emp-leave-decision-alert .alert-title-text {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.emp-leave-decision-alert .alert-status-pill {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 3px 9px;
+  border-radius: 9999px;
+}
+
+.emp-leave-decision-alert .alert-status-pill.pill-approved {
+  background: #dcfce7;
+  color: #15803d;
+  border: 1px solid #86efac;
+}
+
+.emp-leave-decision-alert .alert-status-pill.pill-rejected {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fca5a5;
+}
+
+.emp-leave-decision-alert .alert-date-time {
+  font-size: 11.5px;
+  color: #64748b;
+  margin-left: auto;
+}
+
+.emp-leave-decision-alert .alert-desc-text {
+  font-size: 13px;
+  color: #334155;
+  margin: 0;
+  line-height: 1.45;
+}
+
+.emp-leave-decision-alert .alert-reason-block {
+  display: block;
+  margin-top: 5px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: rgba(220, 38, 38, 0.08);
+  font-size: 12.5px;
+  color: #991b1b;
+  font-weight: 500;
+}
+
+.emp-leave-decision-alert .alert-action-side {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.emp-leave-decision-alert .btn-alert-redirect {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 15px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.alert-approved .btn-alert-redirect {
+  background: #16a34a;
+  color: #ffffff;
+}
+.alert-approved .btn-alert-redirect:hover {
+  background: #15803d;
+}
+
+.alert-rejected .btn-alert-redirect {
+  background: #dc2626;
+  color: #ffffff;
+}
+.alert-rejected .btn-alert-redirect:hover {
+  background: #b91c1c;
+}
+
+.emp-leave-decision-alert .btn-alert-dismiss {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.emp-leave-decision-alert .btn-alert-dismiss:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: #0f172a;
+}
+
+/* =========================================================================
+   DARK MODE OVERRIDES FOR LEAVE STATUS PILLS & DECISION ALERT BANNER
+   ========================================================================= */
+[data-theme="dark"] .emp-leave-decision-alert.alert-approved,
+body.dark-theme .emp-leave-decision-alert.alert-approved {
+  background: rgba(16, 185, 129, 0.12) !important;
+  border: 1px solid rgba(16, 185, 129, 0.35) !important;
+  border-left: 5px solid #10b981 !important;
+}
+
+[data-theme="dark"] .emp-leave-decision-alert.alert-rejected,
+body.dark-theme .emp-leave-decision-alert.alert-rejected {
+  background: rgba(239, 68, 68, 0.12) !important;
+  border: 1px solid rgba(239, 68, 68, 0.35) !important;
+  border-left: 5px solid #ef4444 !important;
+}
+
+[data-theme="dark"] .alert-approved .alert-icon-side,
+body.dark-theme .alert-approved .alert-icon-side {
+  background: rgba(16, 185, 129, 0.22) !important;
+  color: #34d399 !important;
+}
+
+[data-theme="dark"] .alert-rejected .alert-icon-side,
+body.dark-theme .alert-rejected .alert-icon-side {
+  background: rgba(239, 68, 68, 0.22) !important;
+  color: #f87171 !important;
+}
+
+[data-theme="dark"] .emp-leave-decision-alert .alert-title-text,
+body.dark-theme .emp-leave-decision-alert .alert-title-text {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .emp-leave-decision-alert .alert-date-time,
+body.dark-theme .emp-leave-decision-alert .alert-date-time {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .emp-leave-decision-alert .alert-desc-text,
+body.dark-theme .emp-leave-decision-alert .alert-desc-text {
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .emp-leave-decision-alert .alert-desc-text strong,
+body.dark-theme .emp-leave-decision-alert .alert-desc-text strong {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .emp-leave-decision-alert .alert-reason-block,
+body.dark-theme .emp-leave-decision-alert .alert-reason-block {
+  background: rgba(239, 68, 68, 0.18) !important;
+  color: #fca5a5 !important;
+}
+
+[data-theme="dark"] .emp-leave-decision-alert .btn-alert-dismiss,
+body.dark-theme .emp-leave-decision-alert .btn-alert-dismiss {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .emp-leave-decision-alert .btn-alert-dismiss:hover,
+body.dark-theme .emp-leave-decision-alert .btn-alert-dismiss:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #f8fafc !important;
+}
+
+/* Explicit Status Pills in Dark Mode across entire app */
+[data-theme="dark"] .leave-status-pill.pill-approved,
+body.dark-theme .leave-status-pill.pill-approved {
+  background: rgba(16, 185, 129, 0.2) !important;
+  color: #34d399 !important;
+  border: 1px solid rgba(16, 185, 129, 0.45) !important;
+}
+
+[data-theme="dark"] .leave-status-pill.pill-rejected,
+body.dark-theme .leave-status-pill.pill-rejected {
+  background: rgba(239, 68, 68, 0.2) !important;
+  color: #f87171 !important;
+  border: 1px solid rgba(239, 68, 68, 0.45) !important;
+}
+
+[data-theme="dark"] .leave-status-pill.pill-pending,
+body.dark-theme .leave-status-pill.pill-pending {
+  background: rgba(245, 158, 11, 0.2) !important;
+  color: #fbbf24 !important;
+  border: 1px solid rgba(245, 158, 11, 0.45) !important;
+}
+
+[data-theme="dark"] .leave-status-pill.pill-cancelled,
+body.dark-theme .leave-status-pill.pill-cancelled {
+  background: rgba(148, 163, 184, 0.15) !important;
+  color: #94a3b8 !important;
+  border: 1px solid rgba(148, 163, 184, 0.3) !important;
+}
+
