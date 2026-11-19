@@ -42,6 +42,22 @@ export default function AdminPayrollManager({ user }) {
   const [activeTab, setActiveTab] = useState('all'); // 'all' | 'pending' | 'ready' | 'paid' | 'failed' | 'structures'
   const [searchQuery, setSearchQuery] = useState('');
 
+  // Helpers for avatar
+  const getInitials = (name) => {
+    if (!name) return 'TF';
+    const parts = name.trim().split(/\s+/);
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  };
+
+  const getAvatarVariant = (name) => {
+    if (!name) return '';
+    const code = name.charCodeAt(0) % 3;
+    if (code === 0) return 'emerald';
+    if (code === 1) return 'amber';
+    return '';
+  };
+
   // Data states
   const [loading, setLoading] = useState(false);
   const [payrolls, setPayrolls] = useState([]);
@@ -409,57 +425,80 @@ export default function AdminPayrollManager({ user }) {
         </div>
       </div>
 
-      {/* 3. KPI Cards Grid */}
+      {/* 3. KPI Cards Grid (Strictly 4 balanced columns on desktop) */}
       <div className="payroll-kpi-grid">
         <div className="payroll-kpi-card">
           <div className="kpi-header">
-            <span>Total Net Payroll</span>
-            <DollarSign size={16} color="#4f46e5" />
+            <span className="kpi-title-text">Total Net Payroll</span>
+            <span className="kpi-badge-pill indigo">NET PAYOUT</span>
           </div>
-          <div className="kpi-amount">
-            ₹{Number(kpis?.totalNetAmount || 0).toLocaleString('en-IN')}
+          <div className="kpi-body-row">
+            <div className="kpi-amount">
+              ₹{Number(kpis?.totalNetAmount || 0).toLocaleString('en-IN')}
+            </div>
+            <div className="kpi-icon-squircle indigo">
+              <DollarSign size={18} />
+            </div>
           </div>
-          <div className="kpi-subtext">
-            Gross Total: ₹{Number(kpis?.totalGrossAmount || 0).toLocaleString('en-IN')}
-          </div>
-        </div>
-
-        <div className="payroll-kpi-card">
-          <div className="kpi-header">
-            <span>Ready for Payout</span>
-            <CheckCircle size={16} color="#059669" />
-          </div>
-          <div className="kpi-amount emerald">
-            {kpis?.readyForPaymentCount || 0}
-          </div>
-          <div className="kpi-subtext">
-            Approved &amp; awaiting transfer
+          <div className="kpi-footer">
+            <span>Gross Total: ₹{Number(kpis?.totalGrossAmount || 0).toLocaleString('en-IN')}</span>
           </div>
         </div>
 
         <div className="payroll-kpi-card">
           <div className="kpi-header">
-            <span>Pending Approvals</span>
-            <Clock size={16} color="#d97706" />
+            <span className="kpi-title-text">Ready for Payout</span>
+            <span className="kpi-badge-pill emerald">READY TO PAY</span>
           </div>
-          <div className="kpi-amount amber">
-            {(kpis?.pendingManagerCount || 0) + (kpis?.pendingAdminCount || 0)}
+          <div className="kpi-body-row">
+            <div className="kpi-amount emerald">
+              {kpis?.readyForPaymentCount || 0}
+            </div>
+            <div className="kpi-icon-squircle emerald">
+              <CheckCircle size={18} />
+            </div>
           </div>
-          <div className="kpi-subtext">
-            {kpis?.pendingManagerCount || 0} Manager • {kpis?.pendingAdminCount || 0} Admin
+          <div className="kpi-footer">
+            <span className="pulse-dot" style={{ background: '#10b981', width: '6px', height: '6px', borderRadius: '50%' }} />
+            <span>Approved &amp; awaiting transfer</span>
           </div>
         </div>
 
         <div className="payroll-kpi-card">
           <div className="kpi-header">
-            <span>Paid / Disbursed</span>
-            <Landmark size={16} color="#2563eb" />
+            <span className="kpi-title-text">Pending Approvals</span>
+            <span className="kpi-badge-pill amber">APPROVAL QUEUE</span>
           </div>
-          <div className="kpi-amount blue">
-            {kpis?.paidCount || 0}
+          <div className="kpi-body-row">
+            <div className="kpi-amount amber">
+              {(kpis?.pendingManagerCount || 0) + (kpis?.pendingAdminCount || 0)}
+            </div>
+            <div className="kpi-icon-squircle amber">
+              <Clock size={18} />
+            </div>
           </div>
-          <div className="kpi-subtext">
-            {kpis?.failedCount || 0} Failed / Needs retry
+          <div className="kpi-footer">
+            <span>{kpis?.pendingManagerCount || 0} Manager</span>
+            <span>•</span>
+            <span>{kpis?.pendingAdminCount || 0} Admin</span>
+          </div>
+        </div>
+
+        <div className="payroll-kpi-card">
+          <div className="kpi-header">
+            <span className="kpi-title-text">Paid / Disbursed</span>
+            <span className="kpi-badge-pill indigo">DISBURSED</span>
+          </div>
+          <div className="kpi-body-row">
+            <div className="kpi-amount blue">
+              {kpis?.paidCount || 0}
+            </div>
+            <div className="kpi-icon-squircle indigo">
+              <Landmark size={18} />
+            </div>
+          </div>
+          <div className="kpi-footer">
+            <span>{kpis?.failedCount || 0} Failed / Needs retry</span>
           </div>
         </div>
       </div>
@@ -491,13 +530,23 @@ export default function AdminPayrollManager({ user }) {
 
         {activeTab !== 'structures' && (
           <div className="payroll-search-input-wrap">
-            <Search size={14} />
+            <Search size={16} className="search-icon" />
             <input
               type="text"
               placeholder="Search by name, ID or department..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
+            {searchQuery && (
+              <button
+                type="button"
+                className="payroll-search-clear-btn"
+                onClick={() => setSearchQuery('')}
+                title="Clear search"
+              >
+                <X size={12} />
+              </button>
+            )}
           </div>
         )}
       </div>
@@ -597,31 +646,62 @@ export default function AdminPayrollManager({ user }) {
                   return (
                     <tr key={payroll._id}>
                       <td>
-                        <div className="emp-name-text">{emp.name || 'Employee'}</div>
-                        <div className="emp-sub-text">
-                          {emp.employeeId || 'ID: TF'} • {payroll.department || 'General'}
+                        <div className="emp-cell-flex">
+                          <div className={`emp-avatar-circle ${getAvatarVariant(emp.name)}`}>
+                            {getInitials(emp.name)}
+                          </div>
+                          <div>
+                            <div className="emp-name-text">{emp.name || 'Employee'}</div>
+                            <div className="emp-sub-row">
+                              <span className="emp-id-tag">{emp.employeeId || 'ID: TF'}</span>
+                              <span className="emp-role-tag">{payroll.department || 'General'}</span>
+                            </div>
+                          </div>
                         </div>
                       </td>
 
                       <td>
-                        <div style={{ fontWeight: '600', fontSize: '12px' }}>
-                          {att.presentDays || 0} / {att.workingDays || 22} Days Present
-                        </div>
-                        <div className="emp-sub-text">
-                          {att.approvedLeaves || 0} Leaves • {att.absentDays || 0} Absent
+                        <div className="attendance-visual-cell">
+                          <div className="attendance-ratio-badge">
+                            <span>{att.presentDays || 0} / {att.workingDays || 22} Days</span>
+                            <span className="attendance-ratio-pct">
+                              {Math.min(100, Math.round(((att.presentDays || 0) / (att.workingDays || 1)) * 100))}%
+                            </span>
+                          </div>
+                          <div className="attendance-track">
+                            <div
+                              className="attendance-fill"
+                              style={{ width: `${Math.min(100, Math.round(((att.presentDays || 0) / (att.workingDays || 1)) * 100))}%` }}
+                            />
+                          </div>
+                          <div className="attendance-sub-stats">
+                            <span>{att.approvedLeaves || 0} Leaves</span>
+                            <span>•</span>
+                            <span>{att.absentDays || 0} Absent</span>
+                          </div>
                         </div>
                       </td>
 
-                      <td style={{ fontFamily: 'var(--font-mono)', fontWeight: '600' }}>
+                      <td style={{ fontFamily: 'var(--font-mono)', fontWeight: '700', fontSize: '13.5px' }}>
                         ₹{Number(payroll.grossSalary || 0).toLocaleString('en-IN')}
                       </td>
 
-                      <td style={{ fontFamily: 'var(--font-mono)', color: '#dc2626', fontWeight: '600' }}>
-                        -₹{Number(payroll.totalDeductions || 0).toLocaleString('en-IN')}
+                      <td>
+                        {Number(payroll.totalDeductions || 0) > 0 ? (
+                          <span style={{ fontFamily: 'var(--font-mono)', color: '#dc2626', fontWeight: '700', fontSize: '13px' }}>
+                            -₹{Number(payroll.totalDeductions || 0).toLocaleString('en-IN')}
+                          </span>
+                        ) : (
+                          <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--muted)', fontSize: '13px' }}>
+                            ₹0
+                          </span>
+                        )}
                       </td>
 
-                      <td style={{ fontFamily: 'var(--font-mono)', color: '#4f46e5', fontWeight: '800', fontSize: '14px' }}>
-                        ₹{Number(payroll.netSalary || 0).toLocaleString('en-IN')}
+                      <td>
+                        <span className="net-salary-pill">
+                          ₹{Number(payroll.netSalary || 0).toLocaleString('en-IN')}
+                        </span>
                       </td>
 
                       <td>

@@ -3,9 +3,10 @@ import {
   CheckCircle,
   Clock,
   Landmark,
-  TrendingUp,
   FileText,
-  AlertCircle
+  AlertCircle,
+  ShieldCheck,
+  TrendingUp
 } from 'lucide-react';
 import { getMyPayrolls } from '../../api/payrollApi';
 import PayslipModal from './PayslipModal';
@@ -231,10 +232,28 @@ export default function EmployeeSalaryPortal({ user }) {
           </div>
         </>
       ) : (
-        <div className="payroll-empty-state">
-          <Landmark size={36} />
-          <h3>No Payroll Generated Yet</h3>
-          <p>Your compensation records will appear here as soon as Admin generates the payroll for this period.</p>
+        <div className="payroll-empty-state-card">
+          <div className="empty-state-icon-box">
+            <Landmark size={28} />
+          </div>
+          <h3 className="empty-state-title">No Compensation Records for This Period</h3>
+          <p className="empty-state-subtitle">
+            Your official monthly payslips, itemized earnings, and RazorpayX banking transfer receipts will be visible here once the organizational payroll cycle is generated and approved.
+          </p>
+          <div className="empty-state-tips">
+            <div className="empty-tip-pill">
+              <ShieldCheck size={13} color="#10b981" />
+              <span>Direct Bank Deposit</span>
+            </div>
+            <div className="empty-tip-pill">
+              <Clock size={13} color="#4f46e5" />
+              <span>Real-Time Approval Tracking</span>
+            </div>
+            <div className="empty-tip-pill">
+              <FileText size={13} color="#059669" />
+              <span>Downloadable PDF Payslips</span>
+            </div>
+          </div>
         </div>
       )}
 
