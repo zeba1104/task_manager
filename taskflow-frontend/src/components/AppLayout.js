@@ -194,6 +194,58 @@ function AppLayout({
     }
   };
 
+  const searchInputRef = useRef(null);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  const getBreadcrumb = () => {
+    if (user?.role === 'Admin') {
+      if (activeView === 'admin') return { section: 'Admin', current: 'Operations Center' };
+      if (activeView === 'employees') return { section: 'Governance', current: 'Members Directory' };
+      if (activeView === 'tasks') return { section: 'Operations', current: 'Task Board' };
+      if (activeView === 'attendance') return { section: 'Governance', current: 'Attendance Records' };
+      if (activeView === 'admin-leaves') return { section: 'Governance', current: 'Leave Approvals' };
+      if (activeView === 'holidays') return { section: 'Company', current: 'Government Holidays' };
+      if (activeView === 'announcements') return { section: 'Broadcasts', current: 'Announcements' };
+      if (activeView === 'chat') return { section: 'Messaging', current: 'Executive Chat' };
+      return { section: 'Admin', current: 'Control Center' };
+    }
+    if (user?.role === 'Manager') {
+      if (activeView === 'tasks') return { section: 'Tasks', current: 'Team Task Board' };
+      if (activeView === 'holidays') return { section: 'Company', current: 'Holiday Calendar' };
+      if (activeView === 'chat') return { section: 'Communication', current: 'Team Chat' };
+      if (activeView === 'announcements') return { section: 'Broadcasts', current: 'Announcements' };
+      if (activeTab === 'team') return { section: 'Workspace', current: 'Team Members' };
+      if (activeTab === 'projects') return { section: 'Workspace', current: 'Project Portfolios' };
+      if (activeTab === 'leave') return { section: 'Workspace', current: 'Leave Approvals' };
+      if (activeTab === 'attendance') return { section: 'Workspace', current: 'Attendance Tracking' };
+      if (activeTab === 'profile') return { section: 'Settings', current: 'Manager Profile' };
+      return { section: 'Team', current: 'Team Overview' };
+    }
+    // Employee
+    if (activeView === 'tasks') return { section: 'Tasks', current: 'My Task Board' };
+    if (activeView === 'holidays') return { section: 'Company', current: 'Holiday Calendar' };
+    if (activeView === 'chat') return { section: 'Communication', current: 'Manager Chat' };
+    if (activeView === 'announcements') return { section: 'Broadcasts', current: 'Announcements' };
+    if (activeTab === 'tasks') return { section: 'Workspace', current: 'Assigned Tasks' };
+    if (activeTab === 'projects') return { section: 'Workspace', current: 'My Projects' };
+    if (activeTab === 'leave') return { section: 'Workspace', current: 'Leave & Quotas' };
+    if (activeTab === 'attendance') return { section: 'Workspace', current: 'My Attendance' };
+    if (activeTab === 'profile') return { section: 'Settings', current: 'My Profile' };
+    return { section: 'Workspace', current: 'Team Dashboard' };
+  };
+
+  const breadcrumb = getBreadcrumb();
+
   return (
     <div className={`app-shell ${collapsed ? 'sidebar-is-collapsed' : 'sidebar-is-expanded'}`}>
       {/* Unified Role-Based Sidebar */}
@@ -231,16 +283,32 @@ function AppLayout({
               <Menu size={19} />
             </button>
 
+            {/* Breadcrumb Navigation */}
+            <nav className="topbar-breadcrumb" aria-label="Breadcrumb">
+              <span className="breadcrumb-root">Taskflow</span>
+              <span className="breadcrumb-sep">/</span>
+              <span className="breadcrumb-section">{breadcrumb.section}</span>
+              <span className="breadcrumb-sep">/</span>
+              <span className="breadcrumb-current">{breadcrumb.current}</span>
+            </nav>
+
             {/* Global Search Bar with ⌘K badge */}
             <div className="topbar-search-wrap">
               <Search size={15} className="search-icon" />
               <input
+                ref={searchInputRef}
                 type="text"
                 placeholder="Search..."
                 className="topbar-search-input"
                 aria-label="Search"
               />
-              <span className="search-kbd-shortcut">⌘K</span>
+              <span
+                className="search-kbd-shortcut"
+                onClick={() => searchInputRef.current?.focus()}
+                title="Press Ctrl+K or ⌘K to search"
+              >
+                ⌘K
+              </span>
             </div>
           </div>
 
