@@ -14274,8 +14274,14 @@ body.dark-theme .breadcrumb-current {
     z-index: 999;
   }
 
+  /* Laptop & Smaller Desktop (max-width: 1024px) */
   .app-topbar {
     padding: 0 20px;
+    height: 60px;
+  }
+
+  .topbar-search-wrap {
+    width: 200px;
   }
 
   .app-content-viewport {
@@ -14283,51 +14289,357 @@ body.dark-theme .breadcrumb-current {
   }
 }
 
+/* Tablet (max-width: 900px) */
+@media (max-width: 900px) {
+  .topbar-breadcrumb {
+    display: none !important;
+  }
+  
+  .topbar-search-wrap {
+    width: 170px;
+  }
+
+  .admin-stat-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 12px !important;
+  }
+
+  .manager-stat-grid,
+  .employee-stat-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 12px !important;
+  }
+}
+
+/* Small Tablet & Mobile (max-width: 768px) */
 @media (max-width: 768px) {
   .app-topbar {
-    height: 58px;
-    padding: 0 16px;
+    height: 56px;
+    padding: 0 14px;
+    gap: 10px;
+  }
+
+  .topbar-left {
+    gap: 8px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .topbar-hamburger-btn {
+    width: 34px;
+    height: 34px;
+    flex-shrink: 0;
+  }
+
+  .topbar-search-wrap {
+    width: auto;
+    flex: 1;
+    max-width: 180px;
+    min-width: 70px;
+    height: 34px;
+    padding: 0 10px;
+  }
+
+  .topbar-search-input {
+    font-size: 12.5px;
+  }
+
+  .search-kbd-shortcut {
+    display: none !important;
+  }
+
+  .topbar-right {
+    gap: 5px;
+  }
+
+  .topbar-icon-action {
+    width: 34px;
+    height: 34px;
+  }
+
+  .topbar-user-avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 13px;
   }
 
   .app-content-viewport {
     padding: 16px 14px 36px;
   }
 
-  .topbar-breadcrumbs .breadcrumb-brand,
-  .topbar-breadcrumbs .breadcrumb-divider:first-of-type,
-  .topbar-breadcrumbs .breadcrumb-role,
-  .topbar-breadcrumbs .breadcrumb-divider:nth-of-type(2) {
-    display: none;
+  /* Page Header Row Responsive */
+  .page-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 16px;
   }
 
-  .breadcrumb-current {
-    font-size: 13.5px;
+  .page-main-title {
+    font-size: 22px !important;
   }
 
-  .topbar-system-pill {
-    display: none;
+  .header-date-badge {
+    font-size: 11.5px !important;
+    padding: 4px 10px !important;
+  }
+
+  /* Task Toolbar Responsive */
+  .task-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    margin: 16px 0 18px 0;
+  }
+
+  .task-toolbar .filters {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .task-toolbar .filters input {
+    width: 100% !important;
+    height: 38px;
+    font-size: 13px;
+    padding: 0 12px;
+    border-radius: 8px;
+    box-sizing: border-box;
+  }
+
+  .task-toolbar .toolbar-actions {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: stretch;
+  }
+
+  .task-toolbar .toolbar-actions button {
+    flex: 1 1 calc(50% - 4px);
+    justify-content: center;
+    font-size: 12px;
+    height: 38px;
+    padding: 0 10px;
+    border-radius: 8px;
+    white-space: nowrap;
+    text-align: center;
+  }
+
+  /* Stat Grids on Tablet */
+  .admin-stat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+  }
+
+  .manager-stat-grid,
+  .employee-stat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+  }
+
+  .dashboard-stat-card {
+    min-height: 110px !important;
+    padding: 14px 16px !important;
+  }
+
+  .dashboard-stat-card .stat-card-value {
+    font-size: 28px !important;
+  }
+
+  /* Quick Actions Bar Responsive */
+  .dashboard-quick-actions-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+    padding: 16px;
+  }
+
+  .quick-actions-info {
+    width: 100%;
+  }
+
+  .quick-actions-buttons {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    width: 100%;
+  }
+
+  .quick-actions-buttons button {
+    width: 100%;
+    justify-content: center;
+    font-size: 12px;
+    padding: 9px 8px;
+    white-space: nowrap;
   }
 }
 
-@media (max-width: 425px) {
+/* Mobile Screens (max-width: 480px, including 425px, 390px, 375px) */
+@media (max-width: 480px) {
   .app-topbar {
-    padding: 0 12px;
+    height: 54px;
+    padding: 0 10px;
+    gap: 6px;
+  }
+
+  .topbar-left {
+    gap: 6px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .topbar-hamburger-btn {
+    width: 32px;
+    height: 32px;
+  }
+
+  .topbar-search-wrap {
+    width: auto;
+    flex: 1;
+    max-width: 135px;
+    min-width: 60px;
+    height: 32px;
+    padding: 0 8px;
+    gap: 5px;
+  }
+
+  .topbar-search-wrap .search-icon {
+    width: 13px;
+    height: 13px;
+  }
+
+  .topbar-search-input {
+    font-size: 11.5px;
+  }
+
+  .topbar-search-input::placeholder {
+    font-size: 11px;
+  }
+
+  .search-kbd-shortcut {
+    display: none !important;
+  }
+
+  .topbar-right {
+    gap: 3px;
+  }
+
+  .topbar-icon-action {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+  }
+
+  .topbar-icon-action svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .topbar-user-avatar {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
   }
 
   .app-content-viewport {
     padding: 12px 10px 32px;
   }
-}
 
-@media (max-width: 375px) {
-  .app-content-viewport {
-    padding: 10px 8px 28px;
+  .page-main-title {
+    font-size: 19px !important;
+  }
+
+  /* Stat Grids on Mobile */
+  .admin-stat-grid,
+  .manager-stat-grid,
+  .employee-stat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+
+  .dashboard-stat-card {
+    min-height: auto !important;
+    padding: 12px 12px !important;
+    border-radius: 10px !important;
+  }
+
+  .dashboard-stat-card .stat-card-value {
+    font-size: 24px !important;
+  }
+
+  .dashboard-stat-card .stat-card-label {
+    font-size: 11px !important;
+  }
+
+  .dashboard-stat-card .stat-card-subtitle {
+    font-size: 10px !important;
+    display: none !important;
+  }
+
+  /* Task Status Filter Pills on Mobile */
+  .task-status-filter-nav {
+    overflow-x: auto;
+    padding: 8px 10px;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap;
+  }
+
+  .status-filter-pills {
+    flex-wrap: nowrap;
+    gap: 6px;
+  }
+
+  .status-pill {
+    padding: 5px 10px !important;
+    font-size: 11.5px !important;
+    white-space: nowrap !important;
+  }
+
+  /* Action buttons stack gracefully */
+  .task-toolbar .toolbar-actions button {
+    flex: 1 1 100%;
+    font-size: 12.5px;
+    height: 40px;
+  }
+
+  .quick-actions-buttons {
+    grid-template-columns: 1fr;
+  }
+
+  .quick-actions-buttons button {
+    font-size: 12.5px;
+    padding: 10px 12px;
+  }
+
+  /* Modals on Mobile */
+  .modal-content,
+  .admin-action-modal,
+  .manager-modal-content,
+  .directory-modal-container {
+    width: 95% !important;
+    margin: 12px auto !important;
+    padding: 16px 14px !important;
+    border-radius: 12px !important;
   }
 }
 
-@media (max-width: 320px) {
-  .app-content-viewport {
-    padding: 8px 6px 24px;
+/* Extra Small Screens (max-width: 360px) */
+@media (max-width: 360px) {
+  .app-topbar {
+    padding: 0 8px;
+    gap: 3px;
+  }
+
+  .topbar-search-wrap {
+    max-width: 95px;
+  }
+
+  .admin-stat-grid,
+  .manager-stat-grid,
+  .employee-stat-grid {
+    grid-template-columns: 1fr !important;
   }
 }
 
