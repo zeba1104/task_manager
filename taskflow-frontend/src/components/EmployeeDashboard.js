@@ -76,8 +76,64 @@ import {
   UserCheck,
   FileUp,
   CheckSquare,
+  ArrowRight,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+
+function getDeadlineStatus(item) {
+  let days = item.daysRemaining;
+  let isOverdue = Boolean(item.isOverdue);
+  let isToday = Boolean(item.isToday);
+
+  if (item.deadline) {
+    const deadlineDate = new Date(item.deadline);
+    if (!isNaN(deadlineDate.getTime())) {
+      const todayStr = new Date().toISOString().slice(0, 10);
+      const deadlineStr = deadlineDate.toISOString().slice(0, 10);
+      const tStart = new Date(todayStr + 'T00:00:00.000Z');
+      const dStart = new Date(deadlineStr + 'T00:00:00.000Z');
+      const diff = Math.round((dStart - tStart) / (1000 * 60 * 60 * 24));
+      days = diff;
+      isToday = diff === 0;
+      isOverdue = diff < 0;
+    }
+  }
+
+  if (isOverdue || days < 0) {
+    const absDays = Math.abs(days ?? 1) || 1;
+    return {
+      text: `Overdue by ${absDays}d`,
+      className: 'badge-overdue',
+      type: 'overdue',
+      label: 'Overdue',
+    };
+  }
+
+  if (isToday || days === 0) {
+    return {
+      text: 'Due Today',
+      className: 'badge-today',
+      type: 'today',
+      label: 'Due Today',
+    };
+  }
+
+  if (days === 1) {
+    return {
+      text: 'Due Tomorrow',
+      className: 'badge-soon',
+      type: 'tomorrow',
+      label: 'Due Tomorrow',
+    };
+  }
+
+  return {
+    text: `${days}d left`,
+    className: days <= 3 ? 'badge-soon' : 'badge-ok',
+    type: days <= 3 ? 'soon' : 'upcoming',
+    label: `${days} days left`,
+  };
+}
 
 
 function UserAvatar({ user, className = 'emp-avatar-medium' }) {
@@ -1301,27 +1357,86 @@ export default function EmployeeDashboard({ user, logout, setView, activeTab, on
                     <Calendar size={16} />
                     <h3>Upcoming Deadlines</h3>
                   </div>
-                  <span>Projects &amp; Tasks</span>
+                  <span>Projects &amp; Tasks ({dashboardData.upcomingDeadlines?.length || 0})</span>
                 </header>
 
-                {dashboardData.upcomingDeadlines?.length === 0 ? (
-                  <p className="admin-empty-state">No upcoming deadlines.</p>
+                {!dashboardData.upcomingDeadlines || dashboardData.upcomingDeadlines.length === 0 ? (
+                  <div className="emp-deadline-empty-state">
+                    <CheckCircle2 size={24} className="empty-icon" />
+                    <p className="empty-title">All caught up!</p>
+                    <span className="empty-desc">No upcoming deadlines at this moment.</span>
+                  </div>
                 ) : (
-                  <ul className="emp-deadline-list">
-                    {dashboardData.upcomingDeadlines.map((item) => (
-                      <li key={`${item.type}-${item.id}`} className={item.isOverdue ? 'overdue-item' : ''}>
-                        <span className={`item-type-badge type-${item.type}`}>{item.type}</span>
-                        <div className="deadline-item-info">
-                          <strong>{item.title}</strong>
-                          {item.project && <small>[Project: {item.project}]</small>}
+                  <div className="emp-deadlines-stream">
+                    {dashboardData.upcomingDeadlines.map((item) => {
+                      const status = getDeadlineStatus(item);
+                      const isProject = item.type === 'project';
+                      const formattedDeadline = item.deadline
+                        ? new Date(item.deadline).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+                        : 'No deadline';
+
+                      return (
+                        <div
+                          key={`${item.type}-${item.id}`}
+                          className={`emp-deadline-card status-${status.type}`}
+                          onClick={() => (isProject ? openProject(item.id) : openTask(item.id, 'details'))}
+                          role="button"
+                          tabIndex={0}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault();
+                              if (isProject) {
+                                openProject(item.id);
+                              } else {
+                                openTask(item.id, 'details');
+                              }
+                            }
+                          }}
+                          title={`Click to view ${item.type} details`}
+                        >
+                          <div className="emp-deadline-card-header">
+                            <div className="emp-deadline-tags">
+                              <span className={`emp-deadline-type type-${item.type}`}>
+                                {isProject ? <Briefcase size={11} /> : <CheckSquare size={11} />}
+                                {item.type}
+                              </span>
+                              {item.priority && (
+                                <span className={`emp-deadline-priority priority-${String(item.priority).toLowerCase()}`}>
+                                  {item.priority}
+                                </span>
+                              )}
+                            </div>
+                            <span className={`emp-deadline-badge ${status.className}`}>
+                              {status.type === 'today' && <Clock size={11} />}
+                              {status.type === 'overdue' && <AlertTriangle size={11} />}
+                              {status.text}
+                            </span>
+                          </div>
+
+                          <div className="emp-deadline-card-main">
+                            <h4 className="emp-deadline-name">{item.title}</h4>
+                            {item.project && !isProject && (
+                              <div className="emp-deadline-subtext">
+                                <FolderOpen size={12} />
+                                <span>Project: <b>{item.project}</b></span>
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="emp-deadline-card-footer">
+                            <div className="emp-deadline-due">
+                              <Calendar size={12} />
+                              <span>Deadline: <b>{formattedDeadline}</b></span>
+                            </div>
+                            <div className="emp-deadline-cta">
+                              <span>View {isProject ? 'Project' : 'Task'}</span>
+                              <ArrowRight size={12} />
+                            </div>
+                          </div>
                         </div>
-                        <span className={`countdown-badge ${item.isOverdue ? 'badge-overdue' : item.daysRemaining <= 3 ? 'badge-soon' : 'badge-ok'}`}>
-                          {item.isOverdue ? `Overdue by ${Math.abs(item.daysRemaining)}d` :
-                           item.daysRemaining === 0 ? 'Due Today' : `${item.daysRemaining}d left`}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
+                      );
+                    })}
+                  </div>
                 )}
               </section>
 

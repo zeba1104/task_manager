@@ -14,6 +14,26 @@ const Department = require('../models/Department');
 const TeamMeeting = require('../models/TeamMeeting');
 const logActivity = require('../activityLogger');
 
+const checkDeadlineStatus = (deadline, isDone = false) => {
+    if (!deadline || isDone) {
+        return { isOverdue: false, isToday: false, daysRemaining: null };
+    }
+    const d = new Date(deadline);
+    if (isNaN(d.getTime())) {
+        return { isOverdue: false, isToday: false, daysRemaining: null };
+    }
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const deadlineStr = d.toISOString().slice(0, 10);
+    const tStart = new Date(todayStr + 'T00:00:00.000Z');
+    const dStart = new Date(deadlineStr + 'T00:00:00.000Z');
+    const diffDays = Math.round((dStart - tStart) / (1000 * 60 * 60 * 24));
+    return {
+        isToday: diffDays === 0,
+        isOverdue: diffDays < 0,
+        daysRemaining: diffDays,
+    };
+};
+
 /* ==========================================================================
    1.1 EMPLOYEE DASHBOARD
    ========================================================================== */
@@ -95,7 +115,7 @@ exports.getDashboard = async (req, res) => {
         const inProgressTasks = tasks.filter(t => t.status === 'in-process');
         const inReviewTasks = tasks.filter(t => t.status === 'in-review');
         const pendingTasks = tasks.filter(t => t.status === 'pending');
-        const overdueTasks = tasks.filter(t => t.status !== 'completed' && t.deadline && new Date(t.deadline) < now);
+        const overdueTasks = tasks.filter(t => checkDeadlineStatus(t.deadline, t.status === 'completed').isOverdue);
 
         const totalTasks = tasks.length;
         const completionRate = totalTasks ? Math.round((completedTasks.length / totalTasks) * 100) : 0;
@@ -109,32 +129,40 @@ exports.getDashboard = async (req, res) => {
 
         // Upcoming Deadlines (Projects & Tasks)
         const upcomingDeadlines = [
-            ...tasks.filter(t => t.deadline && t.status !== 'completed' && new Date(t.deadline) >= todayStart).map(t => ({
-                id: t._id,
-                type: 'task',
-                title: t.title,
-                project: t.project,
-                priority: t.priority,
-                deadline: t.deadline,
-                isOverdue: new Date(t.deadline) < now,
-                daysRemaining: Math.ceil((new Date(t.deadline) - now) / (1000 * 60 * 60 * 24)),
-            })),
-            ...projects.filter(p => p.deadline && p.status !== 'Completed' && new Date(p.deadline) >= todayStart).map(p => ({
-                id: p._id,
-                type: 'project',
-                title: p.name,
-                priority: p.priority,
-                deadline: p.deadline,
-                isOverdue: new Date(p.deadline) < now,
-                daysRemaining: Math.ceil((new Date(p.deadline) - now) / (1000 * 60 * 60 * 24)),
-            }))
+            ...tasks.filter(t => t.deadline && t.status !== 'completed').map(t => {
+                const dl = checkDeadlineStatus(t.deadline);
+                return {
+                    id: t._id,
+                    type: 'task',
+                    title: t.title,
+                    project: t.project,
+                    priority: t.priority,
+                    deadline: t.deadline,
+                    isToday: dl.isToday,
+                    isOverdue: dl.isOverdue,
+                    daysRemaining: dl.daysRemaining,
+                };
+            }),
+            ...projects.filter(p => p.deadline && p.status !== 'Completed').map(p => {
+                const dl = checkDeadlineStatus(p.deadline);
+                return {
+                    id: p._id,
+                    type: 'project',
+                    title: p.name,
+                    priority: p.priority,
+                    deadline: p.deadline,
+                    isToday: dl.isToday,
+                    isOverdue: dl.isOverdue,
+                    daysRemaining: dl.daysRemaining,
+                };
+            })
         ].sort((a, b) => new Date(a.deadline) - new Date(b.deadline)).slice(0, 10);
 
         // Project-wise progress and individual contributions
         const projectContributions = projects.map(project => {
             const projectTasks = tasks.filter(t => String(t.project || '').toLowerCase() === project.name.toLowerCase());
             const projectCompleted = projectTasks.filter(t => t.status === 'completed').length;
-            const projectOverdue = projectTasks.filter(t => t.status !== 'completed' && t.deadline && new Date(t.deadline) < now).length;
+            const projectOverdue = projectTasks.filter(t => checkDeadlineStatus(t.deadline, t.status === 'completed').isOverdue).length;
 
             return {
                 id: project._id,
@@ -390,9 +418,10 @@ exports.getMyProjects = async (req, res) => {
         const enriched = projects.map(proj => {
             const userProjTasks = employeeTasks.filter(t => String(t.project || '').toLowerCase() === proj.name.toLowerCase());
             const userCompleted = userProjTasks.filter(t => t.status === 'completed').length;
-            const userOverdue = userProjTasks.filter(t => t.status !== 'completed' && t.deadline && new Date(t.deadline) < now).length;
-            const isOverdue = proj.deadline && new Date(proj.deadline) < now && proj.status !== 'Completed';
-            const daysRemaining = proj.deadline ? Math.ceil((new Date(proj.deadline) - now) / (1000 * 60 * 60 * 24)) : null;
+            const userOverdue = userProjTasks.filter(t => checkDeadlineStatus(t.deadline, t.status === 'completed').isOverdue).length;
+            const dl = checkDeadlineStatus(proj.deadline, proj.status === 'Completed');
+            const isOverdue = dl.isOverdue;
+            const daysRemaining = dl.daysRemaining;
 
             return {
                 ...proj,
@@ -444,10 +473,10 @@ exports.getProjectDetails = async (req, res) => {
 
         const now = new Date();
         const completedCount = myTasks.filter(t => t.status === 'completed').length;
-        const overdueCount = myTasks.filter(t => t.status !== 'completed' && t.deadline && new Date(t.deadline) < now).length;
-
-        const isOverdue = project.deadline && new Date(project.deadline) < now && project.status !== 'Completed';
-        const daysRemaining = project.deadline ? Math.ceil((new Date(project.deadline) - now) / (1000 * 60 * 60 * 24)) : null;
+        const overdueCount = myTasks.filter(t => checkDeadlineStatus(t.deadline, t.status === 'completed').isOverdue).length;
+        const dl = checkDeadlineStatus(project.deadline, project.status === 'Completed');
+        const isOverdue = dl.isOverdue;
+        const daysRemaining = dl.daysRemaining;
 
         return res.json({
             project: {
@@ -586,8 +615,9 @@ exports.getMyTasks = async (req, res) => {
             .lean();
 
         const enrichedTasks = tasks.map(task => {
-            const isOverdue = task.status !== 'completed' && task.deadline && new Date(task.deadline) < now;
-            const daysRemaining = task.deadline ? Math.ceil((new Date(task.deadline) - now) / (1000 * 60 * 60 * 24)) : null;
+            const dl = checkDeadlineStatus(task.deadline, task.status === 'completed');
+            const isOverdue = dl.isOverdue;
+            const daysRemaining = dl.daysRemaining;
 
             return {
                 ...task,
@@ -618,9 +648,9 @@ exports.getTaskDetails = async (req, res) => {
 
         if (!task) return res.status(404).json({ message: 'Task not found' });
 
-        const now = new Date();
-        const isOverdue = task.status !== 'completed' && task.deadline && new Date(task.deadline) < now;
-        const daysRemaining = task.deadline ? Math.ceil((new Date(task.deadline) - now) / (1000 * 60 * 60 * 24)) : null;
+        const dl = checkDeadlineStatus(task.deadline, task.status === 'completed');
+        const isOverdue = dl.isOverdue;
+        const daysRemaining = dl.daysRemaining;
 
         return res.json({
             ...task,

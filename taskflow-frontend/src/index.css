@@ -5122,7 +5122,254 @@ body.dark-theme .manager-scope-banner strong {
   color: var(--muted);
 }
 
-/* Deadlines list */
+/* Upcoming Deadlines Stream & Modern Cards */
+.emp-deadlines-stream {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.emp-deadline-card {
+  position: relative;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-left: 3.5px solid #3b82f6;
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.emp-deadline-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px -2px rgba(0, 0, 0, 0.08);
+  border-color: #cbd5e1;
+}
+
+/* Modifiers by status */
+.emp-deadline-card.status-today {
+  border-left-color: #f59e0b;
+  background: linear-gradient(to right, rgba(245, 158, 11, 0.05), #ffffff 30%);
+}
+
+.emp-deadline-card.status-overdue {
+  border-left-color: #ef4444;
+  background: linear-gradient(to right, rgba(239, 68, 68, 0.05), #ffffff 30%);
+}
+
+.emp-deadline-card.status-tomorrow,
+.emp-deadline-card.status-soon,
+.emp-deadline-card.status-upcoming {
+  border-left-color: #3b82f6;
+}
+
+/* Header with tags and badge */
+.emp-deadline-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.emp-deadline-tags {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.emp-deadline-type {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 2.5px 7px;
+  border-radius: 5px;
+}
+
+.emp-deadline-type.type-project {
+  background: #f3e8ff;
+  color: #7e22ce;
+  border: 1px solid rgba(126, 34, 206, 0.15);
+}
+
+.emp-deadline-type.type-task {
+  background: #e0f2fe;
+  color: #0284c7;
+  border: 1px solid rgba(2, 132, 199, 0.15);
+}
+
+.emp-deadline-priority {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: capitalize;
+}
+
+.emp-deadline-priority.priority-high,
+.emp-deadline-priority.priority-urgent {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.emp-deadline-priority.priority-medium {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.emp-deadline-priority.priority-low {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.emp-deadline-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2.5px 8px;
+  border-radius: 9999px;
+  white-space: nowrap;
+}
+
+.emp-deadline-badge.badge-today {
+  background: #fef3c7;
+  color: #b45309;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.emp-deadline-badge.badge-overdue {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.emp-deadline-badge.badge-soon {
+  background: #e0f2fe;
+  color: #0284c7;
+  border: 1px solid rgba(2, 132, 199, 0.25);
+}
+
+.emp-deadline-badge.badge-ok {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+}
+
+/* Card Main Title */
+.emp-deadline-card-main {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.emp-deadline-name {
+  margin: 0;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #0f172a;
+  line-height: 1.35;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.15s ease;
+}
+
+.emp-deadline-card:hover .emp-deadline-name {
+  color: #2563eb;
+}
+
+.emp-deadline-subtext {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  color: #64748b;
+}
+
+.emp-deadline-subtext b {
+  color: #334155;
+  font-weight: 600;
+}
+
+/* Footer row */
+.emp-deadline-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 2px;
+  padding-top: 6px;
+  border-top: 1px dashed #e2e8f0;
+  font-size: 11px;
+}
+
+.emp-deadline-due {
+  display: inline-flex;
+  align-items: center;
+  gap: 4.5px;
+  color: #64748b;
+}
+
+.emp-deadline-due b {
+  color: #334155;
+  font-weight: 600;
+}
+
+.emp-deadline-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 600;
+  color: #3b82f6;
+  opacity: 0.85;
+  transition: all 0.15s ease;
+}
+
+.emp-deadline-card:hover .emp-deadline-cta {
+  opacity: 1;
+  transform: translateX(2px);
+  color: #1d4ed8;
+}
+
+/* Empty State */
+.emp-deadline-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 16px;
+  text-align: center;
+  gap: 6px;
+  color: var(--muted);
+}
+
+.emp-deadline-empty-state .empty-icon {
+  color: #10b981;
+  margin-bottom: 4px;
+}
+
+.emp-deadline-empty-state .empty-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.emp-deadline-empty-state .empty-desc {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* Legacy fallback support */
 .emp-deadline-list {
   list-style: none;
   margin: 0;
@@ -5138,47 +5385,16 @@ body.dark-theme .manager-scope-banner strong {
   gap: 10px;
   padding: 8px 10px;
   border-radius: 6px;
-  background: #f8fafc;
+  background: var(--panel);
+  border: 1px solid var(--border);
   font-size: 12px;
-}
-
-.emp-deadline-list li.overdue-item {
-  background: #fef2f2;
-}
-
-.item-type-badge {
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  padding: 2px 6px;
-  border-radius: 4px;
-}
-.item-type-badge.type-task { background: #e0f2fe; color: #0369a1; }
-.item-type-badge.type-project { background: #f3e8ff; color: #7e22ce; }
-
-.deadline-item-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.deadline-item-info strong {
-  display: block;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
   color: var(--text);
 }
 
-.countdown-badge {
-  font-size: 11px;
-  font-weight: 600;
-  padding: 2px 7px;
-  border-radius: 10px;
-  white-space: nowrap;
+.emp-deadline-list li.overdue-item {
+  background: rgba(239, 68, 68, 0.08);
+  border-left: 3px solid #ef4444;
 }
-.countdown-badge.badge-overdue { background: #fee2e2; color: #b91c1c; font-weight: 700; }
-.countdown-badge.badge-soon { background: #fef3c7; color: #b45309; }
-.countdown-badge.badge-ok { background: #dcfce7; color: #15803d; }
 
 /* Projects Progress in Dashboard */
 .emp-projects-progress-list {
@@ -7153,6 +7369,159 @@ body.dark-theme .feedback-body-text {
 body.dark-theme .emp-project-progress-card {
   background: #0f172a !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Upcoming Deadlines in Dark Mode */
+[data-theme="dark"] .emp-deadline-card,
+body.dark-theme .emp-deadline-card {
+  background: #0f172a !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-theme="dark"] .emp-deadline-card:hover,
+body.dark-theme .emp-deadline-card:hover {
+  background: #1e293b !important;
+  border-color: rgba(255, 255, 255, 0.16) !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45) !important;
+}
+
+[data-theme="dark"] .emp-deadline-card.status-today,
+body.dark-theme .emp-deadline-card.status-today {
+  border-left-color: #f59e0b !important;
+  background: linear-gradient(to right, rgba(245, 158, 11, 0.12), #0f172a 35%) !important;
+}
+
+[data-theme="dark"] .emp-deadline-card.status-today:hover,
+body.dark-theme .emp-deadline-card.status-today:hover {
+  background: linear-gradient(to right, rgba(245, 158, 11, 0.18), #1e293b 35%) !important;
+}
+
+[data-theme="dark"] .emp-deadline-card.status-overdue,
+body.dark-theme .emp-deadline-card.status-overdue {
+  border-left-color: #ef4444 !important;
+  background: linear-gradient(to right, rgba(239, 68, 68, 0.12), #0f172a 35%) !important;
+}
+
+[data-theme="dark"] .emp-deadline-card.status-overdue:hover,
+body.dark-theme .emp-deadline-card.status-overdue:hover {
+  background: linear-gradient(to right, rgba(239, 68, 68, 0.18), #1e293b 35%) !important;
+}
+
+[data-theme="dark"] .emp-deadline-card.status-tomorrow,
+body.dark-theme .emp-deadline-card.status-tomorrow,
+[data-theme="dark"] .emp-deadline-card.status-soon,
+body.dark-theme .emp-deadline-card.status-soon,
+[data-theme="dark"] .emp-deadline-card.status-upcoming,
+body.dark-theme .emp-deadline-card.status-upcoming {
+  border-left-color: #3b82f6 !important;
+}
+
+[data-theme="dark"] .emp-deadline-name,
+body.dark-theme .emp-deadline-name {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .emp-deadline-card:hover .emp-deadline-name,
+body.dark-theme .emp-deadline-card:hover .emp-deadline-name {
+  color: #60a5fa !important;
+}
+
+[data-theme="dark"] .emp-deadline-subtext,
+body.dark-theme .emp-deadline-subtext {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .emp-deadline-subtext b,
+body.dark-theme .emp-deadline-subtext b {
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .emp-deadline-card-footer,
+body.dark-theme .emp-deadline-card-footer {
+  border-top-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+[data-theme="dark"] .emp-deadline-due,
+body.dark-theme .emp-deadline-due {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .emp-deadline-due b,
+body.dark-theme .emp-deadline-due b {
+  color: #e2e8f0 !important;
+}
+
+[data-theme="dark"] .emp-deadline-cta,
+body.dark-theme .emp-deadline-cta {
+  color: #60a5fa !important;
+}
+
+[data-theme="dark"] .emp-deadline-card:hover .emp-deadline-cta,
+body.dark-theme .emp-deadline-card:hover .emp-deadline-cta {
+  color: #93c5fd !important;
+}
+
+[data-theme="dark"] .emp-deadline-type.type-project,
+body.dark-theme .emp-deadline-type.type-project {
+  background: rgba(168, 85, 247, 0.18) !important;
+  color: #c084fc !important;
+  border-color: rgba(168, 85, 247, 0.3) !important;
+}
+
+[data-theme="dark"] .emp-deadline-type.type-task,
+body.dark-theme .emp-deadline-type.type-task {
+  background: rgba(14, 165, 233, 0.18) !important;
+  color: #38bdf8 !important;
+  border-color: rgba(14, 165, 233, 0.3) !important;
+}
+
+[data-theme="dark"] .emp-deadline-priority.priority-high,
+[data-theme="dark"] .emp-deadline-priority.priority-urgent,
+body.dark-theme .emp-deadline-priority.priority-high,
+body.dark-theme .emp-deadline-priority.priority-urgent {
+  background: rgba(239, 68, 68, 0.2) !important;
+  color: #f87171 !important;
+}
+
+[data-theme="dark"] .emp-deadline-priority.priority-medium,
+body.dark-theme .emp-deadline-priority.priority-medium {
+  background: rgba(245, 158, 11, 0.2) !important;
+  color: #fbbf24 !important;
+}
+
+[data-theme="dark"] .emp-deadline-priority.priority-low,
+body.dark-theme .emp-deadline-priority.priority-low {
+  background: rgba(34, 197, 94, 0.2) !important;
+  color: #4ade80 !important;
+}
+
+[data-theme="dark"] .emp-deadline-badge.badge-today,
+body.dark-theme .emp-deadline-badge.badge-today {
+  background: rgba(245, 158, 11, 0.18) !important;
+  color: #fbbf24 !important;
+  border-color: rgba(245, 158, 11, 0.35) !important;
+}
+
+[data-theme="dark"] .emp-deadline-badge.badge-overdue,
+body.dark-theme .emp-deadline-badge.badge-overdue {
+  background: rgba(239, 68, 68, 0.2) !important;
+  color: #f87171 !important;
+  border-color: rgba(239, 68, 68, 0.35) !important;
+}
+
+[data-theme="dark"] .emp-deadline-badge.badge-soon,
+body.dark-theme .emp-deadline-badge.badge-soon {
+  background: rgba(14, 165, 233, 0.18) !important;
+  color: #38bdf8 !important;
+  border-color: rgba(14, 165, 233, 0.3) !important;
+}
+
+[data-theme="dark"] .emp-deadline-badge.badge-ok,
+body.dark-theme .emp-deadline-badge.badge-ok {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #cbd5e1 !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
 }
 
 [data-theme="dark"] .project-card-header h4,
