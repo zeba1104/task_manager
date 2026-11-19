@@ -1,5 +1,6 @@
 import React from 'react';
 import { X, Printer, CheckCircle, ShieldCheck, Landmark } from 'lucide-react';
+import './Payroll.css';
 
 /**
  * Converts a number to Indian Currency words (e.g. "Forty-Five Thousand Rupees Only")
@@ -27,15 +28,13 @@ export default function PayslipModal({ payroll, onClose }) {
   const bank = payroll.salaryStructureSnapshot?.bankDetails || {};
   const attendance = payroll.attendanceSnapshot || {};
   const isPaid = payroll.status === 'Paid';
-  const isProcessing = payroll.status === 'Processing';
 
   const handlePrint = () => {
     window.print();
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
-      {/* Print-specific style block */}
+    <div className="payslip-modal-backdrop" onClick={onClose}>
       <style>{`
         @media print {
           body * {
@@ -62,183 +61,188 @@ export default function PayslipModal({ payroll, onClose }) {
         }
       `}</style>
 
-      <div className="relative w-full max-w-4xl max-h-[92vh] overflow-y-auto bg-[var(--surface,#ffffff)] border border-[var(--border,#e2e8f0)] rounded-2xl shadow-2xl flex flex-col text-[var(--text,#1e293b)]">
+      <div className="payslip-modal-container" onClick={(e) => e.stopPropagation()}>
         {/* Top Control Bar */}
-        <div className="no-print sticky top-0 z-20 flex items-center justify-between px-6 py-4 bg-[var(--panel,#f8fafc)] border-b border-[var(--border,#e2e8f0)] rounded-t-2xl">
-          <div className="flex items-center gap-2">
-            <ShieldCheck className="w-5 h-5 text-indigo-600" />
-            <span className="font-semibold text-sm tracking-wide uppercase text-indigo-600">
+        <div className="payslip-top-bar no-print">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <ShieldCheck size={18} color="#4f46e5" />
+            <span style={{ fontWeight: '700', fontSize: '13px', textTransform: 'uppercase', color: '#4f46e5', letterSpacing: '0.04em' }}>
               Official Salary Statement
             </span>
-            <span className="px-2.5 py-0.5 ml-2 text-xs font-medium rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
+            <span className="payroll-badge status-ready" style={{ marginLeft: '8px' }}>
               {payroll.periodLabel}
             </span>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <button
+              type="button"
               onClick={handlePrint}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-medium text-slate-700 bg-white border border-slate-300 rounded-lg shadow-sm hover:bg-slate-50 transition-all cursor-pointer"
+              className="btn-action-primary"
+              style={{ padding: '6px 14px' }}
               title="Print or Save as PDF"
             >
-              <Printer className="w-3.5 h-3.5 text-slate-600" />
+              <Printer size={13} />
               <span>Print / PDF</span>
             </button>
             <button
+              type="button"
               onClick={onClose}
-              className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-200/50 transition-all cursor-pointer"
+              className="btn-action-icon"
             >
-              <X className="w-5 h-5" />
+              <X size={16} />
             </button>
           </div>
         </div>
 
         {/* Printable Document Body */}
-        <div id="printable-payslip" className="p-8 bg-white text-slate-900 font-sans">
+        <div id="printable-payslip" className="payslip-document">
           {/* Header */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between pb-6 border-b-2 border-indigo-600 gap-4">
+          <div className="payslip-header">
             <div>
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-bold text-lg shadow-sm">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: '#4f46e5', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '800', fontSize: '16px' }}>
                   TF
                 </div>
-                <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">
+                <h1 style={{ margin: 0, fontSize: '22px', fontWeight: '800', letterSpacing: '-0.02em', color: '#0f172a' }}>
                   TASKFLOW ENTERPRISE
                 </h1>
               </div>
-              <p className="mt-1 text-xs text-slate-500">
+              <p style={{ margin: '4px 0 0', fontSize: '12px', color: '#64748b' }}>
                 Corporate HQ • Sector 62, Cyber Park • support@taskflow.local
               </p>
             </div>
 
-            <div className="md:text-right">
-              <span className="inline-block px-3 py-1 text-xs font-semibold tracking-wide uppercase rounded-md bg-indigo-50 text-indigo-700 border border-indigo-100 mb-1">
+            <div style={{ textAlign: 'right' }}>
+              <span className="payroll-badge status-ready" style={{ marginBottom: '4px' }}>
                 Payslip for {payroll.periodLabel}
               </span>
-              <p className="text-xs text-slate-500">
+              <p style={{ margin: '4px 0 0', fontSize: '11px', color: '#64748b' }}>
                 Generated: {new Date(payroll.createdAt || Date.now()).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
               </p>
             </div>
           </div>
 
           {/* Employee & Bank Summary Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 py-6 text-xs border-b border-slate-200">
-            <div>
-              <span className="text-slate-400 block font-medium">Employee Name</span>
-              <span className="font-semibold text-slate-800 text-sm mt-0.5 block">{emp.name || 'N/A'}</span>
+          <div className="payslip-info-grid">
+            <div className="payslip-info-item">
+              <span className="info-label">Employee Name</span>
+              <div className="info-val">{emp.name || 'N/A'}</div>
             </div>
-            <div>
-              <span className="text-slate-400 block font-medium">Employee ID</span>
-              <span className="font-semibold text-slate-800 text-sm mt-0.5 block">{emp.employeeId || 'TF-EMP-001'}</span>
+            <div className="payslip-info-item">
+              <span className="info-label">Employee ID</span>
+              <div className="info-val">{emp.employeeId || 'TF-EMP-001'}</div>
             </div>
-            <div>
-              <span className="text-slate-400 block font-medium">Designation</span>
-              <span className="font-semibold text-slate-800 mt-0.5 block">{emp.designation || 'Software Engineer'}</span>
+            <div className="payslip-info-item">
+              <span className="info-label">Designation</span>
+              <div className="info-val">{emp.designation || 'Software Engineer'}</div>
             </div>
-            <div>
-              <span className="text-slate-400 block font-medium">Department</span>
-              <span className="font-semibold text-slate-800 mt-0.5 block">{emp.department || payroll.department || 'Engineering'}</span>
+            <div className="payslip-info-item">
+              <span className="info-label">Department</span>
+              <div className="info-val">{emp.department || payroll.department || 'Engineering'}</div>
             </div>
-            <div>
-              <span className="text-slate-400 block font-medium">Bank Name</span>
-              <span className="font-semibold text-slate-800 mt-0.5 block">{bank.bankName || 'HDFC Bank'}</span>
+            <div className="payslip-info-item">
+              <span className="info-label">Bank Name</span>
+              <div className="info-val">{bank.bankName || 'HDFC Bank'}</div>
             </div>
-            <div>
-              <span className="text-slate-400 block font-medium">Account Number</span>
-              <span className="font-mono font-medium text-slate-800 mt-0.5 block">
+            <div className="payslip-info-item">
+              <span className="info-label">Account Number</span>
+              <div className="info-val" style={{ fontFamily: 'var(--font-mono)' }}>
                 {bank.maskedAccountNumber || (bank.accountNumber ? `••••${String(bank.accountNumber).slice(-4)}` : '••••5678')}
-              </span>
+              </div>
             </div>
-            <div>
-              <span className="text-slate-400 block font-medium">IFSC Code</span>
-              <span className="font-mono font-medium text-slate-800 mt-0.5 block">{bank.ifsc || 'HDFC0001234'}</span>
+            <div className="payslip-info-item">
+              <span className="info-label">IFSC Code</span>
+              <div className="info-val" style={{ fontFamily: 'var(--font-mono)' }}>
+                {bank.ifsc || 'HDFC0001234'}
+              </div>
             </div>
-            <div>
-              <span className="text-slate-400 block font-medium">Disbursement Status</span>
-              <span className={`inline-flex items-center gap-1 font-semibold mt-0.5 ${
-                isPaid ? 'text-emerald-600' : isProcessing ? 'text-amber-600' : 'text-indigo-600'
-              }`}>
-                {isPaid && <CheckCircle className="w-3.5 h-3.5" />}
-                {isPaid ? 'PAID' : payroll.status.replace(/_/g, ' ')}
-              </span>
+            <div className="payslip-info-item">
+              <span className="info-label">Disbursement Status</span>
+              <div className="info-val" style={{ color: isPaid ? '#059669' : '#4f46e5', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                {isPaid && <CheckCircle size={13} />}
+                <span>{isPaid ? 'PAID' : payroll.status.replace(/_/g, ' ')}</span>
+              </div>
             </div>
           </div>
 
           {/* Attendance Overview Bar */}
-          <div className="my-5 p-3.5 bg-slate-50 border border-slate-200 rounded-xl grid grid-cols-2 md:grid-cols-5 gap-3 text-center text-xs">
+          <div className="payslip-attendance-bar">
             <div>
-              <span className="text-slate-500 block">Total Days</span>
-              <span className="font-bold text-slate-800 text-sm">{attendance.totalDaysInMonth || 30}</span>
+              <span style={{ fontSize: '11px', color: '#64748b', display: 'block' }}>Total Days</span>
+              <span style={{ fontWeight: '800', fontSize: '14px', color: '#0f172a' }}>{attendance.totalDaysInMonth || 30}</span>
             </div>
             <div>
-              <span className="text-slate-500 block">Standard Working Days</span>
-              <span className="font-bold text-slate-800 text-sm">{attendance.workingDays || 22}</span>
+              <span style={{ fontSize: '11px', color: '#64748b', display: 'block' }}>Working Days</span>
+              <span style={{ fontWeight: '800', fontSize: '14px', color: '#0f172a' }}>{attendance.workingDays || 22}</span>
             </div>
             <div>
-              <span className="text-slate-500 block">Present Days</span>
-              <span className="font-bold text-emerald-600 text-sm">{attendance.presentDays || 0}</span>
+              <span style={{ fontSize: '11px', color: '#64748b', display: 'block' }}>Present Days</span>
+              <span style={{ fontWeight: '800', fontSize: '14px', color: '#059669' }}>{attendance.presentDays || 0}</span>
             </div>
             <div>
-              <span className="text-slate-500 block">Approved Leaves</span>
-              <span className="font-bold text-indigo-600 text-sm">{attendance.approvedLeaves || 0}</span>
+              <span style={{ fontSize: '11px', color: '#64748b', display: 'block' }}>Approved Leaves</span>
+              <span style={{ fontWeight: '800', fontSize: '14px', color: '#4f46e5' }}>{attendance.approvedLeaves || 0}</span>
             </div>
             <div>
-              <span className="text-slate-500 block">Unpaid / Absent</span>
-              <span className="font-bold text-rose-600 text-sm">{attendance.absentDays || 0}</span>
+              <span style={{ fontSize: '11px', color: '#64748b', display: 'block' }}>Unpaid / Absent</span>
+              <span style={{ fontWeight: '800', fontSize: '14px', color: '#dc2626' }}>{attendance.absentDays || 0}</span>
             </div>
           </div>
 
           {/* Two-Column Earnings & Deductions Table */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-6">
+          <div className="payslip-table-grid">
             {/* Earnings Table */}
-            <div className="border border-slate-200 rounded-xl overflow-hidden">
-              <div className="bg-slate-100/80 px-4 py-2.5 font-semibold text-xs text-slate-700 tracking-wide uppercase border-b border-slate-200 flex justify-between">
-                <span>Earnings Breakdown</span>
+            <div className="payslip-table-box">
+              <div className="box-header">
+                <span>Earnings Component</span>
                 <span>Amount (₹)</span>
               </div>
-              <div className="divide-y divide-slate-100 text-xs">
+              <div>
                 {(payroll.earnings || []).map((item, idx) => (
-                  <div key={idx} className="flex justify-between px-4 py-2.5 hover:bg-slate-50/50">
-                    <span className="text-slate-600 font-medium">{item.name}</span>
-                    <span className="font-mono font-semibold text-slate-800">
+                  <div key={idx} className="payslip-row">
+                    <span style={{ color: '#334155', fontWeight: '500' }}>{item.name}</span>
+                    <span style={{ fontFamily: 'var(--font-mono)', fontWeight: '600', color: '#0f172a' }}>
                       ₹{Number(item.amount).toLocaleString('en-IN')}
                     </span>
                   </div>
                 ))}
               </div>
-              <div className="bg-slate-50 px-4 py-3 font-semibold text-xs text-slate-900 border-t border-slate-200 flex justify-between">
-                <span>Total Gross Earnings</span>
-                <span className="font-mono font-bold text-sm text-slate-900">
+              <div className="box-total">
+                <span>Gross Earnings</span>
+                <span style={{ fontFamily: 'var(--font-mono)', fontWeight: '800' }}>
                   ₹{Number(payroll.grossSalary || 0).toLocaleString('en-IN')}
                 </span>
               </div>
             </div>
 
             {/* Deductions Table */}
-            <div className="border border-slate-200 rounded-xl overflow-hidden">
-              <div className="bg-slate-100/80 px-4 py-2.5 font-semibold text-xs text-slate-700 tracking-wide uppercase border-b border-slate-200 flex justify-between">
-                <span>Deductions Breakdown</span>
+            <div className="payslip-table-box">
+              <div className="box-header">
+                <span>Deduction Component</span>
                 <span>Amount (₹)</span>
               </div>
-              <div className="divide-y divide-slate-100 text-xs">
+              <div>
                 {(payroll.deductions || []).map((item, idx) => (
-                  <div key={idx} className="flex justify-between px-4 py-2.5 hover:bg-slate-50/50">
+                  <div key={idx} className="payslip-row">
                     <div>
-                      <span className="text-slate-600 font-medium block">{item.name}</span>
-                      {item.reason && <span className="text-[10px] text-slate-400 block">{item.reason}</span>}
+                      <span style={{ color: '#334155', fontWeight: '500', display: 'block' }}>{item.name}</span>
+                      {item.reason && <span style={{ fontSize: '10px', color: '#94a3b8', display: 'block' }}>{item.reason}</span>}
                     </div>
-                    <span className="font-mono font-semibold text-rose-600">
+                    <span style={{ fontFamily: 'var(--font-mono)', fontWeight: '600', color: '#dc2626' }}>
                       -₹{Number(item.amount).toLocaleString('en-IN')}
                     </span>
                   </div>
                 ))}
                 {(!payroll.deductions || payroll.deductions.length === 0) && (
-                  <div className="px-4 py-4 text-center text-slate-400 italic">No deductions applied.</div>
+                  <div style={{ padding: '16px', textAlign: 'center', color: '#94a3b8', fontStyle: 'italic', fontSize: '12px' }}>
+                    No deductions applied.
+                  </div>
                 )}
               </div>
-              <div className="bg-slate-50 px-4 py-3 font-semibold text-xs text-slate-900 border-t border-slate-200 flex justify-between">
+              <div className="box-total">
                 <span>Total Deductions</span>
-                <span className="font-mono font-bold text-sm text-rose-600">
+                <span style={{ fontFamily: 'var(--font-mono)', fontWeight: '800', color: '#dc2626' }}>
                   -₹{Number(payroll.totalDeductions || 0).toLocaleString('en-IN')}
                 </span>
               </div>
@@ -246,17 +250,17 @@ export default function PayslipModal({ payroll, onClose }) {
           </div>
 
           {/* Net Take-Home Highlight Card */}
-          <div className="p-5 rounded-2xl bg-gradient-to-r from-indigo-50 via-slate-50 to-indigo-50 border border-indigo-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="payslip-net-card">
             <div>
-              <span className="text-xs font-bold uppercase tracking-wider text-indigo-700 block">
+              <span style={{ fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.06em', color: '#4338ca', display: 'block' }}>
                 Net Disbursed Take-Home Pay
               </span>
-              <span className="text-xs text-slate-500 italic mt-0.5 block">
+              <span style={{ fontSize: '12px', color: '#64748b', fontStyle: 'italic', marginTop: '3px', display: 'block' }}>
                 ({numberToWords(payroll.netSalary)})
               </span>
             </div>
-            <div className="text-right">
-              <span className="text-3xl font-extrabold text-indigo-600 font-mono tracking-tight">
+            <div style={{ textAlign: 'right' }}>
+              <span style={{ fontSize: '28px', fontWeight: '800', color: '#4f46e5', fontFamily: 'var(--font-mono)', letterSpacing: '-0.02em' }}>
                 ₹{Number(payroll.netSalary || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
               </span>
             </div>
@@ -264,28 +268,28 @@ export default function PayslipModal({ payroll, onClose }) {
 
           {/* RazorpayX Banking Transfer Proof & Reference Details */}
           {payroll.payout && (payroll.payout.utr || payroll.payout.payoutId || isPaid) && (
-            <div className="mt-6 p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 space-y-1.5">
-              <div className="flex items-center gap-2 font-semibold text-slate-800 mb-1">
-                <Landmark className="w-4 h-4 text-emerald-600" />
+            <div className="payslip-banking-proof">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: '700', color: '#0f172a', marginBottom: '8px' }}>
+                <Landmark size={15} color="#059669" />
                 <span>Outbound Banking Transaction Proof</span>
                 {payroll.payout.isTestMode && (
-                  <span className="px-2 py-0.5 text-[10px] rounded-full bg-amber-100 text-amber-800 font-medium">
+                  <span className="gateway-status-pill" style={{ marginLeft: '6px' }}>
                     Test Mode Sandbox
                   </span>
                 )}
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-2 pt-1 font-mono text-[11px]">
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', fontFamily: 'var(--font-mono)', fontSize: '11px' }}>
                 <div>
-                  <span className="text-slate-400 block font-sans">Banking UTR Reference</span>
-                  <span className="font-bold text-slate-800">{payroll.payout.utr || 'UTR-SIMULATED-TEST'}</span>
+                  <span style={{ color: '#94a3b8', display: 'block', fontFamily: 'var(--font-sans)' }}>Banking UTR Reference</span>
+                  <span style={{ fontWeight: '700', color: '#0f172a' }}>{payroll.payout.utr || 'UTR-SIMULATED-TEST'}</span>
                 </div>
                 <div>
-                  <span className="text-slate-400 block font-sans">Payout Transaction ID</span>
-                  <span className="text-slate-700">{payroll.payout.payoutId || 'N/A'}</span>
+                  <span style={{ color: '#94a3b8', display: 'block', fontFamily: 'var(--font-sans)' }}>Payout Transaction ID</span>
+                  <span style={{ color: '#475569' }}>{payroll.payout.payoutId || 'N/A'}</span>
                 </div>
                 <div>
-                  <span className="text-slate-400 block font-sans">Transfer Mode / Time</span>
-                  <span className="text-slate-700">
+                  <span style={{ color: '#94a3b8', display: 'block', fontFamily: 'var(--font-sans)' }}>Transfer Mode / Time</span>
+                  <span style={{ color: '#475569' }}>
                     {payroll.payout.mode || 'IMPS'} • {payroll.payout.processedAt ? new Date(payroll.payout.processedAt).toLocaleString() : 'Recent'}
                   </span>
                 </div>
@@ -294,9 +298,9 @@ export default function PayslipModal({ payroll, onClose }) {
           )}
 
           {/* Footer & Disclaimer */}
-          <div className="mt-8 pt-6 border-t border-slate-200 flex flex-col md:flex-row items-center justify-between text-[11px] text-slate-400 gap-2">
-            <p>Confidential & Proprietary • Taskflow Technologies Private Limited</p>
-            <p className="italic">Computer-generated document; no physical signature required.</p>
+          <div style={{ marginTop: '28px', paddingTop: '18px', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#94a3b8' }}>
+            <span>Confidential &amp; Proprietary • Taskflow Technologies Private Limited</span>
+            <span style={{ fontStyle: 'italic' }}>Computer-generated document; no physical signature required.</span>
           </div>
         </div>
       </div>

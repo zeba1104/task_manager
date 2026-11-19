@@ -12,6 +12,7 @@ import {
 import { getTeamPayrolls, managerReviewPayroll, managerBulkApprove } from '../../api/payrollApi';
 import PayslipModal from './PayslipModal';
 import Swal from '../../utils/swalConfig';
+import './Payroll.css';
 
 const MONTH_NAMES = [
   'January', 'February', 'March', 'April', 'May', 'June',
@@ -134,24 +135,27 @@ export default function ManagerPayrollReview({ user }) {
   });
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-[var(--text,#0f172a)]">
-            Team Payroll & Attendance Review
-          </h1>
-          <p className="text-xs text-[var(--muted,#64748b)] mt-0.5">
-            Manager Review Portal • Verify employee attendance snapshots, approved leaves, and net payable before Admin payout.
-          </p>
+    <div className="payroll-page-container">
+      {/* 1. Page Header & Actions */}
+      <div className="payroll-header-row">
+        <div className="payroll-header-info">
+          <div className="payroll-title-icon-box">
+            <Users size={24} />
+          </div>
+          <div>
+            <h1 className="payroll-main-title">Team Payroll &amp; Attendance Review</h1>
+            <p className="payroll-subtitle">
+              Manager Review Portal • Verify employee attendance snapshots, approved leaves, and net payable before Admin payout.
+            </p>
+          </div>
         </div>
 
-        {/* Month Selector & Bulk Approve */}
-        <div className="flex items-center gap-2.5">
+        {/* Toolbar */}
+        <div className="payroll-controls-bar">
           <select
             value={selectedMonth}
             onChange={(e) => setSelectedMonth(Number(e.target.value))}
-            className="px-3 py-2 text-xs font-medium rounded-xl border border-[var(--border,#e2e8f0)] bg-[var(--surface,#ffffff)] text-[var(--text,#0f172a)] shadow-xs"
+            className="payroll-select"
           >
             {MONTH_NAMES.map((m, idx) => (
               <option key={idx} value={idx + 1}>{m}</option>
@@ -161,7 +165,7 @@ export default function ManagerPayrollReview({ user }) {
           <select
             value={selectedYear}
             onChange={(e) => setSelectedYear(Number(e.target.value))}
-            className="px-3 py-2 text-xs font-medium rounded-xl border border-[var(--border,#e2e8f0)] bg-[var(--surface,#ffffff)] text-[var(--text,#0f172a)] shadow-xs"
+            className="payroll-select"
           >
             {[2025, 2026, 2027].map((yr) => (
               <option key={yr} value={yr}>{yr}</option>
@@ -169,100 +173,101 @@ export default function ManagerPayrollReview({ user }) {
           </select>
 
           <button
+            type="button"
             onClick={handleBulkApprove}
             disabled={loading || (teamOverview?.pendingReviewCount || 0) === 0}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-sm transition-all cursor-pointer disabled:opacity-50"
+            className="btn-batch-payout"
           >
-            <Check className="w-3.5 h-3.5" />
+            <Check size={14} />
             <span>Approve Team ({teamOverview?.pendingReviewCount || 0})</span>
           </button>
         </div>
       </div>
 
-      {/* Team Overview Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="p-4 rounded-2xl bg-[var(--surface,#ffffff)] border border-[var(--border,#e2e8f0)] shadow-xs">
-          <div className="flex items-center justify-between text-xs text-[var(--muted,#64748b)]">
+      {/* 2. Team Overview KPI Cards */}
+      <div className="payroll-kpi-grid">
+        <div className="payroll-kpi-card">
+          <div className="kpi-header">
             <span>Assigned Team Members</span>
-            <Users className="w-4 h-4 text-indigo-600" />
+            <Users size={16} color="#4f46e5" />
           </div>
-          <div className="mt-2 text-xl font-bold text-[var(--text,#0f172a)]">
+          <div className="kpi-amount">
             {teamOverview?.totalTeamMembers || 0}
           </div>
-          <div className="mt-1 text-[11px] text-[var(--muted,#64748b)]">
+          <div className="kpi-subtext">
             {teamOverview?.department || 'Operations Team'}
           </div>
         </div>
 
-        <div className="p-4 rounded-2xl bg-[var(--surface,#ffffff)] border border-[var(--border,#e2e8f0)] shadow-xs">
-          <div className="flex items-center justify-between text-xs text-[var(--muted,#64748b)]">
+        <div className="payroll-kpi-card">
+          <div className="kpi-header">
             <span>Pending Review</span>
-            <Clock className="w-4 h-4 text-amber-600" />
+            <Clock size={16} color="#d97706" />
           </div>
-          <div className="mt-2 text-xl font-bold text-amber-600">
+          <div className="kpi-amount amber">
             {teamOverview?.pendingReviewCount || 0}
           </div>
-          <div className="mt-1 text-[11px] text-[var(--muted,#64748b)]">
-            Requires manager review
+          <div className="kpi-subtext">
+            Requires manager verification
           </div>
         </div>
 
-        <div className="p-4 rounded-2xl bg-[var(--surface,#ffffff)] border border-[var(--border,#e2e8f0)] shadow-xs">
-          <div className="flex items-center justify-between text-xs text-[var(--muted,#64748b)]">
+        <div className="payroll-kpi-card">
+          <div className="kpi-header">
             <span>Manager Approved</span>
-            <CheckCircle className="w-4 h-4 text-emerald-600" />
+            <CheckCircle size={16} color="#059669" />
           </div>
-          <div className="mt-2 text-xl font-bold text-emerald-600">
+          <div className="kpi-amount emerald">
             {teamOverview?.approvedCount || 0}
           </div>
-          <div className="mt-1 text-[11px] text-[var(--muted,#64748b)]">
+          <div className="kpi-subtext">
             Forwarded to Admin
           </div>
         </div>
 
-        <div className="p-4 rounded-2xl bg-[var(--surface,#ffffff)] border border-[var(--border,#e2e8f0)] shadow-xs">
-          <div className="flex items-center justify-between text-xs text-[var(--muted,#64748b)]">
+        <div className="payroll-kpi-card">
+          <div className="kpi-header">
             <span>Corrections Requested</span>
-            <AlertCircle className="w-4 h-4 text-rose-600" />
+            <AlertCircle size={16} color="#dc2626" />
           </div>
-          <div className="mt-2 text-xl font-bold text-rose-600">
+          <div className="kpi-amount rose" style={{ color: '#dc2626' }}>
             {teamOverview?.correctionCount || 0}
           </div>
-          <div className="mt-1 text-[11px] text-[var(--muted,#64748b)]">
+          <div className="kpi-subtext">
             Returned for adjustment
           </div>
         </div>
       </div>
 
-      {/* Team Payroll Table */}
-      <div className="bg-[var(--surface,#ffffff)] border border-[var(--border,#e2e8f0)] rounded-2xl overflow-hidden shadow-xs">
-        <div className="p-4 border-b border-[var(--border,#e2e8f0)] flex items-center justify-between">
-          <div className="relative w-full md:w-72">
-            <Search className="w-3.5 h-3.5 absolute left-3 top-2.5 text-[var(--muted,#94a3b8)]" />
-            <input
-              type="text"
-              placeholder="Search team member by name or ID..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-[var(--border,#e2e8f0)] bg-[var(--panel,#f8fafc)] text-[var(--text,#0f172a)] focus:ring-2 focus:ring-indigo-500"
-            />
-          </div>
+      {/* 3. Search Bar */}
+      <div className="payroll-filter-bar">
+        <div className="payroll-search-input-wrap" style={{ minWidth: '300px' }}>
+          <Search size={14} />
+          <input
+            type="text"
+            placeholder="Search team member by name or ID..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
         </div>
+      </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-[var(--panel,#f8fafc)] text-[var(--muted,#64748b)] font-semibold border-b border-[var(--border,#e2e8f0)]">
+      {/* 4. Team Payroll Table */}
+      <div className="payroll-table-card">
+        <div className="payroll-table-wrapper">
+          <table className="payroll-table">
+            <thead>
               <tr>
-                <th className="py-3.5 px-4">Member Name</th>
-                <th className="py-3.5 px-4">Attendance Verification</th>
-                <th className="py-3.5 px-4">Gross Earnings</th>
-                <th className="py-3.5 px-4">Absence / Deductions</th>
-                <th className="py-3.5 px-4">Net Salary</th>
-                <th className="py-3.5 px-4">Status</th>
-                <th className="py-3.5 px-4 text-right">Review Action</th>
+                <th>Member Name</th>
+                <th>Attendance Verification</th>
+                <th>Gross Earnings</th>
+                <th>Absence / Deductions</th>
+                <th>Net Salary</th>
+                <th>Status</th>
+                <th style={{ textAlign: 'right' }}>Review Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[var(--border,#e2e8f0)]">
+            <tbody>
               {filtered.map((payroll) => {
                 const emp = payroll.employee || {};
                 const att = payroll.attendanceSnapshot || {};
@@ -270,78 +275,78 @@ export default function ManagerPayrollReview({ user }) {
                 const isApproved = ['Manager_Approved', 'Ready_for_Payment', 'Paid'].includes(payroll.status);
 
                 return (
-                  <tr key={payroll._id} className="hover:bg-[var(--panel,#f8fafc)]/50 transition-colors">
-                    <td className="py-3.5 px-4">
-                      <div className="font-semibold text-[var(--text,#0f172a)] text-sm">{emp.name}</div>
-                      <div className="text-[11px] text-[var(--muted,#64748b)]">
+                  <tr key={payroll._id}>
+                    <td>
+                      <div className="emp-name-text">{emp.name}</div>
+                      <div className="emp-sub-text">
                         {emp.employeeId || 'TF-EMP'} • {emp.designation || 'Specialist'}
                       </div>
                     </td>
 
-                    <td className="py-3.5 px-4 text-[11px]">
-                      <div className="text-[var(--text,#0f172a)] font-medium">
+                    <td>
+                      <div style={{ fontWeight: '600', fontSize: '12px' }}>
                         {att.presentDays || 0} / {att.workingDays || 22} Present
                       </div>
-                      <div className="text-[var(--muted,#64748b)]">
+                      <div className="emp-sub-text">
                         {att.approvedLeaves || 0} Leaves • {att.absentDays || 0} Absent Days
                       </div>
                     </td>
 
-                    <td className="py-3.5 px-4 font-mono font-medium text-[var(--text,#0f172a)]">
+                    <td style={{ fontFamily: 'var(--font-mono)', fontWeight: '600' }}>
                       ₹{Number(payroll.grossSalary || 0).toLocaleString('en-IN')}
                     </td>
 
-                    <td className="py-3.5 px-4 font-mono text-rose-600">
+                    <td style={{ fontFamily: 'var(--font-mono)', color: '#dc2626', fontWeight: '600' }}>
                       -₹{Number(payroll.totalDeductions || 0).toLocaleString('en-IN')}
                     </td>
 
-                    <td className="py-3.5 px-4 font-mono font-bold text-indigo-600 text-sm">
+                    <td style={{ fontFamily: 'var(--font-mono)', color: '#4f46e5', fontWeight: '800', fontSize: '14px' }}>
                       ₹{Number(payroll.netSalary || 0).toLocaleString('en-IN')}
                     </td>
 
-                    <td className="py-3.5 px-4">
-                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold ${
-                        isApproved
-                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                          : isPending
-                          ? 'bg-amber-50 text-amber-700 border border-amber-200'
-                          : 'bg-rose-50 text-rose-700 border border-rose-200'
+                    <td>
+                      <span className={`payroll-badge ${
+                        isApproved ? 'status-paid' : isPending ? 'status-pending' : 'status-failed'
                       }`}>
-                        <span className={`w-1.5 h-1.5 rounded-full ${
-                          isApproved ? 'bg-emerald-500' : isPending ? 'bg-amber-500' : 'bg-rose-500'
-                        }`} />
+                        <span className="pulse-dot" style={{
+                          background: isApproved ? '#10b981' : isPending ? '#f59e0b' : '#ef4444',
+                          width: '6px', height: '6px', borderRadius: '50%'
+                        }} />
                         {payroll.status.replace(/_/g, ' ')}
                       </span>
                     </td>
 
-                    <td className="py-3.5 px-4 text-right">
-                      <div className="inline-flex items-center gap-1.5">
+                    <td style={{ textAlign: 'right' }}>
+                      <div className="payroll-actions-group">
                         {isPending && (
                           <>
                             <button
+                              type="button"
                               onClick={() => handleReview(payroll, 'approved')}
-                              className="px-2.5 py-1 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg shadow-xs transition-all cursor-pointer flex items-center gap-1"
+                              className="btn-action-success"
                               title="Approve for Admin Review"
                             >
-                              <Check className="w-3 h-3" />
+                              <Check size={12} />
                               <span>Approve</span>
                             </button>
                             <button
+                              type="button"
                               onClick={() => handleReview(payroll, 'correction_requested')}
-                              className="px-2 py-1 text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-lg transition-all cursor-pointer"
+                              className="btn-action-danger"
                               title="Request Correction"
                             >
-                              <X className="w-3 h-3" />
+                              <X size={12} />
                             </button>
                           </>
                         )}
 
                         <button
+                          type="button"
                           onClick={() => setSelectedPayslipPayroll(payroll)}
-                          className="p-1.5 text-indigo-600 hover:text-indigo-800 rounded-lg hover:bg-indigo-50 transition-colors cursor-pointer"
+                          className="btn-action-icon"
                           title="Inspect Detailed Salary Slip"
                         >
-                          <Eye className="w-4 h-4" />
+                          <Eye size={14} color="#4f46e5" />
                         </button>
                       </div>
                     </td>
@@ -351,10 +356,12 @@ export default function ManagerPayrollReview({ user }) {
 
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="py-12 text-center text-[var(--muted,#64748b)]">
-                    <Users className="w-8 h-8 mx-auto text-slate-300 mb-2" />
-                    <p className="font-semibold text-sm text-[var(--text,#0f172a)]">No team payroll records found</p>
-                    <p className="text-xs mt-1">Admin has not yet generated payroll for {MONTH_NAMES[selectedMonth - 1]} {selectedYear}.</p>
+                  <td colSpan={7}>
+                    <div className="payroll-empty-state">
+                      <Users size={32} />
+                      <h3>No team payroll records found</h3>
+                      <p>Admin has not yet generated payroll for {MONTH_NAMES[selectedMonth - 1]} {selectedYear}.</p>
+                    </div>
                   </td>
                 </tr>
               )}
