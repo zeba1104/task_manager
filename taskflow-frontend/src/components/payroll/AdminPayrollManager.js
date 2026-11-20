@@ -763,6 +763,7 @@ export default function AdminPayrollManager({ user }) {
             <Search size={16} className="search-icon" />
             <input
               type="text"
+              className="search-bar-input"
               placeholder="Search by name, ID or department..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}

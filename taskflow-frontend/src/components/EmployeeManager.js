@@ -1017,7 +1017,8 @@ function EmployeeManager({ fetchEmployees, setView, tasks = [], initialShowForm 
                 <label className="employee-search">
                     <Search size={16} />
                     <input
-                        type="search"
+                        type="text"
+                        className="search-bar-input"
                         value={search}
                         onChange={(e) => {
                             setSearch(e.target.value);

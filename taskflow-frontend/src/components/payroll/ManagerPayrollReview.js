@@ -386,6 +386,7 @@ export default function ManagerPayrollReview({ user }) {
           <Search size={16} className="search-icon" />
           <input
             type="text"
+            className="search-bar-input"
             placeholder="Search member by name, ID or role..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}

@@ -454,7 +454,7 @@ function HolidayCalendar({ user, setView }) {
               placeholder="Search holiday by name (e.g., Diwali, Eid, Republic Day)..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="holiday-search-input"
+              className="search-bar-input holiday-search-input"
             />
             {searchQuery && (
               <button

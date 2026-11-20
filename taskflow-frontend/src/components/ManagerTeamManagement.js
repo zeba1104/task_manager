@@ -305,6 +305,7 @@ export default function ManagerTeamManagement({ manager }) {
               <Search size={16} className="search-icon" />
               <input
                 type="text"
+                className="search-bar-input"
                 placeholder="Search by name, employee ID, or email..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}

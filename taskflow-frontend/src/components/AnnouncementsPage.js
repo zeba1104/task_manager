@@ -186,7 +186,7 @@ function AnnouncementsPage({ user }) {
             placeholder="Search announcements by title, content, or author..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="ann-search-input"
+            className="search-bar-input ann-search-input"
           />
           {searchQuery && (
             <button

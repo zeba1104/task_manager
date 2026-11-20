@@ -498,6 +498,7 @@ export default function ManagerProjectManagement({ manager, authorizedEmployees 
           <Search size={16} className="search-icon" />
           <input
             type="text"
+            className="search-bar-input"
             placeholder="Search projects by name, objectives, description..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}

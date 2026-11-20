@@ -882,6 +882,7 @@ function ChatPage({ user }) {
                 <Search size={14} className="text-muted" />
                 <input
                   type="text"
+                  className="search-bar-input"
                   placeholder="Filter team members or topics..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -1615,6 +1616,7 @@ function ChatPage({ user }) {
             <Search size={14} className="text-muted" />
             <input
               type="text"
+              className="search-bar-input"
               placeholder="Search managers or topics..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}

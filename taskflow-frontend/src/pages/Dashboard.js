@@ -304,6 +304,7 @@ function Dashboard() {
             <Search size={15} />
             <input
               type="text"
+              className="search-bar-input"
               placeholder="Search tasks by title, project, or category..."
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}

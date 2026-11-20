@@ -243,7 +243,7 @@ function AttendanceManager() {
               placeholder="Filter by Employee Name"
               value={filters.employee}
               onChange={(e) => setFilters({ ...filters, employee: e.target.value })}
-              className="attendance-filter-input"
+              className="search-bar-input attendance-filter-input"
             />
             {filters.employee && (
               <button
@@ -264,7 +264,7 @@ function AttendanceManager() {
               placeholder="Filter by Department"
               value={filters.department}
               onChange={(e) => setFilters({ ...filters, department: e.target.value })}
-              className="attendance-filter-input"
+              className="search-bar-input attendance-filter-input"
             />
             {filters.department && (
               <button

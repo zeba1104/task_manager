@@ -1622,6 +1622,7 @@ export default function EmployeeDashboard({ user, logout, setView, activeTab, on
               <Search size={16} className="search-icon" />
               <input
                 type="text"
+                className="search-bar-input"
                 placeholder="Search projects by name, objectives..."
                 value={projectSearch}
                 onChange={(e) => setProjectSearch(e.target.value)}
@@ -1763,6 +1764,7 @@ export default function EmployeeDashboard({ user, logout, setView, activeTab, on
               <Search size={16} className="search-icon" />
               <input
                 type="text"
+                className="search-bar-input"
                 placeholder="Search tasks by title, instructions, project..."
                 value={taskSearch}
                 onChange={(e) => setTaskSearch(e.target.value)}
