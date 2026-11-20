@@ -505,7 +505,7 @@ export default function ManagerPayrollReview({ user }) {
                           type="button"
                           onClick={() => setSelectedPayslipPayroll(payroll)}
                           className="btn-action-icon"
-                          title="Inspect Detailed Salary Slip"
+                          title="Inspect & Download Salary Slip (PDF)"
                         >
                           <Eye size={14} color="#4f46e5" />
                         </button>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Printer, CheckCircle, ShieldCheck, Landmark, FileText, Award } from 'lucide-react';
+import { X, Printer, Download, CheckCircle, ShieldCheck, Landmark, FileText, Award, Loader2 } from 'lucide-react';
 import './Payroll.css';
 
 /**
@@ -23,6 +23,7 @@ function numberToWords(num) {
 
 export default function PayslipModal({ payroll, onClose }) {
   const [viewMode, setViewMode] = useState('payslip'); // 'payslip' | 'certificate'
+  const [downloading, setDownloading] = useState(false);
 
   if (!payroll) return null;
 
@@ -64,6 +65,57 @@ export default function PayslipModal({ payroll, onClose }) {
 
   const handlePrint = () => {
     window.print();
+  };
+
+  const handleDownloadPdf = async () => {
+    const element = document.getElementById('printable-active-document');
+    if (!element) return;
+
+    setDownloading(true);
+    try {
+      let h2p = window.html2pdf;
+      if (!h2p) {
+        await new Promise((resolve, reject) => {
+          const script = document.createElement('script');
+          script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+          script.onload = () => resolve();
+          script.onerror = (e) => reject(e);
+          document.head.appendChild(script);
+        });
+        h2p = window.html2pdf;
+      }
+
+      if (!h2p) {
+        window.print();
+        return;
+      }
+
+      const cleanName = (emp.name || 'Employee').trim().replace(/[^a-zA-Z0-9_-]/g, '_');
+      const cleanPeriod = (payroll.periodLabel || 'Salary').trim().replace(/[^a-zA-Z0-9_-]/g, '_');
+      const filename = viewMode === 'certificate'
+        ? `${cleanName}_Salary_Certificate.pdf`
+        : `${cleanName}_${cleanPeriod}_Payslip.pdf`;
+
+      const opt = {
+        margin: [8, 8, 8, 8],
+        filename: filename,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: {
+          scale: 2,
+          useCORS: true,
+          logging: false,
+          backgroundColor: '#ffffff'
+        },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+
+      await h2p().set(opt).from(element).save();
+    } catch (err) {
+      console.error('Error generating PDF, falling back to print:', err);
+      window.print();
+    } finally {
+      setDownloading(false);
+    }
   };
 
   return (
@@ -122,16 +174,61 @@ export default function PayslipModal({ payroll, onClose }) {
             </span>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <button
+              type="button"
+              onClick={handleDownloadPdf}
+              disabled={downloading}
+              className="btn-action-primary"
+              style={{
+                padding: '7px 16px',
+                background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
+                borderColor: '#047857',
+                color: '#ffffff',
+                fontWeight: '700',
+                fontSize: '12px',
+                letterSpacing: '0.01em',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                borderRadius: '10px',
+                boxShadow: '0 2px 8px rgba(5, 150, 105, 0.25)',
+                cursor: downloading ? 'wait' : 'pointer'
+              }}
+              title="Directly download official PDF file to device"
+            >
+              {downloading ? (
+                <>
+                  <Loader2 size={13} className="spinning" />
+                  <span>Downloading PDF...</span>
+                </>
+              ) : (
+                <>
+                  <Download size={13} />
+                  <span>Download PDF</span>
+                </>
+              )}
+            </button>
             <button
               type="button"
               onClick={handlePrint}
-              className="btn-action-primary"
-              style={{ padding: '6px 14px' }}
-              title="Print or Save as PDF"
+              className="btn-action-secondary"
+              style={{
+                padding: '7px 14px',
+                background: '#ffffff',
+                borderColor: '#cbd5e1',
+                color: '#334155',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                fontWeight: '600',
+                fontSize: '12px',
+                borderRadius: '10px'
+              }}
+              title="Print or Save as PDF via system dialog"
             >
               <Printer size={13} />
-              <span>Print / PDF</span>
+              <span>Print</span>
             </button>
             <button
               type="button"

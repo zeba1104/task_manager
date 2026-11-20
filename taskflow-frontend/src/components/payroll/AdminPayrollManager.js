@@ -1009,12 +1009,12 @@ export default function AdminPayrollManager({ user }) {
                             </button>
                           )}
 
-                          {/* View Payslip */}
+                          {/* View & Download Payslip */}
                           <button
                             type="button"
                             onClick={() => setSelectedPayslipPayroll(payroll)}
                             className="btn-action-icon"
-                            title="View / Print Official Payslip"
+                            title="View, Print & Download Official Payslip (PDF)"
                           >
                             <Eye size={14} color="#4f46e5" />
                           </button>

@@ -6,7 +6,8 @@ import {
   FileText,
   AlertCircle,
   ShieldCheck,
-  TrendingUp
+  TrendingUp,
+  Download
 } from 'lucide-react';
 import { getMyPayrolls } from '../../api/payrollApi';
 import PayslipModal from './PayslipModal';
@@ -105,9 +106,10 @@ export default function EmployeeSalaryPortal({ user }) {
                   type="button"
                   onClick={() => setSelectedPayslipPayroll(latestPayroll)}
                   className="btn-hero-payslip"
+                  title="View, Print and Download Official Payslip or Salary Certificate as PDF"
                 >
-                  <FileText size={16} />
-                  <span>View Official Payslip</span>
+                  <Download size={16} />
+                  <span>Download / View Payslip</span>
                 </button>
                 <div className="hero-bank-note">
                   Disbursed to: {latestPayroll.salaryStructureSnapshot?.bankDetails?.bankName || 'HDFC Bank'} (••••{String(latestPayroll.salaryStructureSnapshot?.bankDetails?.accountNumber || '5678').slice(-4)})
@@ -308,10 +310,11 @@ export default function EmployeeSalaryPortal({ user }) {
                         type="button"
                         onClick={() => setSelectedPayslipPayroll(p)}
                         className="btn-action-primary"
-                        style={{ padding: '6px 14px' }}
+                        style={{ padding: '6px 14px', display: 'inline-flex', alignItems: 'center', gap: '5px' }}
+                        title="Download or View Payslip PDF"
                       >
-                        <FileText size={12} />
-                        <span>Payslip</span>
+                        <Download size={12} />
+                        <span>PDF / Payslip</span>
                       </button>
                     </td>
                   </tr>

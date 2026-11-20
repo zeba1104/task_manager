@@ -1748,6 +1748,12 @@ body.dark-theme .empty-tip-pill {
   border-bottom: 1px solid var(--border, #e2e8f0);
 }
 
+#printable-active-document {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  width: 100%;
+}
+
 .payslip-document {
   padding: 32px 36px;
   background: #ffffff;
