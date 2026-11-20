@@ -95,45 +95,52 @@ function Login() {
                     </motion.div>
                 )}
 
-                <form onSubmit={handleSubmit}>
-                    <div className="minimal-input-group">
-                        <div className="minimal-input-wrapper">
-                            <Mail className="minimal-input-icon" size={18} />
+                <form onSubmit={handleSubmit} className="minimal-login-form">
+                    <div className="login-form-field">
+                        <label htmlFor="email" className="login-field-label">
+                            Email Address
+                        </label>
+                        <div className="login-input-wrapper">
+                            <Mail className="login-field-icon" size={17} />
                             <input
                                 type="email"
                                 id="email"
                                 name="email"
-                                placeholder=" "
+                                placeholder="name@company.com"
                                 value={formData.email}
                                 onChange={handleChange}
                                 required
+                                className="login-input-control"
+                                autoComplete="username email"
                             />
-                            <label htmlFor="email">Email Address</label>
-                            <span className="minimal-input-line"></span>
                         </div>
                     </div>
 
-                    <div className="minimal-input-group">
-                        <div className="minimal-input-wrapper">
-                            <KeyRound className="minimal-input-icon" size={18} />
+                    <div className="login-form-field">
+                        <label htmlFor="password" className="login-field-label">
+                            Password
+                        </label>
+                        <div className="login-input-wrapper">
+                            <KeyRound className="login-field-icon" size={17} />
                             <input
                                 type={showPassword ? 'text' : 'password'}
                                 id="password"
                                 name="password"
-                                placeholder=" "
+                                placeholder="Enter your password"
                                 value={formData.password}
                                 onChange={handleChange}
                                 required
+                                className="login-input-control"
+                                autoComplete="current-password"
                             />
-                            <label htmlFor="password">Password</label>
-                            <span className="minimal-input-line"></span>
                             <button
                                 type="button"
-                                className="minimal-password-toggle"
+                                className="login-password-toggle-btn"
                                 onClick={() => setShowPassword(!showPassword)}
                                 aria-label="Toggle password visibility"
+                                title={showPassword ? 'Hide password' : 'Show password'}
                             >
-                                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
                             </button>
                         </div>
                     </div>

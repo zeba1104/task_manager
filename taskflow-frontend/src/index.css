@@ -3038,118 +3038,147 @@ body.dark-theme .swal2-cancel.btn-ghost:hover {
   margin: 0;
 }
 
+/* =========================================================================
+   CLEAN & ACCESSIBLE ENTERPRISE LOGIN FORM
+   Zero-overlap field design with clear labels and in-flow icons
+   ========================================================================= */
+.minimal-login-form {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 18px !important;
+  margin-top: 24px !important;
+  width: 100% !important;
+}
+
+.login-form-field {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 7px !important;
+  text-align: left !important;
+  width: 100% !important;
+}
+
+.login-field-label {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: #334155 !important;
+  letter-spacing: -0.01em !important;
+  margin: 0 !important;
+  display: block !important;
+  pointer-events: auto !important;
+  position: static !important;
+  transform: none !important;
+  text-transform: none !important;
+}
+
+.login-input-wrapper {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  height: 48px !important;
+  min-height: 48px !important;
+  padding: 0 14px !important;
+  gap: 12px !important;
+  background: #f8fafc !important;
+  border: 1.5px solid #cbd5e1 !important;
+  border-radius: 12px !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-sizing: border-box !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03) !important;
+  width: 100% !important;
+}
+
+.login-input-wrapper:hover {
+  border-color: #94a3b8 !important;
+  background: #ffffff !important;
+}
+
+.login-input-wrapper:focus-within {
+  border-color: #2563eb !important;
+  background: #ffffff !important;
+  box-shadow: 0 0 0 3.5px rgba(37, 99, 235, 0.14) !important;
+}
+
+.login-field-icon {
+  color: #64748b !important;
+  flex-shrink: 0 !important;
+  pointer-events: none !important;
+  transition: color 0.18s ease !important;
+}
+
+.login-input-wrapper:focus-within .login-field-icon {
+  color: #2563eb !important;
+}
+
+.login-input-control {
+  width: 100% !important;
+  height: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  outline: none !important;
+  box-shadow: none !important;
+  font-size: 14.5px !important;
+  font-weight: 500 !important;
+  color: #0f172a !important;
+  font-family: inherit !important;
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  border-radius: 0 !important;
+}
+
+.login-input-control:focus {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.login-input-control::placeholder {
+  color: #94a3b8 !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  opacity: 1 !important;
+}
+
+.login-input-control:-webkit-autofill,
+.login-input-control:-webkit-autofill:hover, 
+.login-input-control:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px #f8fafc inset !important;
+  -webkit-text-fill-color: #0f172a !important;
+  transition: background-color 5000s ease-in-out 0s !important;
+}
+
+.login-password-toggle-btn {
+  background: transparent !important;
+  border: none !important;
+  color: #64748b !important;
+  cursor: pointer !important;
+  padding: 6px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 8px !important;
+  flex-shrink: 0 !important;
+  transition: all 0.18s ease !important;
+}
+
+.login-password-toggle-btn:hover {
+  background: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+/* Backward compatibility for minimal-input-wrapper if referenced elsewhere */
 .minimal-input-group {
   position: relative;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
 }
 
 .minimal-input-wrapper {
   position: relative;
-  border-radius: 8px 8px 0 0;
-  background: rgba(243, 244, 246, 0.5);
-  transition: background 0.3s ease;
-}
-
-.minimal-input-wrapper:hover {
-  background: rgba(243, 244, 246, 0.9);
-}
-
-.minimal-input-wrapper input, .minimal-input-wrapper select {
-  width: 100%;
-  padding: 26px 46px 8px 46px; /* 46px left/right padding for icons */
-  background: transparent;
-  border: none;
-  border-bottom: 2px solid #e5e7eb;
-  font-size: 16px;
-  color: #111827;
-  outline: none;
-  transition: all 0.3s ease;
-  appearance: none;
-}
-
-.minimal-password-toggle {
-  position: absolute;
-  right: 16px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  color: #9ca3af;
-  cursor: pointer;
-  padding: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: color 0.2s ease;
-  z-index: 2;
-  outline: none;
-}
-
-.minimal-password-toggle:hover {
-  color: #111827;
-}
-
-.minimal-input-icon {
-  position: absolute;
-  left: 16px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #9ca3af;
-  pointer-events: none;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  z-index: 2;
-}
-
-.minimal-input-wrapper label {
-  position: absolute;
-  left: 46px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 15px;
-  color: #9ca3af;
-  pointer-events: none;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  margin: 0;
-  z-index: 1;
-}
-
-.minimal-input-wrapper input:focus ~ label,
-.minimal-input-wrapper input:not(:placeholder-shown) ~ label,
-.minimal-input-wrapper select:focus ~ label,
-.minimal-input-wrapper select:not([value=""]) ~ label {
-  top: 14px;
-  font-size: 11px;
-  font-weight: 700;
-  color: #111827;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.minimal-input-wrapper input:focus ~ .minimal-input-icon,
-.minimal-input-wrapper select:focus ~ .minimal-input-icon {
-  color: #111827;
-  transform: translateY(-50%) scale(1.1);
-}
-
-.minimal-input-line {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  height: 2px;
-  width: 100%;
-  background: #111827;
-  transform: scaleX(0);
-  transform-origin: center;
-  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.minimal-input-wrapper input:focus ~ .minimal-input-line,
-.minimal-input-wrapper select:focus ~ .minimal-input-line {
-  transform: scaleX(1);
-}
-
-.minimal-input-wrapper input:focus, .minimal-input-wrapper select:focus {
-  background: #ffffff;
+  border-radius: 10px;
+  background: #f8fafc;
+  border: 1.5px solid #cbd5e1;
 }
 
 .minimal-btn {
@@ -8251,6 +8280,72 @@ body.dark-theme .minimal-logo {
   background: #2563eb !important;
   color: #ffffff !important;
   box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4) !important;
+}
+
+[data-theme="dark"] .login-field-label,
+body.dark-theme .login-field-label {
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .login-input-wrapper,
+body.dark-theme .login-input-wrapper {
+  background: #0b1329 !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  box-shadow: none !important;
+}
+
+[data-theme="dark"] .login-input-wrapper:hover,
+body.dark-theme .login-input-wrapper:hover {
+  border-color: rgba(255, 255, 255, 0.22) !important;
+}
+
+[data-theme="dark"] .login-input-wrapper:focus-within,
+body.dark-theme .login-input-wrapper:focus-within {
+  background: #0f172a !important;
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 3.5px rgba(59, 130, 246, 0.25) !important;
+}
+
+[data-theme="dark"] .login-field-icon,
+body.dark-theme .login-field-icon {
+  color: #64748b !important;
+}
+
+[data-theme="dark"] .login-input-wrapper:focus-within .login-field-icon,
+body.dark-theme .login-input-wrapper:focus-within .login-field-icon {
+  color: #60a5fa !important;
+}
+
+[data-theme="dark"] .login-input-control,
+body.dark-theme .login-input-control {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .login-input-control::placeholder,
+body.dark-theme .login-input-control::placeholder {
+  color: #64748b !important;
+}
+
+[data-theme="dark"] .login-input-control:-webkit-autofill,
+[data-theme="dark"] .login-input-control:-webkit-autofill:hover,
+[data-theme="dark"] .login-input-control:-webkit-autofill:focus,
+body.dark-theme .login-input-control:-webkit-autofill,
+body.dark-theme .login-input-control:-webkit-autofill:hover,
+body.dark-theme .login-input-control:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px #0b1329 inset !important;
+  -webkit-text-fill-color: #f8fafc !important;
+  transition: background-color 5000s ease-in-out 0s !important;
+}
+
+[data-theme="dark"] .login-password-toggle-btn,
+body.dark-theme .login-password-toggle-btn {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .login-password-toggle-btn:hover,
+body.dark-theme .login-password-toggle-btn:hover {
+  background: #1e293b !important;
+  color: #f8fafc !important;
 }
 
 [data-theme="dark"] .minimal-input-wrapper,
@@ -25436,13 +25531,13 @@ label span.text-danger {
 }
 
 /* Universal Text Inputs, Numbers, Dates, Password fields across all forms */
-input[type="text"]:not(.topbar-search-input):not(.employee-search input):not(.task-search-wrap input):not(.search-box input):not(.manager-search-box input):not(.ann-search-wrap input):not(.holiday-search-box input):not(.chat-search-wrap input):not(.payroll-search-input-wrap input),
-input[type="email"],
-input[type="password"],
+input[type="text"]:not(.topbar-search-input):not(.employee-search input):not(.task-search-wrap input):not(.search-box input):not(.manager-search-box input):not(.ann-search-wrap input):not(.holiday-search-box input):not(.chat-search-wrap input):not(.payroll-search-input-wrap input):not(.login-input-control),
+input[type="email"]:not(.login-input-control),
+input[type="password"]:not(.login-input-control),
 input[type="number"],
 input[type="date"],
 input[type="datetime-local"],
-input[type="search"]:not(.topbar-search-input):not(.employee-search input):not(.task-search-wrap input):not(.search-box input):not(.manager-search-box input):not(.ann-search-wrap input):not(.holiday-search-box input):not(.chat-search-wrap input):not(.payroll-search-input-wrap input),
+input[type="search"]:not(.topbar-search-input):not(.employee-search input):not(.task-search-wrap input):not(.search-box input):not(.manager-search-box input):not(.ann-search-wrap input):not(.holiday-search-box input):not(.chat-search-wrap input):not(.payroll-search-input-wrap input):not(.login-input-control),
 .form-control,
 .form-group input,
 .task-form-row input,
@@ -25478,13 +25573,13 @@ textarea::placeholder,
 }
 
 /* Input Hover State (Light Mode) */
-input[type="text"]:not(.topbar-search-input):not(.employee-search input):not(.task-search-wrap input):not(.search-box input):not(.manager-search-box input):not(.ann-search-wrap input):not(.holiday-search-box input):not(.chat-search-wrap input):not(.payroll-search-input-wrap input):hover,
-input[type="email"]:hover,
-input[type="password"]:hover,
+input[type="text"]:not(.topbar-search-input):not(.employee-search input):not(.task-search-wrap input):not(.search-box input):not(.manager-search-box input):not(.ann-search-wrap input):not(.holiday-search-box input):not(.chat-search-wrap input):not(.payroll-search-input-wrap input):not(.login-input-control):hover,
+input[type="email"]:not(.login-input-control):hover,
+input[type="password"]:not(.login-input-control):hover,
 input[type="number"]:hover,
 input[type="date"]:hover,
 input[type="datetime-local"]:hover,
-input[type="search"]:not(.topbar-search-input):not(.employee-search input):not(.task-search-wrap input):not(.search-box input):not(.manager-search-box input):not(.ann-search-wrap input):not(.holiday-search-box input):not(.chat-search-wrap input):not(.payroll-search-input-wrap input):hover,
+input[type="search"]:not(.topbar-search-input):not(.employee-search input):not(.task-search-wrap input):not(.search-box input):not(.manager-search-box input):not(.ann-search-wrap input):not(.holiday-search-box input):not(.chat-search-wrap input):not(.payroll-search-input-wrap input):not(.login-input-control):hover,
 .form-control:hover,
 .form-group input:hover,
 .task-form-row input:hover,
@@ -25498,13 +25593,13 @@ input[type="search"]:not(.topbar-search-input):not(.employee-search input):not(.
 }
 
 /* Input Focused State (Light Mode) */
-input[type="text"]:not(.topbar-search-input):not(.employee-search input):not(.task-search-wrap input):not(.search-box input):not(.manager-search-box input):not(.ann-search-wrap input):not(.holiday-search-box input):not(.chat-search-wrap input):not(.payroll-search-input-wrap input):focus,
-input[type="email"]:focus,
-input[type="password"]:focus,
+input[type="text"]:not(.topbar-search-input):not(.employee-search input):not(.task-search-wrap input):not(.search-box input):not(.manager-search-box input):not(.ann-search-wrap input):not(.holiday-search-box input):not(.chat-search-wrap input):not(.payroll-search-input-wrap input):not(.login-input-control):focus,
+input[type="email"]:not(.login-input-control):focus,
+input[type="password"]:not(.login-input-control):focus,
 input[type="number"]:focus,
 input[type="date"]:focus,
 input[type="datetime-local"]:focus,
-input[type="search"]:not(.topbar-search-input):not(.employee-search input):not(.task-search-wrap input):not(.search-box input):not(.manager-search-box input):not(.ann-search-wrap input):not(.holiday-search-box input):not(.chat-search-wrap input):not(.payroll-search-input-wrap input):focus,
+input[type="search"]:not(.topbar-search-input):not(.employee-search input):not(.task-search-wrap input):not(.search-box input):not(.manager-search-box input):not(.ann-search-wrap input):not(.holiday-search-box input):not(.chat-search-wrap input):not(.payroll-search-input-wrap input):not(.login-input-control):focus,
 .form-control:focus,
 .form-group input:focus,
 .task-form-row input:focus,
@@ -25520,20 +25615,20 @@ input[type="search"]:not(.topbar-search-input):not(.employee-search input):not(.
 }
 
 /* Dark Mode Universal Text Inputs */
-[data-theme="dark"] input[type="text"]:not(.topbar-search-input):not(.employee-search input):not(.task-search-wrap input):not(.search-box input):not(.manager-search-box input):not(.ann-search-wrap input):not(.holiday-search-box input):not(.chat-search-wrap input):not(.payroll-search-input-wrap input),
-body.dark-theme input[type="text"]:not(.topbar-search-input):not(.employee-search input):not(.task-search-wrap input):not(.search-box input):not(.manager-search-box input):not(.ann-search-wrap input):not(.holiday-search-box input):not(.chat-search-wrap input):not(.payroll-search-input-wrap input),
-[data-theme="dark"] input[type="email"],
-body.dark-theme input[type="email"],
-[data-theme="dark"] input[type="password"],
-body.dark-theme input[type="password"],
+[data-theme="dark"] input[type="text"]:not(.topbar-search-input):not(.employee-search input):not(.task-search-wrap input):not(.search-box input):not(.manager-search-box input):not(.ann-search-wrap input):not(.holiday-search-box input):not(.chat-search-wrap input):not(.payroll-search-input-wrap input):not(.login-input-control),
+body.dark-theme input[type="text"]:not(.topbar-search-input):not(.employee-search input):not(.task-search-wrap input):not(.search-box input):not(.manager-search-box input):not(.ann-search-wrap input):not(.holiday-search-box input):not(.chat-search-wrap input):not(.payroll-search-input-wrap input):not(.login-input-control),
+[data-theme="dark"] input[type="email"]:not(.login-input-control),
+body.dark-theme input[type="email"]:not(.login-input-control),
+[data-theme="dark"] input[type="password"]:not(.login-input-control),
+body.dark-theme input[type="password"]:not(.login-input-control),
 [data-theme="dark"] input[type="number"],
 body.dark-theme input[type="number"],
 [data-theme="dark"] input[type="date"],
 body.dark-theme input[type="date"],
 [data-theme="dark"] input[type="datetime-local"],
 body.dark-theme input[type="datetime-local"],
-[data-theme="dark"] input[type="search"],
-body.dark-theme input[type="search"],
+[data-theme="dark"] input[type="search"]:not(.login-input-control),
+body.dark-theme input[type="search"]:not(.login-input-control),
 [data-theme="dark"] .form-control,
 body.dark-theme .form-control,
 [data-theme="dark"] .form-group input,
@@ -25563,12 +25658,12 @@ body.dark-theme textarea::placeholder {
   color: #64748b !important;
 }
 
-[data-theme="dark"] input[type="text"]:hover,
-body.dark-theme input[type="text"]:hover,
-[data-theme="dark"] input[type="email"]:hover,
-body.dark-theme input[type="email"]:hover,
-[data-theme="dark"] input[type="password"]:hover,
-body.dark-theme input[type="password"]:hover,
+[data-theme="dark"] input[type="text"]:not(.login-input-control):hover,
+body.dark-theme input[type="text"]:not(.login-input-control):hover,
+[data-theme="dark"] input[type="email"]:not(.login-input-control):hover,
+body.dark-theme input[type="email"]:not(.login-input-control):hover,
+[data-theme="dark"] input[type="password"]:not(.login-input-control):hover,
+body.dark-theme input[type="password"]:not(.login-input-control):hover,
 [data-theme="dark"] input[type="date"]:hover,
 body.dark-theme input[type="date"]:hover,
 [data-theme="dark"] input[type="datetime-local"]:hover,
@@ -25577,12 +25672,12 @@ body.dark-theme input[type="datetime-local"]:hover {
   background-color: #0f172a !important;
 }
 
-[data-theme="dark"] input[type="text"]:focus,
-body.dark-theme input[type="text"]:focus,
-[data-theme="dark"] input[type="email"]:focus,
-body.dark-theme input[type="email"]:focus,
-[data-theme="dark"] input[type="password"]:focus,
-body.dark-theme input[type="password"]:focus,
+[data-theme="dark"] input[type="text"]:not(.login-input-control):focus,
+body.dark-theme input[type="text"]:not(.login-input-control):focus,
+[data-theme="dark"] input[type="email"]:not(.login-input-control):focus,
+body.dark-theme input[type="email"]:not(.login-input-control):focus,
+[data-theme="dark"] input[type="password"]:not(.login-input-control):focus,
+body.dark-theme input[type="password"]:not(.login-input-control):focus,
 [data-theme="dark"] input[type="number"]:focus,
 body.dark-theme input[type="number"]:focus,
 [data-theme="dark"] input[type="date"]:focus,
