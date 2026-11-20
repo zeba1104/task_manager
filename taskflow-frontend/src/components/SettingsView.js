@@ -429,7 +429,7 @@ function SettingsView({ user, onUserUpdated }) {
                                     <div className="settings-avatar-fallback">{initials}</div>
                                 )}
                                 <label className="settings-avatar-upload-badge" title="Change photo">
-                                    <Camera size={14} />
+                                    <Camera size={15} color="#ffffff" strokeWidth={2.2} />
                                     <input
                                         type="file"
                                         accept="image/jpeg,image/png,image/webp"
@@ -453,7 +453,7 @@ function SettingsView({ user, onUserUpdated }) {
 
                             <div className="settings-avatar-actions">
                                 <label className="btn-secondary btn-small settings-photo-btn">
-                                    <Camera size={13} />
+                                    <Camera size={14} strokeWidth={2} className="settings-photo-btn-icon" />
                                     <span>{uploadingPhoto ? 'Uploading...' : 'Change Photo'}</span>
                                     <input
                                         type="file"

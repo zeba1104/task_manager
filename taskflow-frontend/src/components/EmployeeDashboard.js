@@ -2216,30 +2216,26 @@ export default function EmployeeDashboard({ user, logout, setView, activeTab, on
           <div className="manager-modal-box apply-leave-modal" role="dialog" aria-modal="true">
             <header className="manager-modal-header">
               <div className="modal-title-with-badge">
-                <CalendarDays size={18} className="text-blue" />
-                <h3>Apply for Leave</h3>
+                <div className="modal-title-icon-box">
+                  <CalendarDays size={20} className="text-blue" />
+                </div>
+                <div>
+                  <h3 className="modal-heading-title">Apply for Leave</h3>
+                  <p className="modal-heading-subtitle">Submit a leave request for reporting manager approval</p>
+                </div>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <button
-                  type="button"
-                  className="btn-primary btn-small"
-                  onClick={handleLeaveSubmit}
-                  disabled={leaveBusy}
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontWeight: 600, padding: '6px 14px', fontSize: '12px' }}
-                >
-                  <Send size={13} /> {leaveBusy ? 'Sending...' : 'Send for Approval'}
-                </button>
-                <button className="icon-btn" onClick={() => setLeaveModalOpen(false)} aria-label="Close">
-                  <X size={18} />
-                </button>
-              </div>
+              <button type="button" className="icon-btn modal-close-btn" onClick={() => setLeaveModalOpen(false)} aria-label="Close">
+                <X size={18} />
+              </button>
             </header>
             <form onSubmit={handleLeaveSubmit}>
               <div className="modal-body-scroll">
                 <div className="emp-routing-preview-banner">
-                  <UserRound size={16} />
-                  <div>
-                    <strong>Routing Notice:</strong>
+                  <div className="routing-notice-icon-box">
+                    <UserRound size={17} />
+                  </div>
+                  <div className="routing-notice-text">
+                    <strong>Routing Notice</strong>
                     <p>Your request will be routed to your assigned reporting manager ({leaveOverview.assignedManager?.name || 'Manager'}). If your manager is on approved leave during your requested dates, Taskflow automatically redirects the request to Admin.</p>
                   </div>
                 </div>
@@ -2247,6 +2243,7 @@ export default function EmployeeDashboard({ user, logout, setView, activeTab, on
                 <div className="form-group-field">
                   <label>Leave Type <span className="req">*</span></label>
                   <select
+                    className="modal-select-input"
                     value={leaveForm.leaveType}
                     onChange={(e) => setLeaveForm({ ...leaveForm, leaveType: e.target.value })}
                     required
@@ -2263,6 +2260,7 @@ export default function EmployeeDashboard({ user, logout, setView, activeTab, on
                     <label>Start Date <span className="req">*</span></label>
                     <input
                       type="date"
+                      className="modal-date-input"
                       value={leaveForm.startDate}
                       min={new Date().toISOString().slice(0, 10)}
                       onChange={(e) => setLeaveForm({ ...leaveForm, startDate: e.target.value })}
@@ -2273,6 +2271,7 @@ export default function EmployeeDashboard({ user, logout, setView, activeTab, on
                     <label>End Date <span className="req">*</span></label>
                     <input
                       type="date"
+                      className="modal-date-input"
                       value={leaveForm.endDate}
                       min={leaveForm.startDate || new Date().toISOString().slice(0, 10)}
                       onChange={(e) => setLeaveForm({ ...leaveForm, endDate: e.target.value })}
@@ -2282,7 +2281,9 @@ export default function EmployeeDashboard({ user, logout, setView, activeTab, on
                 </div>
 
                 <div className="calculated-days-strip">
-                  <Clock size={15} />
+                  <div className="calc-days-icon-wrap">
+                    <Clock size={15} />
+                  </div>
                   <span>Calculated Working Days: <strong>{calculatedLeaveDays} {calculatedLeaveDays === 1 ? 'day' : 'days'}</strong></span>
                 </div>
 
@@ -2290,6 +2291,7 @@ export default function EmployeeDashboard({ user, logout, setView, activeTab, on
                   <label>Reason for Leave <span className="req">*</span></label>
                   <textarea
                     rows={3}
+                    className="modal-textarea-input"
                     placeholder="Provide a clear explanation for your leave..."
                     value={leaveForm.reason}
                     onChange={(e) => setLeaveForm({ ...leaveForm, reason: e.target.value })}
@@ -2299,25 +2301,27 @@ export default function EmployeeDashboard({ user, logout, setView, activeTab, on
 
                 <div className="form-group-field">
                   <label>Supporting Document <span className="optional-tag">(Optional)</span></label>
-                  <input
-                    type="file"
-                    accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
-                    onChange={(e) => setLeaveDocFile(e.target.files?.[0] || null)}
-                  />
+                  <div className="file-upload-input-wrap">
+                    <input
+                      type="file"
+                      className="modal-file-input"
+                      accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
+                      onChange={(e) => setLeaveDocFile(e.target.files?.[0] || null)}
+                    />
+                  </div>
                   <small className="field-hint">Accepted formats: PDF, DOC, DOCX, PNG, JPG (Max 10MB)</small>
                 </div>
               </div>
 
               <footer className="manager-modal-footer">
-                <button type="button" className="btn-ghost" onClick={() => setLeaveModalOpen(false)}>Cancel</button>
+                <button type="button" className="btn-ghost modal-btn-cancel" onClick={() => setLeaveModalOpen(false)}>Cancel</button>
                 <button
                   type="submit"
-                  className="btn-primary"
+                  className="btn-primary modal-btn-submit"
                   disabled={leaveBusy}
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '9px 18px', fontWeight: 600 }}
                 >
                   <Send size={15} />
-                  {leaveBusy ? 'Sending Request...' : 'Send Leave for Approval'}
+                  <span>{leaveBusy ? 'Sending Request...' : 'Send Leave for Approval'}</span>
                 </button>
               </footer>
             </form>

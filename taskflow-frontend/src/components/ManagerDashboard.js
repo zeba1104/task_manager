@@ -2022,31 +2022,27 @@ function ManagerDashboard({ user, logout, setView, activeTab, onTabChange }) {
           <div className="manager-modal-box apply-leave-modal" role="dialog" aria-modal="true">
             <header className="manager-modal-header">
               <div className="modal-title-with-badge">
-                <CalendarDays size={18} className="text-blue" />
-                <h3>Apply for Leave (Manager)</h3>
+                <div className="modal-title-icon-box">
+                  <CalendarDays size={20} className="text-blue" />
+                </div>
+                <div>
+                  <h3 className="modal-heading-title">Apply for Leave</h3>
+                  <p className="modal-heading-subtitle">Submit a manager leave request for administrator sign-off</p>
+                </div>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <button
-                  type="button"
-                  className="btn-primary btn-small"
-                  onClick={handleApplyLeaveSubmit}
-                  disabled={leaveSubmitting}
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontWeight: 600, padding: '6px 14px', fontSize: '12px' }}
-                >
-                  <Send size={13} /> {leaveSubmitting ? 'Sending...' : 'Send for Approval'}
-                </button>
-                <button type="button" className="icon-btn" onClick={() => setLeaveModalOpen(false)} aria-label="Close">
-                  <X size={18} />
-                </button>
-              </div>
+              <button type="button" className="icon-btn modal-close-btn" onClick={() => setLeaveModalOpen(false)} aria-label="Close">
+                <X size={18} />
+              </button>
             </header>
 
             <form onSubmit={handleApplyLeaveSubmit}>
               <div className="modal-body-scroll">
                 <div className="manager-apply-notice">
-                  <ShieldAlert size={16} />
-                  <div>
-                    <strong>Admin Routing Notice:</strong>
+                  <div className="routing-notice-icon-box">
+                    <ShieldAlert size={17} />
+                  </div>
+                  <div className="routing-notice-text">
+                    <strong>Admin Routing Notice</strong>
                     <p>As a manager, your leave request is strictly submitted to the Organization Admin for hierarchical review. Self-approval is disabled.</p>
                   </div>
                 </div>
@@ -2054,6 +2050,7 @@ function ManagerDashboard({ user, logout, setView, activeTab, onTabChange }) {
                 <div className="form-group-field">
                   <label>Leave Type <span className="req">*</span></label>
                   <select
+                    className="modal-select-input"
                     value={leaveForm.leaveType}
                     onChange={(e) => setLeaveForm({ ...leaveForm, leaveType: e.target.value })}
                     required
@@ -2070,6 +2067,7 @@ function ManagerDashboard({ user, logout, setView, activeTab, onTabChange }) {
                     <label>Start Date <span className="req">*</span></label>
                     <input
                       type="date"
+                      className="modal-date-input"
                       value={leaveForm.startDate}
                       min={new Date().toISOString().slice(0, 10)}
                       onChange={(e) => setLeaveForm({ ...leaveForm, startDate: e.target.value })}
@@ -2080,6 +2078,7 @@ function ManagerDashboard({ user, logout, setView, activeTab, onTabChange }) {
                     <label>End Date <span className="req">*</span></label>
                     <input
                       type="date"
+                      className="modal-date-input"
                       value={leaveForm.endDate}
                       min={leaveForm.startDate || new Date().toISOString().slice(0, 10)}
                       onChange={(e) => setLeaveForm({ ...leaveForm, endDate: e.target.value })}
@@ -2089,7 +2088,9 @@ function ManagerDashboard({ user, logout, setView, activeTab, onTabChange }) {
                 </div>
 
                 <div className="calculated-days-strip">
-                  <Clock size={15} />
+                  <div className="calc-days-icon-wrap">
+                    <Clock size={15} />
+                  </div>
                   <span>Calculated Working Days: <strong>{calculatedDays} {calculatedDays === 1 ? 'day' : 'days'}</strong></span>
                 </div>
 
@@ -2097,6 +2098,7 @@ function ManagerDashboard({ user, logout, setView, activeTab, onTabChange }) {
                   <label>Leave Reason <span className="req">*</span></label>
                   <textarea
                     rows={3}
+                    className="modal-textarea-input"
                     placeholder="Describe the reason for your leave request..."
                     value={leaveForm.reason}
                     onChange={(e) => setLeaveForm({ ...leaveForm, reason: e.target.value })}
@@ -2106,11 +2108,14 @@ function ManagerDashboard({ user, logout, setView, activeTab, onTabChange }) {
 
                 <div className="form-group-field">
                   <label>Supporting Document <span className="optional-tag">(Optional)</span></label>
-                  <input
-                    type="file"
-                    accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
-                    onChange={(e) => setLeaveDocFile(e.target.files?.[0] || null)}
-                  />
+                  <div className="file-upload-input-wrap">
+                    <input
+                      type="file"
+                      className="modal-file-input"
+                      accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
+                      onChange={(e) => setLeaveDocFile(e.target.files?.[0] || null)}
+                    />
+                  </div>
                   <small className="field-hint">Accepted formats: PDF, DOC, DOCX, PNG, JPG (Max 10MB)</small>
                 </div>
               </div>
@@ -2118,19 +2123,18 @@ function ManagerDashboard({ user, logout, setView, activeTab, onTabChange }) {
               <footer className="manager-modal-footer">
                 <button
                   type="button"
-                  className="btn-ghost"
+                  className="btn-ghost modal-btn-cancel"
                   onClick={() => setLeaveModalOpen(false)}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="btn-primary"
+                  className="btn-primary modal-btn-submit"
                   disabled={leaveSubmitting}
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '9px 18px', fontWeight: 600 }}
                 >
                   <Send size={15} />
-                  {leaveSubmitting ? 'Sending to Admin...' : 'Send Leave for Approval'}
+                  <span>{leaveSubmitting ? 'Sending to Admin...' : 'Send Leave for Approval'}</span>
                 </button>
               </footer>
             </form>
