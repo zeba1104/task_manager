@@ -199,7 +199,7 @@ export default function ManagerPayrollReview({ user }) {
             MANAGER GOVERNANCE &amp; ATTENDANCE AUDIT
           </span>
           <span className="payroll-hero-period-pill">
-            <Sparkles size={12} color="#a5b4fc" style={{ marginRight: '4px' }} />
+            <Sparkles size={13} style={{ marginRight: '5px' }} />
             {MONTH_NAMES[selectedMonth - 1]} {selectedYear}
           </span>
         </div>

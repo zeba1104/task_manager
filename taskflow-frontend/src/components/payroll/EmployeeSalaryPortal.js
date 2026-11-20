@@ -76,7 +76,7 @@ export default function EmployeeSalaryPortal({ user }) {
                   <span className="hero-period-pill">
                     {latestPayroll.periodLabel}
                   </span>
-                  <span className={`payroll-badge ${isPaid ? 'status-paid' : 'status-pending'}`} style={{ color: '#ffffff', background: isPaid ? 'rgba(16, 185, 129, 0.3)' : 'rgba(245, 158, 11, 0.3)', borderColor: 'rgba(255, 255, 255, 0.2)' }}>
+                  <span className={`payroll-badge ${isPaid ? 'status-paid' : 'status-pending'}`}>
                     {latestPayroll.status.replace(/_/g, ' ')}
                   </span>
                 </div>
@@ -89,19 +89,8 @@ export default function EmployeeSalaryPortal({ user }) {
                 </div>
 
                 {latestPayroll.payout?.utr && (
-                  <div style={{
-                    marginTop: '12px',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    background: 'rgba(255, 255, 255, 0.1)',
-                    border: '1px solid rgba(255, 255, 255, 0.15)',
-                    padding: '6px 14px',
-                    borderRadius: '10px',
-                    fontSize: '12px',
-                    fontFamily: 'var(--font-mono)'
-                  }}>
-                    <Landmark size={14} color="#34d399" />
+                  <div className="hero-utr-badge">
+                    <Landmark size={14} className="utr-icon" />
                     <span>Bank UTR: {latestPayroll.payout.utr}</span>
                   </div>
                 )}

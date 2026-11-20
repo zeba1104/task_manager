@@ -82,12 +82,15 @@ body.dark-theme .payroll-title-icon-box {
 .payroll-hero-banner {
   border-radius: 20px;
   padding: 26px 30px;
-  background: linear-gradient(135deg, #1e1b4b 0%, #312e81 40%, #0f172a 100%);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #ffffff;
+  background: 
+    radial-gradient(120% 120% at 90% 10%, rgba(37, 99, 235, 0.22) 0%, transparent 60%),
+    radial-gradient(100% 100% at 5% 90%, rgba(59, 130, 246, 0.18) 0%, transparent 50%),
+    linear-gradient(135deg, #e0f2fe 0%, #dbeafe 30%, #bfdbfe 70%, #93c5fd 100%);
+  border: 1.5px solid #93c5fd;
+  color: #0b214f;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 12px 32px rgba(30, 27, 75, 0.35);
+  box-shadow: 0 10px 30px -4px rgba(37, 99, 235, 0.2), 0 4px 12px -2px rgba(37, 99, 235, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.85);
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -98,18 +101,21 @@ body.dark-theme .payroll-title-icon-box {
   position: absolute;
   top: -80px;
   right: -80px;
-  width: 280px;
-  height: 280px;
+  width: 300px;
+  height: 300px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(99, 102, 241, 0.22) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(37, 99, 235, 0.25) 0%, rgba(59, 130, 246, 0.08) 55%, transparent 75%);
   pointer-events: none;
 }
 
 [data-theme="dark"] .payroll-hero-banner,
 body.dark-theme .payroll-hero-banner {
-  background: linear-gradient(135deg, #1e1b4b 0%, #312e81 40%, #0f172a 100%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5) !important;
+  background: 
+    radial-gradient(circle at 90% 10%, rgba(37, 99, 235, 0.3) 0%, transparent 60%),
+    linear-gradient(135deg, #0b1329 0%, #0f172a 45%, #1e293b 80%, #172554 100%) !important;
+  border: 1.5px solid rgba(59, 130, 246, 0.35) !important;
+  box-shadow: 0 10px 30px -4px rgba(0, 0, 0, 0.6), 0 0 20px rgba(37, 99, 235, 0.15) !important;
+  color: #f8fafc !important;
 }
 
 .payroll-hero-top {
@@ -128,28 +134,44 @@ body.dark-theme .payroll-hero-banner {
   gap: 7px;
   padding: 5px 14px;
   border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.88);
   backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  color: #e0e7ff;
+  border: 1px solid rgba(147, 197, 253, 0.9);
+  color: #1d4ed8;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.1);
+}
+
+[data-theme="dark"] .payroll-hero-badge,
+body.dark-theme .payroll-hero-badge {
+  background: rgba(37, 99, 235, 0.2) !important;
+  border-color: rgba(59, 130, 246, 0.4) !important;
+  color: #93c5fd !important;
 }
 
 .payroll-hero-period-pill {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 12px;
+  padding: 5px 14px;
   border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  color: #e0e7ff;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(147, 197, 253, 0.9);
+  color: #0b214f;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.08);
+}
+
+[data-theme="dark"] .payroll-hero-period-pill,
+body.dark-theme .payroll-hero-period-pill {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #cbd5e1 !important;
 }
 
 .payroll-hero-body {
@@ -169,21 +191,32 @@ body.dark-theme .payroll-hero-banner {
 
 .payroll-hero-title {
   font-family: var(--font-heading);
-  font-size: 26px;
+  font-size: 24px;
   font-weight: 800;
-  color: #ffffff;
+  color: #0b214f;
   letter-spacing: -0.025em;
   margin: 0;
-  line-height: 1.2;
+  line-height: 1.25;
+}
+
+[data-theme="dark"] .payroll-hero-title,
+body.dark-theme .payroll-hero-title {
+  color: #f8fafc !important;
 }
 
 .payroll-hero-subtitle {
   font-size: 13.5px;
-  color: #a5b4fc;
+  color: #1e3a8a;
   margin-top: 6px;
   margin-bottom: 0;
   max-width: 680px;
   line-height: 1.5;
+  font-weight: 500;
+}
+
+[data-theme="dark"] .payroll-hero-subtitle,
+body.dark-theme .payroll-hero-subtitle {
+  color: #94a3b8 !important;
 }
 
 .payroll-hero-actions {
@@ -197,39 +230,60 @@ body.dark-theme .payroll-hero-banner {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: rgba(0, 0, 0, 0.28);
-  padding: 4px;
-  border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(8px);
+  padding: 5px 8px;
+  border-radius: 12px;
+  border: 1px solid rgba(147, 197, 253, 0.9);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.1);
+}
+
+[data-theme="dark"] .hero-selectors-wrap,
+body.dark-theme .hero-selectors-wrap {
+  background: #1e293b !important;
+  border-color: #334155 !important;
 }
 
 .hero-select {
-  background: rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(8px);
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 10px;
+  background: #ffffff;
+  color: #0b214f;
+  border: 1.5px solid #bfdbfe;
+  border-radius: 9px;
   padding: 7px 12px;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   outline: none;
   transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(37, 99, 235, 0.06);
 }
 
 .hero-select:hover {
-  background: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.35);
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
 }
 
 .hero-select:focus {
-  border-color: #ffffff;
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.35);
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
 }
 
 .hero-select option {
-  background: #1e293b;
-  color: #ffffff;
+  background: #ffffff;
+  color: #0b214f;
+}
+
+[data-theme="dark"] .hero-select,
+body.dark-theme .hero-select {
+  background: #0b1329 !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+[data-theme="dark"] .hero-select option,
+body.dark-theme .hero-select option {
+  background: #0b1329 !important;
+  color: #f8fafc !important;
 }
 
 .btn-hero-approve {
@@ -1291,25 +1345,51 @@ body.dark-theme .payroll-badge.status-failed {
    ========================================================================= */
 
 .employee-payroll-hero {
-  border-radius: 24px;
-  padding: 32px;
-  background: linear-gradient(135deg, #1e1b4b 0%, #312e81 40%, #0f172a 100%);
-  color: #ffffff;
+  border-radius: 20px;
+  padding: 30px 34px;
+  background: 
+    radial-gradient(120% 120% at 90% 10%, rgba(37, 99, 235, 0.22) 0%, transparent 60%),
+    radial-gradient(100% 100% at 5% 90%, rgba(59, 130, 246, 0.18) 0%, transparent 50%),
+    linear-gradient(135deg, #e0f2fe 0%, #dbeafe 30%, #bfdbfe 70%, #93c5fd 100%);
+  border: 1.5px solid #93c5fd;
+  color: #0b214f;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 12px 32px rgba(30, 27, 75, 0.35);
+  box-shadow: 0 10px 30px -4px rgba(37, 99, 235, 0.2), 0 4px 12px -2px rgba(37, 99, 235, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.85);
 }
 
 .employee-payroll-hero::before {
   content: '';
   position: absolute;
-  top: -60px;
-  right: -60px;
-  width: 280px;
-  height: 280px;
+  top: -80px;
+  right: -80px;
+  width: 320px;
+  height: 320px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(99, 102, 241, 0.25) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(37, 99, 235, 0.25) 0%, rgba(59, 130, 246, 0.08) 55%, transparent 75%);
   pointer-events: none;
+}
+
+.employee-payroll-hero::after {
+  content: '';
+  position: absolute;
+  bottom: -60px;
+  left: 20%;
+  width: 240px;
+  height: 240px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.4) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+[data-theme="dark"] .employee-payroll-hero,
+body.dark-theme .employee-payroll-hero {
+  background: 
+    radial-gradient(circle at 90% 10%, rgba(37, 99, 235, 0.3) 0%, transparent 60%),
+    linear-gradient(135deg, #0b1329 0%, #0f172a 45%, #1e293b 80%, #172554 100%) !important;
+  border-color: rgba(59, 130, 246, 0.35) !important;
+  color: #f8fafc !important;
+  box-shadow: 0 10px 30px -4px rgba(0, 0, 0, 0.6), 0 0 20px rgba(37, 99, 235, 0.15) !important;
 }
 
 .employee-hero-content {
@@ -1326,31 +1406,78 @@ body.dark-theme .payroll-badge.status-failed {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 12px;
+  padding: 5px 14px;
   border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(147, 197, 253, 0.9);
   font-size: 12px;
-  font-weight: 600;
-  color: #e0e7ff;
+  font-weight: 700;
+  color: #1d4ed8;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.08);
+}
+
+[data-theme="dark"] .employee-hero-left .hero-period-pill,
+body.dark-theme .employee-hero-left .hero-period-pill {
+  background: rgba(37, 99, 235, 0.2) !important;
+  border-color: rgba(59, 130, 246, 0.4) !important;
+  color: #93c5fd !important;
 }
 
 .employee-hero-left .hero-salary-label {
-  font-size: 12px;
+  font-size: 11.5px;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: #a5b4fc;
+  letter-spacing: 0.08em;
+  color: #1d4ed8;
   margin-top: 14px;
-  font-weight: 600;
+  font-weight: 800;
+}
+
+[data-theme="dark"] .employee-hero-left .hero-salary-label,
+body.dark-theme .employee-hero-left .hero-salary-label {
+  color: #93c5fd !important;
 }
 
 .employee-hero-left .hero-salary-figure {
-  font-size: 44px;
+  font-size: 42px;
   font-weight: 800;
   font-family: var(--font-mono, monospace);
-  color: #ffffff;
+  color: #0b214f;
   margin-top: 4px;
   letter-spacing: -0.02em;
+}
+
+[data-theme="dark"] .employee-hero-left .hero-salary-figure,
+body.dark-theme .employee-hero-left .hero-salary-figure {
+  color: #f8fafc !important;
+}
+
+.hero-utr-badge {
+  margin-top: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(147, 197, 253, 0.9);
+  padding: 6px 14px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-family: var(--font-mono, monospace);
+  color: #0b214f;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.08);
+}
+
+.hero-utr-badge .utr-icon {
+  color: #059669;
+}
+
+[data-theme="dark"] .hero-utr-badge,
+body.dark-theme .hero-utr-badge {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #cbd5e1 !important;
 }
 
 .employee-hero-right {
@@ -1365,26 +1492,32 @@ body.dark-theme .payroll-badge.status-failed {
   align-items: center;
   gap: 8px;
   padding: 12px 24px;
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 700;
-  border-radius: 14px;
-  background: #ffffff;
-  color: #1e1b4b;
-  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
+  color: #ffffff;
+  border: 1px solid #1e40af;
   cursor: pointer;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .btn-hero-payslip:hover {
   transform: translateY(-2px);
-  background: #f8fafc;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  background: linear-gradient(135deg, #1e40af 0%, #1d4ed8 100%);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5);
 }
 
 .hero-bank-note {
-  font-size: 11px;
-  color: rgba(255, 255, 255, 0.65);
+  font-size: 12px;
+  color: #1e3a8a;
+  font-weight: 600;
+}
+
+[data-theme="dark"] .hero-bank-note,
+body.dark-theme .hero-bank-note {
+  color: #94a3b8 !important;
 }
 
 /* Stepper inside Hero */
@@ -1392,11 +1525,21 @@ body.dark-theme .payroll-badge.status-failed {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 16px;
-  margin-top: 28px;
-  padding-top: 22px;
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  margin-top: 26px;
+  padding: 16px 20px;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(8px);
+  border-radius: 14px;
+  border: 1px solid rgba(147, 197, 253, 0.7);
   position: relative;
   z-index: 2;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.06);
+}
+
+[data-theme="dark"] .employee-hero-stepper,
+body.dark-theme .employee-hero-stepper {
+  background: rgba(15, 23, 42, 0.6) !important;
+  border-color: rgba(59, 130, 246, 0.3) !important;
 }
 
 @media (max-width: 768px) {
@@ -1420,20 +1563,41 @@ body.dark-theme .payroll-badge.status-failed {
 }
 
 .hero-step-name.completed {
-  color: #34d399;
+  color: #047857;
 }
 
 .hero-step-name.current {
-  color: #fbbf24;
+  color: #b45309;
 }
 
 .hero-step-name.upcoming {
-  color: rgba(255, 255, 255, 0.35);
+  color: #475569;
+}
+
+[data-theme="dark"] .hero-step-name.completed,
+body.dark-theme .hero-step-name.completed {
+  color: #34d399 !important;
+}
+
+[data-theme="dark"] .hero-step-name.current,
+body.dark-theme .hero-step-name.current {
+  color: #fbbf24 !important;
+}
+
+[data-theme="dark"] .hero-step-name.upcoming,
+body.dark-theme .hero-step-name.upcoming {
+  color: #64748b !important;
 }
 
 .hero-step-detail {
-  font-size: 11px;
-  color: rgba(255, 255, 255, 0.6);
+  font-size: 11.5px;
+  color: #1e3a8a;
+  font-weight: 500;
+}
+
+[data-theme="dark"] .hero-step-detail,
+body.dark-theme .hero-step-detail {
+  color: #94a3b8 !important;
 }
 
 /* Breakdown Cards Grid */
