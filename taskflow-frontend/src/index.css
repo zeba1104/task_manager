@@ -14811,10 +14811,44 @@ body.dark-theme .announcements-title-icon-box,
 [data-theme="dark"] .chat-title-icon-box,
 body.dark-theme .chat-title-icon-box,
 [data-theme="dark"] .payroll-title-icon-box,
-body.dark-theme .payroll-title-icon-box {
-  background: rgba(59, 130, 246, 0.2) !important;
-  color: #60a5fa !important;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4) !important;
+body.dark-theme .payroll-title-icon-box,
+[data-theme="dark"] .modal-title-icon-box,
+body.dark-theme .modal-title-icon-box,
+[data-theme="dark"] .dept-header-icon-box,
+body.dark-theme .dept-header-icon-box {
+  background: rgba(37, 99, 235, 0.25) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4) !important;
+}
+
+[data-theme="dark"] .page-title-icon-box svg,
+body.dark-theme .page-title-icon-box svg,
+[data-theme="dark"] .announcements-title-icon-box svg,
+body.dark-theme .announcements-title-icon-box svg,
+[data-theme="dark"] .chat-title-icon-box svg,
+body.dark-theme .chat-title-icon-box svg,
+[data-theme="dark"] .payroll-title-icon-box svg,
+body.dark-theme .payroll-title-icon-box svg,
+[data-theme="dark"] .modal-title-icon-box svg,
+body.dark-theme .modal-title-icon-box svg,
+[data-theme="dark"] .dept-header-icon-box svg,
+body.dark-theme .dept-header-icon-box svg,
+[data-theme="dark"] .sidebar-brand-logo-box svg,
+body.dark-theme .sidebar-brand-logo-box svg,
+[data-theme="dark"] .brand-logo-svg,
+body.dark-theme .brand-logo-svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.3)) !important;
+}
+
+[data-theme="dark"] .sidebar-brand-logo-box,
+body.dark-theme .sidebar-brand-logo-box {
+  background: #2563eb !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  box-shadow: 0 0 12px rgba(37, 99, 235, 0.5) !important;
 }
 
 [data-theme="dark"] .page-main-title,
@@ -19232,9 +19266,16 @@ body.dark-theme .announcements-subtitle {
 
 [data-theme="dark"] .announcements-title-icon-box,
 body.dark-theme .announcements-title-icon-box {
-  background: rgba(59, 130, 246, 0.2);
-  color: #60a5fa;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  background: rgba(37, 99, 235, 0.25) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4) !important;
+}
+
+[data-theme="dark"] .announcements-title-icon-box svg,
+body.dark-theme .announcements-title-icon-box svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
 }
 
 [data-theme="dark"] .ann-card-title,
@@ -21147,9 +21188,15 @@ body.dark-theme .hero-times-row.hero-leave-details-row .hero-time-divider {
    ========================================================================== */
 [data-theme="dark"] .chat-title-icon-box,
 body.dark-theme .chat-title-icon-box {
-  background: rgba(59, 130, 246, 0.15);
-  border-color: rgba(59, 130, 246, 0.3);
-  color: #93c5fd;
+  background: rgba(37, 99, 235, 0.25) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .chat-title-icon-box svg,
+body.dark-theme .chat-title-icon-box svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
 }
 
 [data-theme="dark"] .chat-main-title,
