@@ -15968,15 +15968,42 @@ body.dark-theme .btn-card-action.primary {
 }
 
 .form-group input.input-error,
-.form-group select.input-error {
-  border-color: #ef4444;
-  background: #fff5f5;
+.form-group select.input-error,
+input.input-error,
+select.input-error {
+  border-color: #ef4444 !important;
+  background-color: #fff5f5 !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.16) !important;
+}
+
+[data-theme="dark"] .form-group input.input-error,
+[data-theme="dark"] .form-group select.input-error,
+[data-theme="dark"] input.input-error,
+[data-theme="dark"] select.input-error,
+body.dark-theme .form-group input.input-error,
+body.dark-theme .form-group select.input-error,
+body.dark-theme input.input-error,
+body.dark-theme select.input-error {
+  border-color: #f87171 !important;
+  background-color: rgba(239, 68, 68, 0.12) !important;
+  color: #f8fafc !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.28) !important;
 }
 
 .field-error-msg {
-  font-size: 11.5px;
-  color: #dc2626;
-  font-weight: 500;
+  display: flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  margin-top: 5px !important;
+  font-size: 12px !important;
+  color: #ef4444 !important;
+  font-weight: 500 !important;
+  line-height: 1.4 !important;
+}
+
+[data-theme="dark"] .field-error-msg,
+body.dark-theme .field-error-msg {
+  color: #f87171 !important;
 }
 
 /* Team checkbox chips for Manager */
@@ -27535,6 +27562,54 @@ body.dark-theme .popover-footer {
   background: #0b1329;
   border-top-color: #1e293b;
   color: #64748b;
+}
+
+/* =========================================================================
+   UNIVERSAL ERROR HIGHLIGHT STATE (ABSOLUTE PRIORITY OVER ALL FORM INPUTS)
+   ========================================================================= */
+.directory-modal-form input.input-error,
+.directory-modal-form select.input-error,
+.form-group input.input-error,
+.form-group select.input-error,
+input.input-error,
+select.input-error {
+  border-color: #ef4444 !important;
+  background-color: #fff5f5 !important;
+  box-shadow: 0 0 0 3.5px rgba(239, 68, 68, 0.18) !important;
+}
+
+[data-theme="dark"] .directory-modal-form input.input-error,
+[data-theme="dark"] .directory-modal-form select.input-error,
+[data-theme="dark"] .form-group input.input-error,
+[data-theme="dark"] .form-group select.input-error,
+[data-theme="dark"] input.input-error,
+[data-theme="dark"] select.input-error,
+body.dark-theme .directory-modal-form input.input-error,
+body.dark-theme .directory-modal-form select.input-error,
+body.dark-theme .form-group input.input-error,
+body.dark-theme .form-group select.input-error,
+body.dark-theme input.input-error,
+body.dark-theme select.input-error {
+  border-color: #f87171 !important;
+  background-color: rgba(239, 68, 68, 0.14) !important;
+  color: #f8fafc !important;
+  box-shadow: 0 0 0 3.5px rgba(239, 68, 68, 0.28) !important;
+}
+
+.field-error-msg {
+  display: flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  margin-top: 5px !important;
+  font-size: 12px !important;
+  color: #ef4444 !important;
+  font-weight: 500 !important;
+  line-height: 1.4 !important;
+}
+
+[data-theme="dark"] .field-error-msg,
+body.dark-theme .field-error-msg {
+  color: #f87171 !important;
 }
 
 

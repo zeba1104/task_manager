@@ -25,7 +25,8 @@ import {
     ArrowUpDown,
     ChevronLeft,
     ChevronRight,
-    Camera
+    Camera,
+    AlertCircle
 } from 'lucide-react';
 
 function EmployeeAvatar({ employee, size = 38 }) {
@@ -278,11 +279,99 @@ function EmployeeManager({ fetchEmployees, setView, tasks = [], initialShowForm 
         }));
     };
 
+    // Helper to check for duplicate name across all employees and managers (case-insensitive & leading/trailing/multiple spaces collapsed)
+    const checkDuplicateName = useCallback((firstName, lastName, currentUserId = null) => {
+        const candidate = [firstName, lastName].filter(Boolean).join(' ').trim().replace(/\s+/g, ' ').toLowerCase();
+        if (!candidate) return false;
+        return users.some((u) => {
+            if (currentUserId && String(u._id) === String(currentUserId)) return false;
+            const existing = (u.name || [u.firstName, u.lastName].filter(Boolean).join(' ')).trim().replace(/\s+/g, ' ').toLowerCase();
+            return existing === candidate;
+        });
+    }, [users]);
+
+    // Helper to check for duplicate email across all employees and managers (case-insensitive & trimmed)
+    const checkDuplicateEmail = useCallback((email, currentUserId = null) => {
+        const candidate = String(email || '').trim().toLowerCase();
+        if (!candidate) return false;
+        return users.some((u) => {
+            if (currentUserId && String(u._id) === String(currentUserId)) return false;
+            return String(u.email || '').trim().toLowerCase() === candidate;
+        });
+    }, [users]);
+
+    // Handlers with real-time error clearance and duplicate re-checks
+    const handleFirstNameChange = (e) => {
+        const val = e.target.value;
+        setFormData((prev) => ({ ...prev, firstName: val }));
+        if (formErrors.firstName) {
+            setFormErrors((prev) => {
+                const next = { ...prev };
+                delete next.firstName;
+                delete next.lastName;
+                return next;
+            });
+        }
+    };
+
+    const handleLastNameChange = (e) => {
+        const val = e.target.value;
+        setFormData((prev) => ({ ...prev, lastName: val }));
+        if (formErrors.lastName || formErrors.firstName) {
+            setFormErrors((prev) => {
+                const next = { ...prev };
+                if (next.firstName === 'An employee or manager with this name already exists.') {
+                    delete next.firstName;
+                }
+                delete next.lastName;
+                return next;
+            });
+        }
+    };
+
+    const handleNameBlur = () => {
+        if (formData.firstName.trim()) {
+            const isDup = checkDuplicateName(formData.firstName, formData.lastName, editingUser?._id);
+            if (isDup) {
+                setFormErrors((prev) => ({
+                    ...prev,
+                    firstName: 'An employee or manager with this name already exists.',
+                    ...(formData.lastName.trim() ? { lastName: 'An employee or manager with this name already exists.' } : {})
+                }));
+            }
+        }
+    };
+
+    const handleEmailChange = (e) => {
+        const val = e.target.value;
+        setFormData((prev) => ({ ...prev, email: val }));
+        if (formErrors.email) {
+            setFormErrors((prev) => {
+                const next = { ...prev };
+                delete next.email;
+                return next;
+            });
+        }
+    };
+
+    const handleEmailBlur = () => {
+        if (formData.email.trim()) {
+            const isDup = checkDuplicateEmail(formData.email, editingUser?._id);
+            if (isDup) {
+                setFormErrors((prev) => ({
+                    ...prev,
+                    email: 'This email address is already registered.'
+                }));
+            }
+        }
+    };
+
     // Validate form fields
     const validateForm = () => {
         const errors = {};
         const { firstName, lastName, email, phone, employeeId, role, department, passwordMode, password, confirmPassword } = formData;
 
+        // --- NAME VALIDATION & DUPLICATE CHECK ---
         if (!firstName.trim()) {
             errors.firstName = 'First name is required.';
         } else if (!/^[a-zA-Z\s'-]+$/.test(firstName.trim())) {
@@ -293,22 +382,36 @@ function EmployeeManager({ fetchEmployees, setView, tasks = [], initialShowForm 
             errors.lastName = 'Last name can only contain letters, spaces, or hyphens.';
         }
 
+        if (firstName.trim() && !errors.firstName && !errors.lastName) {
+            const isDuplicate = checkDuplicateName(firstName, lastName, editingUser?._id);
+            if (isDuplicate) {
+                errors.firstName = 'An employee or manager with this name already exists.';
+                if (lastName.trim()) {
+                    errors.lastName = 'An employee or manager with this name already exists.';
+                }
+            }
+        }
+
+        // --- EMAIL VALIDATION & DUPLICATE CHECK ---
         if (!email.trim()) {
             errors.email = 'Email address is required.';
         } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
             errors.email = 'Please provide a valid email address.';
         } else {
-            const emailLower = email.trim().toLowerCase();
-            const duplicateEmail = users.find((u) => u._id !== editingUser?._id && u.email?.toLowerCase() === emailLower);
-            if (duplicateEmail) errors.email = 'This email address is already registered.';
+            const isDuplicate = checkDuplicateEmail(email, editingUser?._id);
+            if (isDuplicate) {
+                errors.email = 'This email address is already registered.';
+            }
         }
 
+        // --- PHONE VALIDATION ---
         if (!phone.trim()) {
             errors.phone = 'Phone number is required.';
         } else if (!/^[0-9+()\s-]{7,20}$/.test(phone.trim())) {
             errors.phone = 'Please provide a valid phone number format.';
         }
 
+        // --- PROFILE ID VALIDATION ---
         if (!employeeId.trim()) {
             errors.employeeId = `${role === 'Manager' ? 'Manager' : 'Employee'} ID is required.`;
         } else if (!/^[A-Za-z0-9-]{3,24}$/.test(employeeId.trim())) {
@@ -342,9 +445,13 @@ function EmployeeManager({ fetchEmployees, setView, tasks = [], initialShowForm 
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!validateForm()) {
+            const errorValues = Object.values(formErrors);
+            const duplicateMsg = errorValues.find((msg) => 
+                msg && (msg.includes('already exists') || msg.includes('already registered'))
+            );
             Swal.fire({
-                title: 'Check Form Details',
-                text: 'Please resolve the highlighted errors before proceeding.',
+                title: duplicateMsg ? 'Duplicate Record Found' : 'Check Form Details',
+                text: duplicateMsg || 'Please resolve the highlighted errors before proceeding.',
                 icon: 'warning'
             });
             return;
@@ -426,6 +533,18 @@ function EmployeeManager({ fetchEmployees, setView, tasks = [], initialShowForm 
         } catch (err) {
             console.error('Account save error:', err);
             const serverMsg = err.response?.data?.message || err.message || 'Error processing account.';
+            const serverErrors = err.response?.data?.errors;
+            if (serverErrors && typeof serverErrors === 'object') {
+                setFormErrors((prev) => ({ ...prev, ...serverErrors }));
+            } else if (serverMsg.includes('name already exists')) {
+                setFormErrors((prev) => ({
+                    ...prev,
+                    firstName: 'An employee or manager with this name already exists.',
+                    ...(formData.lastName.trim() ? { lastName: 'An employee or manager with this name already exists.' } : {})
+                }));
+            } else if (serverMsg.includes('email') || serverMsg.includes('already registered')) {
+                setFormErrors((prev) => ({ ...prev, email: 'This email address is already registered.' }));
+            }
             Swal.fire({
                 title: 'Operation Failed',
                 text: serverMsg,
@@ -1407,7 +1526,12 @@ function EmployeeManager({ fetchEmployees, setView, tasks = [], initialShowForm 
                                             className={formErrors.employeeId ? 'input-error' : ''}
                                             required
                                         />
-                                        {formErrors.employeeId && <span className="field-error-msg">{formErrors.employeeId}</span>}
+                                        {formErrors.employeeId && (
+                                            <span className="field-error-msg">
+                                                <AlertCircle size={13} style={{ flexShrink: 0 }} />
+                                                {formErrors.employeeId}
+                                            </span>
+                                        )}
                                     </div>
 
                                     <div className="form-group">
@@ -1427,12 +1551,18 @@ function EmployeeManager({ fetchEmployees, setView, tasks = [], initialShowForm 
                                         <input
                                             type="text"
                                             value={formData.firstName}
-                                            onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                                            onChange={handleFirstNameChange}
+                                            onBlur={handleNameBlur}
                                             placeholder="e.g. Sarah"
                                             className={formErrors.firstName ? 'input-error' : ''}
                                             required
                                         />
-                                        {formErrors.firstName && <span className="field-error-msg">{formErrors.firstName}</span>}
+                                        {formErrors.firstName && (
+                                            <span className="field-error-msg">
+                                                <AlertCircle size={13} style={{ flexShrink: 0 }} />
+                                                {formErrors.firstName}
+                                            </span>
+                                        )}
                                     </div>
 
                                     <div className="form-group">
@@ -1440,11 +1570,17 @@ function EmployeeManager({ fetchEmployees, setView, tasks = [], initialShowForm 
                                         <input
                                             type="text"
                                             value={formData.lastName}
-                                            onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                                            onChange={handleLastNameChange}
+                                            onBlur={handleNameBlur}
                                             placeholder="e.g. Jenkins"
                                             className={formErrors.lastName ? 'input-error' : ''}
                                         />
-                                        {formErrors.lastName && <span className="field-error-msg">{formErrors.lastName}</span>}
+                                        {formErrors.lastName && (
+                                            <span className="field-error-msg">
+                                                <AlertCircle size={13} style={{ flexShrink: 0 }} />
+                                                {formErrors.lastName}
+                                            </span>
+                                        )}
                                     </div>
                                 </div>
 
@@ -1454,12 +1590,18 @@ function EmployeeManager({ fetchEmployees, setView, tasks = [], initialShowForm 
                                         <input
                                             type="email"
                                             value={formData.email}
-                                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                            onChange={handleEmailChange}
+                                            onBlur={handleEmailBlur}
                                             placeholder="sarah.jenkins@company.com"
                                             className={formErrors.email ? 'input-error' : ''}
                                             required
                                         />
-                                        {formErrors.email && <span className="field-error-msg">{formErrors.email}</span>}
+                                        {formErrors.email && (
+                                            <span className="field-error-msg">
+                                                <AlertCircle size={13} style={{ flexShrink: 0 }} />
+                                                {formErrors.email}
+                                            </span>
+                                        )}
                                     </div>
 
                                     <div className="form-group">
@@ -1472,7 +1614,12 @@ function EmployeeManager({ fetchEmployees, setView, tasks = [], initialShowForm 
                                             className={formErrors.phone ? 'input-error' : ''}
                                             required
                                         />
-                                        {formErrors.phone && <span className="field-error-msg">{formErrors.phone}</span>}
+                                        {formErrors.phone && (
+                                            <span className="field-error-msg">
+                                                <AlertCircle size={13} style={{ flexShrink: 0 }} />
+                                                {formErrors.phone}
+                                            </span>
+                                        )}
                                     </div>
                                 </div>
                             </div>

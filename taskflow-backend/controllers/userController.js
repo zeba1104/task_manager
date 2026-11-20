@@ -119,24 +119,64 @@ const createAccount = async (data, actorId) => {
     const employeeId = String(data.employeeId || '').trim().toUpperCase();
     const firstName = String(data.firstName || '').trim();
     const lastName = String(data.lastName || '').trim();
-    const name = [firstName, lastName].filter(Boolean).join(' ') || String(data.name || '').trim();
+    const name = [firstName, lastName].filter(Boolean).join(' ').trim() || String(data.name || '').trim();
     const role = data.role === 'Manager' ? 'Manager' : (data.role === 'Admin' ? 'Admin' : 'Employee');
 
-    // Duplicate check
-    const duplicate = await User.findOne({
-        $or: [
-            { email },
-            { employeeId },
-        ],
-    }).select('email employeeId');
+    // Duplicate checks across both Employee and Manager (and Admin) records
+    const duplicateErrors = {};
 
-    if (duplicate) {
-        if (duplicate.email === email) {
-            throw Object.assign(new Error(`An account with email "${email}" is already registered.`), { status: 409 });
+    // 1. Email check (case-insensitive & trimmed)
+    if (email) {
+        const emailEscaped = email.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const duplicateEmail = await User.findOne({
+            email: { $regex: new RegExp(`^${emailEscaped}$`, 'i') },
+        }).select('email name role');
+
+        if (duplicateEmail) {
+            duplicateErrors.email = 'This email address is already registered.';
         }
-        if (duplicate.employeeId === employeeId) {
-            throw Object.assign(new Error(`Profile ID "${employeeId}" is already registered to another account.`), { status: 409 });
+    }
+
+    // 2. Name check (case-insensitive, trimmed, and internal whitespace normalized)
+    const normalizedName = [firstName, lastName].filter(Boolean).join(' ').trim().replace(/\s+/g, ' ') || String(data.name || '').trim().replace(/\s+/g, ' ');
+    if (normalizedName) {
+        const words = normalizedName.split(/\s+/).filter(Boolean);
+        const nameRegex = new RegExp(`^\\s*${words.map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('\\s+')}\\s*$`, 'i');
+
+        const duplicateName = await User.findOne({
+            $or: [
+                { name: { $regex: nameRegex } },
+                ...(words.length >= 2 ? [{
+                    firstName: { $regex: new RegExp(`^\\s*${words[0].replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*$`, 'i') },
+                    lastName: { $regex: new RegExp(`^\\s*${words.slice(1).map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('\\s+')}\\s*$`, 'i') },
+                }] : [{
+                    firstName: { $regex: new RegExp(`^\\s*${words[0].replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*$`, 'i') },
+                }]),
+            ],
+        }).select('name role');
+
+        if (duplicateName) {
+            duplicateErrors.firstName = 'An employee or manager with this name already exists.';
+            if (lastName) {
+                duplicateErrors.lastName = 'An employee or manager with this name already exists.';
+            }
         }
+    }
+
+    // 3. Employee ID check
+    if (employeeId) {
+        const duplicateId = await User.findOne({ employeeId }).select('employeeId');
+        if (duplicateId) {
+            duplicateErrors.employeeId = `Profile ID "${employeeId}" is already registered to another account.`;
+        }
+    }
+
+    if (Object.keys(duplicateErrors).length > 0) {
+        const primaryMsg = duplicateErrors.firstName || duplicateErrors.email || duplicateErrors.employeeId;
+        throw Object.assign(new Error(primaryMsg), {
+            status: 409,
+            validationErrors: duplicateErrors,
+        });
     }
 
     // Verify reporting manager if assigned
@@ -229,9 +269,16 @@ exports.createUser = async (req, res) => {
                 : `${user.role} account created, but login credentials could not be emailed. Please check SMTP configuration or resend credentials.`,
         });
     } catch (err) {
+        let message = err.message;
+        let errors = err.validationErrors;
+        if (err.code === 11000) {
+            const isEmail = err.keyPattern?.email || err.message?.includes('email');
+            message = isEmail ? 'This email address is already registered.' : 'Profile ID is already registered.';
+            errors = isEmail ? { email: 'This email address is already registered.' } : { employeeId: 'Profile ID is already registered.' };
+        }
         res.status(err.status || (err.code === 11000 ? 409 : 500)).json({
-            message: err.code === 11000 ? 'Email or Profile ID already exists' : err.message,
-            errors: err.validationErrors || undefined,
+            message,
+            errors,
         });
     }
 };
@@ -259,30 +306,68 @@ exports.updateUser = async (req, res) => {
             if (!updates.employeeId) delete updates.employeeId;
         }
 
-        // Duplicate checks
-        if (updates.employeeId || updates.email) {
-            const duplicate = await User.findOne({
-                _id: { $ne: req.params.id },
-                $or: [
-                    ...(updates.email ? [{ email: updates.email }] : []),
-                    ...(updates.employeeId ? [{ employeeId: updates.employeeId }] : []),
-                ],
-            }).select('email employeeId');
-
-            if (duplicate) {
-                return res.status(409).json({
-                    message: duplicate.email === updates.email
-                        ? `An account with email "${updates.email}" already exists.`
-                        : `Profile ID "${updates.employeeId}" is already registered to another user.`
-                });
-            }
-        }
-
         // Name computation
         if (updates.firstName !== undefined || updates.lastName !== undefined) {
             const existing = await User.findById(req.params.id).select('firstName lastName name');
             if (!existing) return res.status(404).json({ message: 'User not found' });
             updates.name = [updates.firstName ?? existing.firstName, updates.lastName ?? existing.lastName].filter(Boolean).join(' ').trim() || existing.name;
+        }
+
+        // Duplicate checks
+        const duplicateErrors = {};
+
+        if (updates.email) {
+            const emailEscaped = updates.email.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const dupEmail = await User.findOne({
+                _id: { $ne: req.params.id },
+                email: { $regex: new RegExp(`^${emailEscaped}$`, 'i') },
+            }).select('email');
+            if (dupEmail) {
+                duplicateErrors.email = 'This email address is already registered.';
+            }
+        }
+
+        if (updates.employeeId) {
+            const dupId = await User.findOne({
+                _id: { $ne: req.params.id },
+                employeeId: updates.employeeId,
+            }).select('employeeId');
+            if (dupId) {
+                duplicateErrors.employeeId = `Profile ID "${updates.employeeId}" is already registered to another user.`;
+            }
+        }
+
+        if (updates.name) {
+            const normalizedName = String(updates.name).trim().replace(/\s+/g, ' ');
+            const words = normalizedName.split(/\s+/).filter(Boolean);
+            if (words.length > 0) {
+                const nameRegex = new RegExp(`^\\s*${words.map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('\\s+')}\\s*$`, 'i');
+                const dupName = await User.findOne({
+                    _id: { $ne: req.params.id },
+                    $or: [
+                        { name: { $regex: nameRegex } },
+                        ...(words.length >= 2 ? [{
+                            firstName: { $regex: new RegExp(`^\\s*${words[0].replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*$`, 'i') },
+                            lastName: { $regex: new RegExp(`^\\s*${words.slice(1).map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('\\s+')}\\s*$`, 'i') },
+                        }] : [{
+                            firstName: { $regex: new RegExp(`^\\s*${words[0].replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*$`, 'i') },
+                        }]),
+                    ],
+                }).select('name role');
+
+                if (dupName) {
+                    duplicateErrors.firstName = 'An employee or manager with this name already exists.';
+                    if (updates.lastName) duplicateErrors.lastName = 'An employee or manager with this name already exists.';
+                }
+            }
+        }
+
+        if (Object.keys(duplicateErrors).length > 0) {
+            const primaryMsg = duplicateErrors.firstName || duplicateErrors.email || duplicateErrors.employeeId;
+            return res.status(409).json({
+                message: primaryMsg,
+                errors: duplicateErrors,
+            });
         }
 
         // Department transition logging
