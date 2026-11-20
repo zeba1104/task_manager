@@ -1479,17 +1479,6 @@ exports.batchVerifyRazorpayPayment = async (req, res) => {
     } catch (notifErr) {
       console.warn('AdminNotification creation warning:', notifErr.message);
     }
-      };
-      p.auditLog.push({
-        action: 'Batch Razorpay Payment Completed',
-        actor: req.userId,
-        actorName: adminUser?.name || 'Administrator',
-        actorRole: 'Admin',
-        remarks: `Disbursed via Batch Razorpay Test Checkout. Payment ID: ${razorpay_payment_id}`,
-        timestamp: new Date()
-      });
-      await p.save();
-    }
 
     return res.json({
       success: true,
