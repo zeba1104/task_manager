@@ -17,6 +17,7 @@ import {
   Sparkles,
   Archive,
   RotateCcw,
+  ChevronLeft,
 } from 'lucide-react';
 import {
   getHierarchyTarget,
@@ -874,7 +875,7 @@ function ChatPage({ user }) {
 
         {/* MODE A: TEAM MEMBER COMMUNICATIONS (EMPLOYEE <-> MANAGER) */}
         {managerMode === 'team' && (
-          <div className="chat-master-detail-grid">
+          <div className={`chat-master-detail-grid ${selectedSession ? 'has-selected' : ''}`}>
             {/* Left Panel: Requests & Active Team Sessions */}
             <div className="chat-sidebar-column">
               {/* Search */}
@@ -1032,6 +1033,15 @@ function ChatPage({ user }) {
                 <>
                   <div className="chat-window-header">
                     <div className="window-header-left">
+                      <button
+                        type="button"
+                        className="btn-chat-mobile-back mobile-only"
+                        onClick={() => setSelectedSession(null)}
+                        title="Back to conversations list"
+                        aria-label="Back to conversations"
+                      >
+                        <ChevronLeft size={18} />
+                      </button>
                       <div className="header-avatar">
                         {selectedSession.initiator?.profilePicture ? (
                           <img src={selectedSession.initiator.profilePicture} alt="User" />
@@ -1608,7 +1618,7 @@ function ChatPage({ user }) {
         </div>
       </div>
 
-      <div className="chat-master-detail-grid">
+      <div className={`chat-master-detail-grid ${selectedSession ? 'has-selected' : ''}`}>
         {/* Left Sidebar */}
         <div className="chat-sidebar-column">
           {/* Search */}
@@ -1762,6 +1772,15 @@ function ChatPage({ user }) {
             <>
               <div className="chat-window-header">
                 <div className="window-header-left">
+                  <button
+                    type="button"
+                    className="btn-chat-mobile-back mobile-only"
+                    onClick={() => setSelectedSession(null)}
+                    title="Back to conversations list"
+                    aria-label="Back to conversations"
+                  >
+                    <ChevronLeft size={18} />
+                  </button>
                   <div className="header-avatar admin-mgr-avatar">
                     <span>{(selectedSession.initiator?.name || 'M')[0].toUpperCase()}</span>
                   </div>

@@ -30089,6 +30089,424 @@ body.dark-theme .analytics-track {
   transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* =========================================================================
+   TASKFLOW ENTERPRISE RESPONSIVE SYSTEM (320px to 1920px+)
+   Universal responsiveness across all screen sizes and device classes.
+   ========================================================================= */
+
+/* 1. Global Box Model & Viewport Boundaries */
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+  box-sizing: border-box;
+}
+
+*, *::before, *::after {
+  box-sizing: inherit;
+}
+
+.app-shell {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+.app-main-canvas {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: hidden;
+}
+
+.app-content-viewport {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+/* 2. Responsive Navigation & Mobile Drawer */
+.btn-chat-mobile-back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border-radius: 8px;
+  border: 1px solid var(--border-color, #e2e8f0);
+  background: var(--bg-card, #ffffff);
+  color: var(--text-primary, #0f172a);
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-right: 8px;
+  transition: all 0.15s ease;
+}
+
+.btn-chat-mobile-back:hover {
+  background: var(--bg-hover, #f1f5f9);
+}
+
+[data-theme="dark"] .btn-chat-mobile-back,
+body.dark-theme .btn-chat-mobile-back {
+  border-color: #334155 !important;
+  background: #1e293b !important;
+  color: #f8fafc !important;
+}
+
+/* Breakpoint Tier: Large Desktop (1536px+) */
+@media (min-width: 1536px) {
+  .app-content-viewport {
+    max-width: 1680px;
+    margin: 0 auto;
+  }
+}
+
+/* Breakpoint Tier: Desktop (1280px - 1535px) */
+@media (min-width: 1280px) and (max-width: 1535px) {
+  .admin-stat-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  }
+  .kanban-board:not(.single-column-active) {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+}
+
+/* Breakpoint Tier: Small Laptop (1024px - 1279px) */
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .admin-stat-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+  .kanban-board:not(.single-column-active) {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+/* Breakpoint Tier: Tablet & Mobile (<= 1023px) */
+@media (max-width: 1023px) {
+  .desktop-only {
+    display: none !important;
+  }
+  .mobile-only {
+    display: inline-flex !important;
+  }
+
+  .app-sidebar {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    bottom: 0 !important;
+    height: 100dvh !important;
+    max-height: 100vh !important;
+    width: min(280px, 80vw) !important;
+    min-width: min(280px, 80vw) !important;
+    z-index: 1000 !important;
+    transform: translateX(-100%) !important;
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    box-shadow: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .app-sidebar.mobile-open {
+    transform: translateX(0) !important;
+    box-shadow: 6px 0 28px rgba(0, 0, 0, 0.3) !important;
+  }
+
+  .sidebar-mobile-backdrop {
+    position: fixed !important;
+    inset: 0 !important;
+    background: rgba(15, 23, 42, 0.55) !important;
+    backdrop-filter: blur(4px) !important;
+    -webkit-backdrop-filter: blur(4px) !important;
+    z-index: 999 !important;
+  }
+
+  .app-main-canvas {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
+
+  .topbar-hamburger-btn {
+    display: inline-flex !important;
+    min-width: 40px;
+    min-height: 40px;
+  }
+
+  .sidebar-close-btn {
+    display: inline-flex !important;
+    min-width: 36px;
+    min-height: 36px;
+  }
+
+  .sidebar-nav-link {
+    min-height: 44px !important;
+  }
+
+  .sidebar-subnav-link {
+    min-height: 40px !important;
+  }
+}
+
+/* Breakpoint Tier: Tablet (768px - 1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .admin-stat-grid,
+  .manager-stat-grid,
+  .employee-stat-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 12px !important;
+  }
+
+  .admin-overview-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .admin-analytics-grid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)) !important;
+  }
+
+  .kanban-board:not(.single-column-active) {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+/* Breakpoint Tier: Mobile and Below (<= 767px) */
+@media (max-width: 767px) {
+  .app-topbar {
+    height: 56px !important;
+    padding: 0 12px !important;
+  }
+
+  .topbar-breadcrumb {
+    display: none !important;
+  }
+
+  .topbar-search-wrap {
+    flex: 1 !important;
+    max-width: 160px !important;
+    min-width: 60px !important;
+    height: 36px !important;
+  }
+
+  .topbar-search-popover {
+    position: fixed !important;
+    top: 60px !important;
+    left: 10px !important;
+    right: 10px !important;
+    width: auto !important;
+    max-width: none !important;
+    max-height: 70dvh !important;
+  }
+
+  .topbar-notifications-popover,
+  .topbar-dropdown-popover {
+    position: fixed !important;
+    top: 60px !important;
+    left: 10px !important;
+    right: 10px !important;
+    width: auto !important;
+    max-width: none !important;
+    max-height: 75dvh !important;
+  }
+
+  .app-content-viewport {
+    padding: 14px 12px 36px !important;
+  }
+
+  .page-header-row {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+    margin-bottom: 14px !important;
+  }
+
+  .page-main-title {
+    font-size: 20px !important;
+  }
+
+  /* Admin & Manager Dashboards */
+  .admin-stat-grid,
+  .manager-stat-grid,
+  .employee-stat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+  }
+
+  .admin-overview-grid,
+  .employee-columns-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .admin-analytics-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+
+  .attendance-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+
+  /* Kanban Board Touch Swipe Experience */
+  .kanban-scroll:not(.single-column-scroll) {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    scroll-snap-type: x mandatory !important;
+    padding-bottom: 16px !important;
+    margin-left: -12px !important;
+    margin-right: -12px !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+    width: calc(100% + 24px) !important;
+  }
+
+  .kanban-board:not(.single-column-active) {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    gap: 14px !important;
+    width: max-content !important;
+  }
+
+  .kanban-board:not(.single-column-active) .kanban-column {
+    width: min(310px, 84vw) !important;
+    min-width: 270px !important;
+    flex-shrink: 0 !important;
+    scroll-snap-align: start !important;
+  }
+
+  .kanban-board.single-column-active .kanban-card-list {
+    grid-template-columns: 1fr !important;
+    padding: 12px !important;
+  }
+
+  /* Universal Table Controlled Scroll */
+  .employee-directory-table-wrap,
+  .attendance-table-container,
+  .attendance-table-wrap,
+  .payroll-table-wrap,
+  .manager-table-wrap,
+  .proj-table-wrap,
+  .table-responsive-viewport {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    display: block !important;
+  }
+
+  .employee-directory-table,
+  .attendance-custom-table,
+  .payroll-table,
+  .manager-table,
+  .proj-data-table {
+    min-width: 680px !important;
+  }
+
+  /* Universal Responsive Modals */
+  .admin-action-modal,
+  .modal-content,
+  .manager-modal-content,
+  .directory-modal-container,
+  .task-modal-content,
+  .payslip-modal,
+  .leave-modal {
+    width: min(94vw, 560px) !important;
+    max-width: min(94vw, 560px) !important;
+    max-height: 90dvh !important;
+    display: flex !important;
+    flex-direction: column !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    margin: auto !important;
+  }
+
+  .admin-modal-header,
+  .modal-header {
+    flex-shrink: 0 !important;
+    padding: 14px 16px !important;
+  }
+
+  .admin-modal-form,
+  .modal-body {
+    flex: 1 1 auto !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding: 16px !important;
+  }
+
+  .admin-modal-actions,
+  .modal-footer {
+    flex-shrink: 0 !important;
+    padding: 12px 16px !important;
+    position: sticky !important;
+    bottom: 0 !important;
+    background: inherit !important;
+  }
+
+  /* Chat Master-Detail Responsive Toggle */
+  .chat-master-detail-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .chat-master-detail-grid.has-selected .chat-sidebar-column {
+    display: none !important;
+  }
+
+  .chat-master-detail-grid:not(.has-selected) .chat-main-window {
+    display: none !important;
+  }
+
+  .chat-main-window {
+    min-height: 70dvh !important;
+  }
+
+  .chat-message-bubble {
+    max-width: 90% !important;
+  }
+
+  /* Forms to single column on mobile */
+  .employee-profile-form,
+  .admin-modal-grid-2,
+  .task-form-grid,
+  .holiday-form-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+}
+
+/* Breakpoint Tier: Small Mobile (320px - 374px) */
+@media (max-width: 374px) {
+  .app-topbar {
+    padding: 0 8px !important;
+  }
+
+  .topbar-search-wrap {
+    max-width: 100px !important;
+  }
+
+  .admin-stat-grid,
+  .manager-stat-grid,
+  .employee-stat-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .attendance-summary-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .kanban-board:not(.single-column-active) .kanban-column {
+    width: 260px !important;
+    min-width: 250px !important;
+  }
+
+  .app-content-viewport {
+    padding: 10px 8px 30px !important;
+  }
+}
+
 
 
 

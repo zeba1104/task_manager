@@ -54,6 +54,7 @@ function Sidebar({
   onCloseMobile,
   logout,
 }) {
+  const isEffectiveCollapsed = collapsed && !mobileOpen;
   const [openSubmenus, setOpenSubmenus] = useState({ 'manager-leave': true });
 
   const role = user?.role || 'Employee';
@@ -99,14 +100,14 @@ function Sidebar({
             onNavigate(item);
             if (mobileOpen) onCloseMobile();
           }}
-          title={collapsed ? item.label : undefined}
+          title={isEffectiveCollapsed ? item.label : undefined}
           aria-current={active ? 'page' : undefined}
         >
           <span className="nav-icon-wrap">
             <IconComponent size={18} />
           </span>
 
-          {!collapsed && (
+          {!isEffectiveCollapsed && (
             <>
               <span className="nav-label">{item.label}</span>
 
@@ -128,7 +129,7 @@ function Sidebar({
         </button>
 
         {/* Expandable Submenu */}
-        {!collapsed && hasSubmenu && isSubmenuOpen && (
+        {!isEffectiveCollapsed && hasSubmenu && isSubmenuOpen && (
           <div className="sidebar-submenu-list">
             {item.submenu.map((sub) => (
               <button
@@ -162,17 +163,17 @@ function Sidebar({
       )}
 
       <aside
-        className={`app-sidebar ${collapsed ? 'collapsed' : ''} ${mobileOpen ? 'mobile-open' : ''}`}
+        className={`app-sidebar ${isEffectiveCollapsed ? 'collapsed' : ''} ${mobileOpen ? 'mobile-open' : ''}`}
         aria-label="Main sidebar navigation"
       >
         {/* Sidebar Brand Header (matching Taskify in Image 2) */}
         <div
           className="sidebar-header"
           onClick={() => {
-            if (collapsed) onToggleCollapse();
+            if (isEffectiveCollapsed) onToggleCollapse();
           }}
-          title={collapsed ? 'Click to open sidebar' : undefined}
-          style={{ cursor: collapsed ? 'pointer' : 'default' }}
+          title={isEffectiveCollapsed ? 'Click to open sidebar' : undefined}
+          style={{ cursor: isEffectiveCollapsed ? 'pointer' : 'default' }}
         >
           <div className="sidebar-brand-lockup">
             <button
@@ -182,14 +183,14 @@ function Sidebar({
                 e.stopPropagation();
                 onToggleCollapse();
               }}
-              title={collapsed ? 'Open sidebar' : 'Collapse sidebar'}
-              aria-label={collapsed ? 'Open sidebar' : 'Collapse sidebar'}
+              title={isEffectiveCollapsed ? 'Open sidebar' : 'Collapse sidebar'}
+              aria-label={isEffectiveCollapsed ? 'Open sidebar' : 'Collapse sidebar'}
             >
               <div className="sidebar-brand-logo-box">
                 <CheckSquare size={20} className="brand-logo-svg" />
               </div>
             </button>
-            {!collapsed && (
+            {!isEffectiveCollapsed && (
               <span
                 className="sidebar-brand-name"
                 onClick={(e) => {
@@ -209,10 +210,10 @@ function Sidebar({
             type="button"
             className="sidebar-collapse-btn desktop-only"
             onClick={onToggleCollapse}
-            title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-            aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            title={isEffectiveCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            aria-label={isEffectiveCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
-            {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+            {isEffectiveCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
           </button>
 
           {/* Mobile Close Button */}
@@ -230,7 +231,7 @@ function Sidebar({
         {/* Sidebar Navigation Links List */}
         <div className="sidebar-nav-scroll">
           {/* Section 1: MAIN NAVIGATION */}
-          {!collapsed && (
+          {!isEffectiveCollapsed && (
             <div className="sidebar-section-heading">MAIN NAVIGATION</div>
           )}
           <nav className="sidebar-menu-list">
@@ -240,7 +241,7 @@ function Sidebar({
           {/* Section 2: QUICK ACTIONS */}
           {quickItems.length > 0 && (
             <>
-              {!collapsed && (
+              {!isEffectiveCollapsed && (
                 <div className="sidebar-section-heading" style={{ marginTop: '18px' }}>
                   QUICK ACTIONS
                 </div>
@@ -252,7 +253,7 @@ function Sidebar({
           )}
 
           {/* Role Status Card (matching Image 2) */}
-          {!collapsed && (
+          {!isEffectiveCollapsed && (
             <div className="sidebar-promo-card">
               <div className="promo-card-top">
                 <Sparkles size={16} className="promo-icon" />
@@ -275,7 +276,7 @@ function Sidebar({
               <UserAvatar user={user} className="sidebar-avatar-img" fallbackClass="sidebar-avatar-initial" />
             </div>
 
-            {!collapsed && (
+            {!isEffectiveCollapsed && (
               <div className="sidebar-user-details">
                 <span className="sidebar-user-name" title={user?.name}>
                   {user?.name || 'User'}

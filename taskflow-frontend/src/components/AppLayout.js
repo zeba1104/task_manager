@@ -123,6 +123,44 @@ function AppLayout({
     }
   }, [collapsed]);
 
+  // Mobile drawer body scroll lock & touch prevention
+  useEffect(() => {
+    if (mobileOpen) {
+      const origOverflow = document.body.style.overflow;
+      const origTouchAction = document.body.style.touchAction;
+      document.body.style.overflow = 'hidden';
+      document.body.style.touchAction = 'none';
+      return () => {
+        document.body.style.overflow = origOverflow;
+        document.body.style.touchAction = origTouchAction;
+      };
+    }
+  }, [mobileOpen]);
+
+  // Auto-close mobile drawer when screen expands to desktop (>= 1024px)
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) {
+        setMobileOpen(false);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Handle escape key to close drawer or popovers
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        if (mobileOpen) setMobileOpen(false);
+        if (dropdownOpen) setDropdownOpen(false);
+        if (notifOpen) setNotifOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [mobileOpen, dropdownOpen, notifOpen]);
+
   // Click outside to close profile dropdown & notification dropdown
   useEffect(() => {
     const handleOutsideClick = (e) => {
@@ -477,8 +515,8 @@ function AppLayout({
               type="button"
               className="topbar-hamburger-btn"
               onClick={() => {
-                if (window.innerWidth <= 768) {
-                  setMobileOpen(true);
+                if (window.innerWidth < 1024) {
+                  setMobileOpen((prev) => !prev);
                 } else {
                   toggleCollapse();
                 }
