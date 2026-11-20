@@ -2051,3 +2051,188 @@ body.dark-theme .credited-card-subtitle {
   background: rgba(0, 0, 0, 0.05);
   color: #475569;
 }
+
+/* =========================================================================
+   OFFICIAL SALARY CERTIFICATE TEMPLATE
+   Matches standard bank loan / employment verification certificate
+   ========================================================================= */
+
+.salary-certificate-document {
+  background: #ffffff;
+  color: #1e293b;
+  padding: 44px 50px;
+  border-radius: 12px;
+  font-family: 'Georgia', 'Times New Roman', serif;
+  line-height: 1.7;
+  max-width: 780px;
+  margin: 0 auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+}
+
+[data-theme="dark"] .salary-certificate-document,
+body.dark-theme .salary-certificate-document {
+  background: #ffffff !important;
+  color: #1e293b !important;
+}
+
+.cert-meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 28px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.cert-headline {
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #0f172a;
+  margin: 28px 0 20px 0;
+  text-align: left;
+}
+
+.cert-paragraph {
+  font-size: 14.5px;
+  color: #334155;
+  text-align: justify;
+  margin-bottom: 22px;
+  line-height: 1.8;
+}
+
+.cert-intro-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: #334155;
+  margin-bottom: 14px;
+}
+
+.cert-remuneration-table {
+  width: 100%;
+  max-width: 480px;
+  border-collapse: collapse;
+  margin: 18px 0 22px 0;
+  font-size: 13.5px;
+  border: 1px solid #cbd5e1;
+}
+
+.cert-remuneration-table td {
+  padding: 8px 14px;
+  border: 1px solid #cbd5e1;
+}
+
+.cert-remuneration-table td:first-child {
+  color: #334155;
+  font-weight: 500;
+}
+
+.cert-remuneration-table td:last-child {
+  text-align: right;
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.cert-row-gross td {
+  font-weight: 700 !important;
+  color: #0f172a !important;
+  background: #f8fafc;
+}
+
+.cert-row-net td {
+  font-weight: 800 !important;
+  color: #065f46 !important;
+  background: #ecfdf5;
+}
+
+.cert-words-note {
+  font-size: 13.5px;
+  color: #475569;
+  font-style: italic;
+  margin: 16px 0 24px 0;
+  line-height: 1.6;
+}
+
+.cert-disclaimer-note {
+  font-size: 13px;
+  color: #64748b;
+  margin: 20px 0 32px 0;
+  line-height: 1.6;
+}
+
+.cert-signatory-block {
+  margin-top: 36px;
+  font-size: 14px;
+  color: #0f172a;
+}
+
+.cert-signatory-name {
+  font-weight: 700;
+  margin-bottom: 35px;
+}
+
+.cert-signature-seal-area {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+.cert-stamp-badge {
+  border: 2px dashed #059669;
+  border-radius: 8px;
+  padding: 8px 14px;
+  color: #059669;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.payslip-mode-switcher {
+  display: inline-flex;
+  align-items: center;
+  background: #f1f5f9;
+  padding: 3px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  gap: 4px;
+}
+
+[data-theme="dark"] .payslip-mode-switcher,
+body.dark-theme .payslip-mode-switcher {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+.btn-mode-toggle {
+  background: transparent;
+  border: none;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-mode-toggle.active {
+  background: #ffffff;
+  color: #4f46e5;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="dark"] .btn-mode-toggle.active,
+body.dark-theme .btn-mode-toggle.active {
+  background: #334155;
+  color: #818cf8;
+}
