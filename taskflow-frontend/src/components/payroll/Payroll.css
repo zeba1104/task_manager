@@ -1882,3 +1882,172 @@ body.dark-theme .empty-tip-pill {
   font-size: 12px;
   color: #475569;
 }
+
+/* =========================================================================
+   SALARY & PAYMENT CONFIRMED CREDITED BANNER
+   Appears on Employee & Manager Dashboards when salary is paid via Razorpay
+   ========================================================================= */
+
+.payroll-credited-dashboard-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(30, 27, 75, 0.03) 100%), #ffffff;
+  border: 1px solid #a7f3d0;
+  border-left: 6px solid #10b981;
+  border-radius: 16px;
+  padding: 18px 24px;
+  margin-bottom: 22px;
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.1);
+  transition: all 0.25s ease;
+  position: relative;
+}
+
+[data-theme="dark"] .payroll-credited-dashboard-card,
+body.dark-theme .payroll-credited-dashboard-card {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.14) 0%, rgba(30, 27, 75, 0.35) 100%), #0f172a !important;
+  border-color: rgba(16, 185, 129, 0.35) !important;
+  border-left-color: #10b981 !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+}
+
+.credited-card-icon-wrap {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: #ecfdf5;
+  color: #059669;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.15);
+}
+
+[data-theme="dark"] .credited-card-icon-wrap,
+body.dark-theme .credited-card-icon-wrap {
+  background: rgba(16, 185, 129, 0.2) !important;
+  color: #34d399 !important;
+}
+
+.credited-card-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.credited-card-pill-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+  flex-wrap: wrap;
+}
+
+.credited-status-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  background: #ecfdf5;
+  border: 1px solid #6ee7b7;
+  color: #047857;
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+[data-theme="dark"] .credited-status-tag,
+body.dark-theme .credited-status-tag {
+  background: rgba(16, 185, 129, 0.25) !important;
+  border-color: rgba(52, 211, 153, 0.4) !important;
+  color: #6ee7b7 !important;
+}
+
+.credited-period-tag {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #64748b;
+}
+
+[data-theme="dark"] .credited-period-tag,
+body.dark-theme .credited-period-tag {
+  color: #94a3b8;
+}
+
+.credited-card-title {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: 18px;
+  font-weight: 800;
+  color: #065f46;
+  letter-spacing: -0.015em;
+}
+
+[data-theme="dark"] .credited-card-title,
+body.dark-theme .credited-card-title {
+  color: #6ee7b7 !important;
+}
+
+.credited-card-subtitle {
+  margin: 0;
+  font-size: 13px;
+  color: #334155;
+  line-height: 1.5;
+}
+
+[data-theme="dark"] .credited-card-subtitle,
+body.dark-theme .credited-card-subtitle {
+  color: #cbd5e1 !important;
+}
+
+.credited-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.btn-view-payslip-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 16px;
+  border-radius: 10px;
+  background: #059669;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  border: 1px solid #047857;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(5, 150, 105, 0.3);
+}
+
+.btn-view-payslip-primary:hover {
+  background: #047857;
+  transform: translateY(-1.5px);
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.4);
+}
+
+.btn-dismiss-credited {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  padding: 6px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.btn-dismiss-credited:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: #475569;
+}

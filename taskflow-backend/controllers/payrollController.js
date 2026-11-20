@@ -564,14 +564,14 @@ exports.managerReviewPayroll = async (req, res) => {
       return res.status(400).json({ message: "Decision must be 'approved' or 'correction_requested'." });
     }
 
-    const payroll = await Payroll.findById(id);
+    const payroll = await Payroll.findById(id).populate('employee', 'name employeeId department');
     if (!payroll) {
       return res.status(404).json({ message: 'Payroll record not found.' });
     }
 
     // Verify manager scope
     const scope = await getManagerScope(req.userId);
-    const isMember = scope?.memberIds?.some((mid) => String(mid) === String(payroll.employee));
+    const isMember = scope?.memberIds?.some((mid) => String(mid) === String(payroll.employee?._id || payroll.employee));
     if (!isMember) {
       return res.status(403).json({ message: 'You can only review payroll for your assigned team members.' });
     }
@@ -598,6 +598,23 @@ exports.managerReviewPayroll = async (req, res) => {
     });
 
     await payroll.save();
+
+    if (isApproved) {
+      try {
+        const AdminNotification = require('../models/AdminNotification');
+        await AdminNotification.create({
+          title: 'Manager Approved Payroll',
+          message: `${managerUser?.name || 'Manager'} verified and approved ${payroll.periodLabel} salary calculation for ${payroll.employee?.name || 'Employee'} (₹${Number(payroll.netSalary).toLocaleString('en-IN')}). Ready for Admin sign-off.`,
+          type: 'general',
+          priority: 'Medium',
+          sender: req.userId,
+          employee: payroll.employee?._id || payroll.employee,
+          isRead: false
+        });
+      } catch (notifErr) {
+        console.warn('AdminNotification creation warning:', notifErr.message);
+      }
+    }
 
     return res.json({
       success: true,
@@ -690,7 +707,7 @@ exports.adminReviewPayroll = async (req, res) => {
       return res.status(400).json({ message: "Decision must be 'approved' or 'rejected'." });
     }
 
-    const payroll = await Payroll.findById(id);
+    const payroll = await Payroll.findById(id).populate('employee', 'name employeeId department');
     if (!payroll) {
       return res.status(404).json({ message: 'Payroll record not found.' });
     }
@@ -718,6 +735,23 @@ exports.adminReviewPayroll = async (req, res) => {
     });
 
     await payroll.save();
+
+    if (isApproved) {
+      try {
+        const AdminNotification = require('../models/AdminNotification');
+        await AdminNotification.create({
+          title: 'Salary Approved for Disbursement',
+          message: `Salary for ${payroll.employee?.name || 'Employee'} (${payroll.periodLabel}, ₹${Number(payroll.netSalary).toLocaleString('en-IN')}) has been approved and is Ready for Payment via Razorpay.`,
+          type: 'general',
+          priority: 'High',
+          sender: req.userId,
+          employee: payroll.employee?._id || payroll.employee,
+          isRead: false
+        });
+      } catch (notifErr) {
+        console.warn('AdminNotification creation warning:', notifErr.message);
+      }
+    }
 
     return res.json({
       success: true,
@@ -862,6 +896,21 @@ exports.initiatePayout = async (req, res) => {
       });
 
       await payroll.save();
+
+      try {
+        const AdminNotification = require('../models/AdminNotification');
+        await AdminNotification.create({
+          title: '💰 Salary Disbursed via Razorpay',
+          message: `Payment of ₹${Number(payroll.netSalary).toLocaleString('en-IN')} for ${payroll.employee?.name || 'Employee'} (${payroll.periodLabel}) was successfully credited via Razorpay.${payroll.payout?.utr ? ` UTR: ${payroll.payout.utr}` : ''}`,
+          type: 'general',
+          priority: 'High',
+          sender: req.userId,
+          employee: payroll.employee?._id || payroll.employee,
+          isRead: false
+        });
+      } catch (notifErr) {
+        console.warn('AdminNotification creation warning:', notifErr.message);
+      }
 
       return res.json({
         success: true,
@@ -1272,6 +1321,21 @@ exports.verifyRazorpayPayment = async (req, res) => {
 
     await payroll.save();
 
+    try {
+      const AdminNotification = require('../models/AdminNotification');
+      await AdminNotification.create({
+        title: '💰 Salary Disbursed via Razorpay',
+        message: `Payment of ₹${Number(payroll.netSalary).toLocaleString('en-IN')} for ${payroll.employee?.name || 'Employee'} (${payroll.periodLabel}) was successfully credited via Razorpay.${payroll.payout?.utr ? ` UTR: ${payroll.payout.utr}` : ''}`,
+        type: 'general',
+        priority: 'High',
+        sender: req.userId,
+        employee: payroll.employee?._id || payroll.employee,
+        isRead: false
+      });
+    } catch (notifErr) {
+      console.warn('AdminNotification creation warning:', notifErr.message);
+    }
+
     return res.json({
       success: true,
       message: `Payment of ₹${payroll.netSalary.toLocaleString('en-IN')} successfully captured via Razorpay!`,
@@ -1300,8 +1364,8 @@ exports.batchCreateRazorpayOrder = async (req, res) => {
     const targetYear = Number(year) || new Date().getFullYear();
 
     const pendingPayrolls = await Payroll.find({
-      month: targetMonth,
-      year: targetYear,
+      periodMonth: targetMonth,
+      periodYear: targetYear,
       status: 'Ready_for_Payment'
     }).populate('employee', 'name email');
 
@@ -1369,8 +1433,8 @@ exports.batchVerifyRazorpayPayment = async (req, res) => {
     const targetYear = Number(year) || new Date().getFullYear();
 
     const pendingPayrolls = await Payroll.find({
-      month: targetMonth,
-      year: targetYear,
+      periodMonth: targetMonth,
+      periodYear: targetYear,
       status: 'Ready_for_Payment'
     });
 
@@ -1389,6 +1453,32 @@ exports.batchVerifyRazorpayPayment = async (req, res) => {
         paymentId: razorpay_payment_id,
         batchDisbursement: true,
         capturedAt: new Date()
+      };
+      p.auditLog.push({
+        action: 'Batch Razorpay Payment Completed',
+        actor: req.userId,
+        actorName: adminUser?.name || 'Administrator',
+        actorRole: 'Admin',
+        remarks: `Disbursed via Batch Razorpay Test Checkout. Payment ID: ${razorpay_payment_id}`,
+        timestamp: new Date()
+      });
+      await p.save();
+    }
+
+    try {
+      const AdminNotification = require('../models/AdminNotification');
+      const totalNet = pendingPayrolls.reduce((sum, p) => sum + Number(p.netSalary || 0), 0);
+      await AdminNotification.create({
+        title: '💰 Batch Salary Disbursed via Razorpay',
+        message: `Batch payout of ₹${totalNet.toLocaleString('en-IN')} for ${pendingPayrolls.length} team members (${MONTH_NAMES[targetMonth - 1]} ${targetYear}) was successfully credited via Razorpay. Payment ID: ${razorpay_payment_id}`,
+        type: 'general',
+        priority: 'High',
+        sender: req.userId,
+        isRead: false
+      });
+    } catch (notifErr) {
+      console.warn('AdminNotification creation warning:', notifErr.message);
+    }
       };
       p.auditLog.push({
         action: 'Batch Razorpay Payment Completed',

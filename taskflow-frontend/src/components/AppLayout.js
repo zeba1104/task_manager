@@ -20,6 +20,7 @@ import {
   Palmtree,
   X,
   Landmark,
+  CheckCircle2,
 } from 'lucide-react';
 import axios from '../api/axios';
 import Sidebar from './Sidebar';
@@ -181,6 +182,17 @@ function AppLayout({
       if (user?.role === 'Employee') onNavigate({ view: 'employee', tab: 'tasks' });
       else if (user?.role === 'Manager') onNavigate({ view: 'tasks' });
       else onNavigate({ view: 'tasks' });
+    } else if (notif.type === 'payment_credited' || notif.type === 'payroll_approval' || notif.type === 'payroll_ready') {
+      if (user?.role === 'Admin') onNavigate({ view: 'payroll' });
+      else if (user?.role === 'Manager') {
+        if (notif._id && String(notif._id).startsWith('mgr_own_')) {
+          onNavigate({ view: 'manager', tab: 'payroll' });
+        } else {
+          onNavigate({ view: 'payroll' });
+        }
+      } else {
+        onNavigate({ view: 'employee', tab: 'payroll' });
+      }
     } else if (user?.role === 'Admin') {
       onNavigate({ view: 'admin' });
     }
@@ -664,7 +676,9 @@ function AppLayout({
                           tabIndex={0}
                         >
                           <div className="notif-item-icon-box">
-                            {n.type === 'revision' ? <AlertTriangle size={14} className="text-red" /> :
+                            {n.type === 'payment_credited' ? <CheckCircle2 size={14} className="text-emerald" /> :
+                             n.type === 'payroll_approval' || n.type === 'payroll_ready' ? <Landmark size={14} className="text-blue" /> :
+                             n.type === 'revision' ? <AlertTriangle size={14} className="text-red" /> :
                              n.type === 'leave' ? <CalendarDays size={14} className="text-purple" /> :
                              n.type === 'announcement' ? <Megaphone size={14} className="text-blue" /> :
                              n.type === 'chat' ? <MessageSquare size={14} className="text-emerald" /> :

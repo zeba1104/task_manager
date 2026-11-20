@@ -69,6 +69,7 @@ import AnnouncementsPage from './AnnouncementsPage';
 import ChatPage from './ChatPage';
 import HolidayCalendar from './HolidayCalendar';
 import ManagerPayrollReview from './payroll/ManagerPayrollReview';
+import { getMyPayrolls } from '../api/payrollApi';
 import Swal from '../utils/swalConfig';
 
 const columns = [
@@ -221,6 +222,26 @@ function ManagerDashboard({ user, logout, setView, activeTab, onTabChange }) {
   const [currentTime, setCurrentTime] = useState(Date.now());
   const [attendanceRefreshSignal, setAttendanceRefreshSignal] = useState(0);
   const [attendanceRefreshing, setAttendanceRefreshing] = useState(false);
+  const [latestPaidSalary, setLatestPaidSalary] = useState(null);
+  const [dismissedSalaryBannerIds, setDismissedSalaryBannerIds] = useState(() => {
+    try {
+      return JSON.parse(sessionStorage.getItem('taskflow_dismissed_mgr_salary_banners') || '[]');
+    } catch {
+      return [];
+    }
+  });
+
+  const dismissSalaryBanner = (id) => {
+    setDismissedSalaryBannerIds((prev) => {
+      const next = [...new Set([...prev, String(id)])];
+      try {
+        sessionStorage.setItem('taskflow_dismissed_mgr_salary_banners', JSON.stringify(next));
+      } catch {
+        // Ignore storage error
+      }
+      return next;
+    });
+  };
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(Date.now()), 1000);
@@ -482,17 +503,21 @@ function ManagerDashboard({ user, logout, setView, activeTab, onTabChange }) {
     setLoading(true);
     setError('');
     try {
-      const [overviewResponse, tasksResponse, projectsResponse, reviewsResponse] = await Promise.all([
+      const [overviewResponse, tasksResponse, projectsResponse, reviewsResponse, payrollResponse] = await Promise.all([
         getManagerOverview(),
         getTasks().catch(() => ({ data: [] })),
         getManagerProjects().catch(() => ({ data: [] })),
         getTasksForReview().catch(() => ({ data: [] })),
+        getMyPayrolls().catch(() => ({ data: { data: [] } })),
       ]);
       setOverview(overviewResponse.data);
       setTasks(tasksResponse.data || []);
       setProjects(projectsResponse.data || []);
       setEmployees(overviewResponse.data?.employees || []);
       setReviewTasks(reviewsResponse.data || []);
+      const payrolls = payrollResponse.data?.data || [];
+      const latestPaid = payrolls.find((p) => p.status === 'Paid') || null;
+      setLatestPaidSalary(latestPaid);
     } catch (requestError) {
       const errorMsg = requestError.response?.data?.message ||
         (requestError.request
@@ -863,6 +888,51 @@ function ManagerDashboard({ user, logout, setView, activeTab, onTabChange }) {
       {/* VIEW: OVERVIEW */}
       {tab === 'overview' && (
         <>
+          {/* Celebratory Manager Salary Credited via Razorpay Banner */}
+          {latestPaidSalary && !dismissedSalaryBannerIds.includes(String(latestPaidSalary._id)) && (
+            <div className="payroll-credited-dashboard-card">
+              <div className="credited-card-icon-wrap">
+                <CheckCircle2 size={24} className="text-emerald" />
+              </div>
+              <div className="credited-card-body">
+                <div className="credited-card-pill-row">
+                  <span className="credited-status-tag">💰 MANAGER SALARY CREDITED VIA RAZORPAY</span>
+                  <span className="credited-period-tag">{latestPaidSalary.periodLabel}</span>
+                </div>
+                <h3 className="credited-card-title">
+                  ₹{Number(latestPaidSalary.netSalary).toLocaleString('en-IN')} Credited Successfully
+                </h3>
+                <p className="credited-card-subtitle">
+                  Your {latestPaidSalary.periodLabel} executive manager compensation has been disbursed to your bank account via Razorpay.
+                  {latestPaidSalary.payout?.utr && (
+                    <span> Ref / UTR: <strong>{latestPaidSalary.payout.utr}</strong></span>
+                  )}
+                </p>
+              </div>
+              <div className="credited-card-actions">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setTab('payroll');
+                    if (onTabChange) onTabChange('payroll');
+                  }}
+                  className="btn-view-payslip-primary"
+                >
+                  View Payroll Details →
+                </button>
+                <button
+                  type="button"
+                  onClick={() => dismissSalaryBanner(latestPaidSalary._id)}
+                  className="btn-dismiss-credited"
+                  title="Dismiss alert"
+                  aria-label="Dismiss alert"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Prominent Manager Personal Leave Decision Alert Banner */}
           {recentManagerLeaveDecision && (
             <div className={`emp-leave-decision-alert alert-${recentManagerLeaveDecision.status}`}>

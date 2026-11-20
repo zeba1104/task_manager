@@ -850,7 +850,7 @@ export default function AdminPayrollManager({ user }) {
                   const isReady = payroll.status === 'Ready_for_Payment';
                   const isPaid = payroll.status === 'Paid';
                   const isFailed = payroll.status === 'Failed';
-                  const isPendingAdmin = ['Manager_Approved', 'Pending_Admin_Approval'].includes(payroll.status);
+                  const isPendingAdmin = ['Manager_Approved', 'Pending_Admin_Approval', 'Pending_Manager_Review'].includes(payroll.status);
 
                   return (
                     <tr key={payroll._id}>

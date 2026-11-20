@@ -830,14 +830,14 @@ function AdminDashboard({ tasks, employees, user, logout, setView, onAddEmployee
         <section className="admin-overview-panel">
           <header>
             <h3 style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-              <Bell size={16} color="#f59e0b" /> Manager Project Alerts
+              <Bell size={16} color="#f59e0b" /> Priority Alerts &amp; Salary Notifications
             </h3>
             <span>{adminNotifications.filter(n => !n.isRead).length} unread</span>
           </header>
           {adminNotifications.length === 0 ? (
-            <p className="admin-empty-state">No alerts received from managers.</p>
+            <p className="admin-empty-state">No recent notifications or alerts.</p>
           ) : (
-            adminNotifications.slice(0, 6).map((notif) => (
+            adminNotifications.slice(0, 8).map((notif) => (
               <div key={notif._id} style={{
                 padding: '12px 14px',
                 borderRadius: '8px',
@@ -851,16 +851,16 @@ function AdminDashboard({ tasks, employees, user, logout, setView, onAddEmployee
               }}>
                 <div style={{ flex: 1 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                    <span className={`task-badge priority-${(notif.priority || 'medium').toLowerCase()}`}>
+                    <span className={`task-badge ${(notif.title || '').includes('💰') || (notif.title || '').includes('Salary') ? 'priority-high' : `priority-${(notif.priority || 'medium').toLowerCase()}`}`}>
                       {notif.priority || 'Normal'}
                     </span>
-                    <strong style={{ fontSize: '13px' }}>{notif.title || 'Project Notification'}</strong>
+                    <strong style={{ fontSize: '13px' }}>{notif.title || 'Notification'}</strong>
                   </div>
                   <p style={{ margin: '4px 0', fontSize: '12.5px', color: 'var(--text-primary, #334155)', lineHeight: 1.4 }}>
                     {notif.message}
                   </p>
                   <small style={{ color: 'var(--text-muted, #94a3b8)', fontSize: '11px' }}>
-                    From: {notif.sender?.name || 'Manager'} {notif.project?.name ? `· Project: ${notif.project.name}` : ''} · {new Date(notif.createdAt).toLocaleDateString()}
+                    {notif.sender?.name ? `From: ${notif.sender.name}` : ''} {notif.project?.name ? `· Project: ${notif.project.name}` : ''} · {new Date(notif.createdAt).toLocaleDateString()}
                   </small>
                 </div>
                 {!notif.isRead && (

@@ -540,10 +540,15 @@ exports.getRecentNotifications = async (req, res) => {
             const AdminNotification = require('../models/AdminNotification');
             const LeaveRequest = require('../models/LeaveRequest');
             const ChatSession = require('../models/ChatSession');
-            const [adminNotifs, pendingLeaves, pendingManagerChats] = await Promise.all([
+            const Payroll = require('../models/Payroll');
+
+            const [adminNotifs, pendingLeaves, pendingManagerChats, recentPayrolls] = await Promise.all([
                 AdminNotification.find().populate('sender', 'name designation').sort({ createdAt: -1 }).limit(10).lean(),
                 LeaveRequest.find({ status: 'pending' }).populate('user', 'name designation').sort({ createdAt: -1 }).limit(5).lean(),
                 ChatSession.find({ type: 'MANAGER_ADMIN', status: 'pending' }).populate('initiator', 'name designation department').sort({ createdAt: -1 }).limit(5).lean(),
+                Payroll.find({
+                    status: { $in: ['Manager_Approved', 'Ready_for_Payment', 'Paid'] }
+                }).populate('employee', 'name employeeId department').populate('manager', 'name').sort({ updatedAt: -1 }).limit(12).lean(),
             ]);
 
             adminNotifs.forEach((n) => {
@@ -558,6 +563,44 @@ exports.getRecentNotifications = async (req, res) => {
                     sender: n.sender?.name || 'Manager',
                     link: '/dashboard?view=admin'
                 });
+            });
+
+            // Payroll notifications for Admin
+            recentPayrolls.forEach((p) => {
+                if (p.status === 'Paid') {
+                    notifications.push({
+                        _id: `admin_pay_paid_${p._id}`,
+                        title: '💰 Salary Disbursed via Razorpay',
+                        message: `Payment of ₹${Number(p.netSalary).toLocaleString('en-IN')} for ${p.employee?.name || 'Employee'} (${p.periodLabel}) was successfully credited via Razorpay.${p.payout?.utr ? ` UTR: ${p.payout.utr}` : ''}`,
+                        type: 'payment_credited',
+                        priority: 'High',
+                        isRead: false,
+                        createdAt: p.payout?.processedAt || p.updatedAt || p.createdAt,
+                        link: '/dashboard?view=payroll'
+                    });
+                } else if (p.status === 'Manager_Approved') {
+                    notifications.push({
+                        _id: `admin_pay_mgrappr_${p._id}`,
+                        title: 'Manager Approved Payroll',
+                        message: `${p.manager?.name || 'Manager'} verified and approved ${p.periodLabel} salary calculation for ${p.employee?.name || 'Employee'} (₹${Number(p.netSalary).toLocaleString('en-IN')}). Ready for Admin sign-off.`,
+                        type: 'payroll_approval',
+                        priority: 'Medium',
+                        isRead: false,
+                        createdAt: p.managerReview?.reviewedAt || p.updatedAt || p.createdAt,
+                        link: '/dashboard?view=payroll'
+                    });
+                } else if (p.status === 'Ready_for_Payment') {
+                    notifications.push({
+                        _id: `admin_pay_ready_${p._id}`,
+                        title: 'Salary Ready for Disbursement',
+                        message: `Salary for ${p.employee?.name || 'Employee'} (${p.periodLabel}, ₹${Number(p.netSalary).toLocaleString('en-IN')}) is approved and waiting for Razorpay payout.`,
+                        type: 'payroll_ready',
+                        priority: 'High',
+                        isRead: false,
+                        createdAt: p.adminApproval?.approvedAt || p.updatedAt || p.createdAt,
+                        link: '/dashboard?view=payroll'
+                    });
+                }
             });
 
             pendingLeaves.forEach((l) => {
@@ -590,18 +633,92 @@ exports.getRecentNotifications = async (req, res) => {
             const LeaveRequest = require('../models/LeaveRequest');
             const User = require('../models/User');
             const ChatSession = require('../models/ChatSession');
+            const Payroll = require('../models/Payroll');
 
             // Find direct reports
             const directReports = await User.find({ manager: userId }).select('_id');
             const reportIds = directReports.map(u => u._id);
 
-            const [reviewTasks, teamLeaves, managerOwnLeaves, pendingEmployeeChats, adminChatDecisions] = await Promise.all([
+            const [reviewTasks, teamLeaves, managerOwnLeaves, pendingEmployeeChats, adminChatDecisions, teamPayrolls, managerOwnPayrolls] = await Promise.all([
                 Task.find({ user: { $in: reportIds }, status: 'in-review' }).populate('user', 'name').sort({ updatedAt: -1 }).limit(6).lean(),
                 LeaveRequest.find({ user: { $in: reportIds }, status: 'pending' }).populate('user', 'name').sort({ createdAt: -1 }).limit(6).lean(),
                 LeaveRequest.find({ user: userId, status: { $in: ['approved', 'rejected'] } }).populate('approver', 'name').sort({ updatedAt: -1 }).limit(5).lean(),
                 ChatSession.find({ recipient: userId, status: 'pending' }).populate('initiator', 'name designation department').sort({ createdAt: -1 }).limit(6).lean(),
                 ChatSession.find({ initiator: userId, type: 'MANAGER_ADMIN', status: { $in: ['approved', 'rejected'] } }).populate('recipient', 'name').sort({ updatedAt: -1 }).limit(5).lean(),
+                Payroll.find({
+                    employee: { $in: reportIds },
+                    status: { $in: ['Pending_Manager_Review', 'Manager_Approved', 'Ready_for_Payment', 'Paid'] }
+                }).populate('employee', 'name').sort({ updatedAt: -1 }).limit(10).lean(),
+                Payroll.find({
+                    employee: userId,
+                    status: { $in: ['Ready_for_Payment', 'Paid'] }
+                }).sort({ updatedAt: -1 }).limit(5).lean()
             ]);
+
+            // Manager team payroll notifications
+            teamPayrolls.forEach((p) => {
+                if (p.status === 'Paid') {
+                    notifications.push({
+                        _id: `mgr_team_paid_${p._id}`,
+                        title: 'Team Member Salary Credited',
+                        message: `₹${Number(p.netSalary).toLocaleString('en-IN')} for ${p.employee?.name || 'team member'} (${p.periodLabel}) was successfully credited via Razorpay.${p.payout?.utr ? ` UTR: ${p.payout.utr}` : ''}`,
+                        type: 'payment_credited',
+                        priority: 'Medium',
+                        isRead: false,
+                        createdAt: p.payout?.processedAt || p.updatedAt || p.createdAt,
+                        link: '/dashboard?view=manager&tab=payroll'
+                    });
+                } else if (p.status === 'Pending_Manager_Review') {
+                    notifications.push({
+                        _id: `mgr_team_pending_${p._id}`,
+                        title: 'Payroll Pending Manager Review',
+                        message: `${p.periodLabel} salary calculation for ${p.employee?.name || 'team member'} (₹${Number(p.netSalary).toLocaleString('en-IN')}) requires manager attendance verification.`,
+                        type: 'payroll_pending',
+                        priority: 'High',
+                        isRead: false,
+                        createdAt: p.createdAt,
+                        link: '/dashboard?view=manager&tab=payroll'
+                    });
+                } else if (p.status === 'Ready_for_Payment') {
+                    notifications.push({
+                        _id: `mgr_team_adminappr_${p._id}`,
+                        title: 'Admin Payroll Sign-off Complete',
+                        message: `Admin approved ${p.periodLabel} payroll for ${p.employee?.name || 'team member'} (₹${Number(p.netSalary).toLocaleString('en-IN')}). Ready for payment.`,
+                        type: 'payroll_approval',
+                        priority: 'Low',
+                        isRead: false,
+                        createdAt: p.adminApproval?.approvedAt || p.updatedAt || p.createdAt,
+                        link: '/dashboard?view=manager&tab=payroll'
+                    });
+                }
+            });
+
+            // Manager own salary notifications
+            managerOwnPayrolls.forEach((p) => {
+                if (p.status === 'Paid') {
+                    notifications.push({
+                        _id: `mgr_own_paid_${p._id}`,
+                        title: '🎉 Salary Credited to Your Account',
+                        message: `Your manager salary of ₹${Number(p.netSalary).toLocaleString('en-IN')} for ${p.periodLabel} has been successfully credited via Razorpay.${p.payout?.utr ? ` UTR: ${p.payout.utr}` : ''}`,
+                        type: 'payment_credited',
+                        priority: 'High',
+                        isRead: false,
+                        createdAt: p.payout?.processedAt || p.updatedAt || p.createdAt,
+                        link: '/dashboard?view=employee-salary'
+                    });
+                } else if (p.status === 'Ready_for_Payment') {
+                    notifications.push({
+                        _id: `mgr_own_adminappr_${p._id}`,
+                        title: 'Salary Approved by Administration',
+                        message: `Your manager salary of ₹${Number(p.netSalary).toLocaleString('en-IN')} (${p.periodLabel}) has been approved by Executive Administration and queued for disbursement.`,
+                        type: 'payroll_approval',
+                        priority: 'High',
+                        isRead: false,
+                        createdAt: p.adminApproval?.approvedAt || p.updatedAt || p.createdAt,
+                        link: '/dashboard?view=employee-salary'
+                    });
+                }
+            });
 
             reviewTasks.forEach((t) => {
                 notifications.push({
@@ -678,8 +795,9 @@ exports.getRecentNotifications = async (req, res) => {
             const Task = require('../models/Task');
             const LeaveRequest = require('../models/LeaveRequest');
             const ChatSession = require('../models/ChatSession');
+            const Payroll = require('../models/Payroll');
 
-            const [modTasks, recentLeaves, chatDecisions] = await Promise.all([
+            const [modTasks, recentLeaves, chatDecisions, employeePayrolls] = await Promise.all([
                 Task.find({ user: userId, needsModification: true }).sort({ updatedAt: -1 }).limit(5).lean(),
                 LeaveRequest.find({ user: userId, status: { $in: ['approved', 'rejected'] } }).populate('approver', 'name').sort({ updatedAt: -1 }).limit(6).lean(),
                 ChatSession.find({
@@ -687,7 +805,49 @@ exports.getRecentNotifications = async (req, res) => {
                     type: 'EMPLOYEE_MANAGER',
                     status: { $in: ['approved', 'rejected'] },
                 }).populate('recipient', 'name designation').sort({ updatedAt: -1 }).limit(5).lean(),
+                Payroll.find({
+                    employee: userId,
+                    status: { $in: ['Manager_Approved', 'Ready_for_Payment', 'Paid'] }
+                }).populate('manager', 'name').sort({ updatedAt: -1 }).limit(6).lean()
             ]);
+
+            // Employee payroll notifications
+            employeePayrolls.forEach((p) => {
+                if (p.status === 'Paid') {
+                    notifications.push({
+                        _id: `emp_salary_paid_${p._id}`,
+                        title: '🎉 Salary Credited via Razorpay',
+                        message: `₹${Number(p.netSalary).toLocaleString('en-IN')} for ${p.periodLabel} has been successfully credited to your bank account via Razorpay.${p.payout?.utr ? ` UTR: ${p.payout.utr}` : ''}`,
+                        type: 'payment_credited',
+                        priority: 'High',
+                        isRead: false,
+                        createdAt: p.payout?.processedAt || p.updatedAt || p.createdAt,
+                        link: '/dashboard?view=employee-salary'
+                    });
+                } else if (p.status === 'Ready_for_Payment') {
+                    notifications.push({
+                        _id: `emp_salary_adminappr_${p._id}`,
+                        title: 'Salary Approved by Admin',
+                        message: `Executive Administration approved your ${p.periodLabel} salary (₹${Number(p.netSalary).toLocaleString('en-IN')}). Queued for disbursement.`,
+                        type: 'payroll_approval',
+                        priority: 'High',
+                        isRead: false,
+                        createdAt: p.adminApproval?.approvedAt || p.updatedAt || p.createdAt,
+                        link: '/dashboard?view=employee-salary'
+                    });
+                } else if (p.status === 'Manager_Approved') {
+                    notifications.push({
+                        _id: `emp_salary_mgrappr_${p._id}`,
+                        title: 'Salary Approved by Manager',
+                        message: `Your reporting manager (${p.manager?.name || 'Manager'}) approved your ${p.periodLabel} salary calculation (₹${Number(p.netSalary).toLocaleString('en-IN')}). Forwarded to Admin for final sign-off.`,
+                        type: 'payroll_approval',
+                        priority: 'Low',
+                        isRead: false,
+                        createdAt: p.managerReview?.reviewedAt || p.updatedAt || p.createdAt,
+                        link: '/dashboard?view=employee-salary'
+                    });
+                }
+            });
 
             modTasks.forEach((t) => {
                 notifications.push({

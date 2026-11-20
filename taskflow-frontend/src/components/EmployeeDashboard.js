@@ -33,6 +33,7 @@ import AnnouncementsPage from './AnnouncementsPage';
 import ChatPage from './ChatPage';
 import HolidayCalendar from './HolidayCalendar';
 import EmployeeSalaryPortal from './payroll/EmployeeSalaryPortal';
+import { getMyPayrolls } from '../api/payrollApi';
 import {
   Calendar,
   Clock,
@@ -256,6 +257,27 @@ export default function EmployeeDashboard({ user, logout, setView, activeTab, on
     });
   };
 
+  const [latestPaidSalary, setLatestPaidSalary] = useState(null);
+  const [dismissedSalaryBannerIds, setDismissedSalaryBannerIds] = useState(() => {
+    try {
+      return JSON.parse(sessionStorage.getItem('taskflow_dismissed_salary_banners') || '[]');
+    } catch {
+      return [];
+    }
+  });
+
+  const dismissSalaryBanner = (id) => {
+    setDismissedSalaryBannerIds((prev) => {
+      const next = [...new Set([...prev, String(id)])];
+      try {
+        sessionStorage.setItem('taskflow_dismissed_salary_banners', JSON.stringify(next));
+      } catch {
+        // Ignore storage error
+      }
+      return next;
+    });
+  };
+
   const recentLeaveDecision = useMemo(() => {
     if (!leaveOverview?.leaveRequests?.length) return null;
     const decided = leaveOverview.leaveRequests.filter(
@@ -313,8 +335,14 @@ export default function EmployeeDashboard({ user, logout, setView, activeTab, on
     setLoading(true);
     setError('');
     try {
-      const res = await getEmployeeDashboard();
+      const [res, payrollRes] = await Promise.all([
+        getEmployeeDashboard(),
+        getMyPayrolls().catch(() => ({ data: { data: [] } })),
+      ]);
       setDashboardData(res.data);
+      const payrolls = payrollRes.data?.data || [];
+      const latestPaid = payrolls.find((p) => p.status === 'Paid') || null;
+      setLatestPaidSalary(latestPaid);
     } catch (err) {
       setError(err.response?.data?.message || 'Could not load your dashboard.');
     } finally {
@@ -976,6 +1004,51 @@ export default function EmployeeDashboard({ user, logout, setView, activeTab, on
                 </div>
                 <div className="leave-banner-aside">
                   <span className="leave-rest-tag">🌴 Enjoy your time off!</span>
+                </div>
+              </div>
+            )}
+
+            {/* Celebratory Salary Credited via Razorpay Banner */}
+            {latestPaidSalary && !dismissedSalaryBannerIds.includes(String(latestPaidSalary._id)) && (
+              <div className="payroll-credited-dashboard-card">
+                <div className="credited-card-icon-wrap">
+                  <CheckCircle2 size={24} className="text-emerald" />
+                </div>
+                <div className="credited-card-body">
+                  <div className="credited-card-pill-row">
+                    <span className="credited-status-tag">💰 SALARY CREDITED VIA RAZORPAY</span>
+                    <span className="credited-period-tag">{latestPaidSalary.periodLabel}</span>
+                  </div>
+                  <h3 className="credited-card-title">
+                    ₹{Number(latestPaidSalary.netSalary).toLocaleString('en-IN')} Credited Successfully
+                  </h3>
+                  <p className="credited-card-subtitle">
+                    Your {latestPaidSalary.periodLabel} compensation has been disbursed to your bank account via Razorpay.
+                    {latestPaidSalary.payout?.utr && (
+                      <span> Ref / UTR: <strong>{latestPaidSalary.payout.utr}</strong></span>
+                    )}
+                  </p>
+                </div>
+                <div className="credited-card-actions">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setTab('payroll');
+                      if (onTabChange) onTabChange('payroll');
+                    }}
+                    className="btn-view-payslip-primary"
+                  >
+                    View Official Payslip →
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => dismissSalaryBanner(latestPaidSalary._id)}
+                    className="btn-dismiss-credited"
+                    title="Dismiss alert"
+                    aria-label="Dismiss alert"
+                  >
+                    <X size={16} />
+                  </button>
                 </div>
               </div>
             )}
