@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const bcrypt = require('bcrypt');
 const User = require('../models/User');
 const Task = require('../models/Task');
 const Attendance = require('../models/Attendance');
@@ -849,5 +850,60 @@ exports.deleteProjectDocument = async (req, res) => {
         });
     } catch (error) {
         return res.status(500).json({ message: 'Could not delete document' });
+    }
+};
+
+exports.getAdminProfile = async (req, res) => {
+    if (!isAdmin(req, res)) return;
+    try {
+        const user = await User.findById(req.userId).select('-password');
+        if (!user) return res.status(404).json({ message: 'Admin not found' });
+        return res.json({ user });
+    } catch (error) {
+        return res.status(500).json({ message: 'Could not load admin profile' });
+    }
+};
+
+exports.updateAdminProfile = async (req, res) => {
+    if (!isAdmin(req, res)) return;
+    try {
+        const { firstName, lastName, phone } = req.body;
+        const updates = {};
+        if (firstName !== undefined) updates.firstName = String(firstName).trim();
+        if (lastName !== undefined) updates.lastName = String(lastName).trim();
+        if (phone !== undefined) updates.phone = String(phone).trim();
+
+        const current = await User.findById(req.userId).select('firstName lastName name');
+        if (!current) return res.status(404).json({ message: 'Admin not found' });
+
+        if (updates.firstName !== undefined || updates.lastName !== undefined) {
+            updates.name = [updates.firstName ?? current.firstName, updates.lastName ?? current.lastName].filter(Boolean).join(' ').trim() || current.name;
+        }
+
+        const user = await User.findByIdAndUpdate(req.userId, updates, { new: true, runValidators: true }).select('-password');
+        logActivity(req.userId, 'updated admin profile details', 'admin', user.name);
+        return res.json(user);
+    } catch (error) {
+        return res.status(500).json({ message: 'Could not update admin profile' });
+    }
+};
+
+exports.changeAdminPassword = async (req, res) => {
+    if (!isAdmin(req, res)) return;
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword || String(newPassword).length < 8) {
+        return res.status(400).json({ message: 'Current password and a new password with at least 8 characters are required' });
+    }
+    try {
+        const user = await User.findById(req.userId);
+        if (!user || !(await bcrypt.compare(currentPassword, user.password))) {
+            return res.status(400).json({ message: 'Current password is incorrect' });
+        }
+        user.password = await bcrypt.hash(newPassword, await bcrypt.genSalt(10));
+        await user.save();
+        logActivity(req.userId, 'changed account password', 'security', user.name);
+        return res.json({ message: 'Password changed successfully' });
+    } catch (error) {
+        return res.status(500).json({ message: 'Could not change password' });
     }
 };

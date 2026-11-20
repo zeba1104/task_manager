@@ -71,6 +71,13 @@ export const ROLE_NAVIGATION = {
         icon: 'MessageSquare',
         view: 'chat',
       },
+      {
+        id: 'admin-settings',
+        label: 'Settings',
+        icon: 'UserCheck',
+        view: 'settings',
+        tab: 'profile',
+      },
     ],
   },
 

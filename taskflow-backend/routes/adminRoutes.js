@@ -26,6 +26,9 @@ const {
     uploadProjectDocument,
     downloadProjectDocument,
     deleteProjectDocument,
+    getAdminProfile,
+    updateAdminProfile,
+    changeAdminPassword,
 } = require('../controllers/adminController');
 
 // Multer storage for project documents
@@ -85,5 +88,10 @@ router.get('/transfer-requests', getTransferRequests);
 router.patch('/transfer-requests/:id', reviewTransferRequest);
 router.get('/notifications', getAdminNotifications);
 router.patch('/notifications/:id/read', markAdminNotificationRead);
+
+// Admin Profile & Settings
+router.get('/profile', getAdminProfile);
+router.put('/profile', updateAdminProfile);
+router.put('/password', changeAdminPassword);
 
 module.exports = router;

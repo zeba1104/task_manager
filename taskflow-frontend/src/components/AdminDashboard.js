@@ -586,37 +586,358 @@ function AdminDashboard({ tasks, employees, user, logout, setView, onAddEmployee
       </section>
 
       {actionType && (
-        <div className="admin-modal-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) setActionType(''); }}>
-          <section className="admin-action-modal" role="dialog" aria-modal="true" aria-labelledby="admin-action-title">
-            <header>
-              <h2 id="admin-action-title">{actionType === 'department' ? (editingDepartment ? 'Edit department' : 'Create department') : actionType === 'project' ? 'Create project' : 'Publish announcement'}</h2>
-              <button type="button" className="icon-btn" onClick={() => { setActionType(''); setEditingDepartment(null); }} aria-label="Close"><X size={19} /></button>
+        <div
+          className="admin-modal-backdrop"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) {
+              setActionType('');
+              setEditingDepartment(null);
+            }
+          }}
+        >
+          <section
+            className="admin-action-modal modern-action-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="admin-action-title"
+          >
+            <header className="admin-modal-header">
+              <div className="admin-modal-title-wrap">
+                <div className={`admin-modal-icon-badge badge-${actionType}`}>
+                  {actionType === 'department' && <Building2 size={22} />}
+                  {actionType === 'project' && <FolderPlus size={22} />}
+                  {actionType === 'announcement' && <Megaphone size={22} />}
+                </div>
+                <div>
+                  <h2 id="admin-action-title" className="admin-modal-title">
+                    {actionType === 'department'
+                      ? (editingDepartment ? 'Edit Department' : 'Create Department')
+                      : actionType === 'project'
+                      ? 'Create Project'
+                      : 'Publish Announcement'}
+                  </h2>
+                  <p className="admin-modal-subtitle">
+                    {actionType === 'department'
+                      ? (editingDepartment ? 'Update department specifications and leadership assignment.' : 'Establish a new organizational unit, assign leadership, and set department codes.')
+                      : actionType === 'project'
+                      ? 'Initialize a project workspace, assign management, and set milestone deadlines.'
+                      : 'Broadcast company updates, critical alerts, or department notices to your team.'}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                className="admin-modal-close-btn"
+                onClick={() => { setActionType(''); setEditingDepartment(null); }}
+                aria-label="Close dialog"
+              >
+                <X size={18} />
+              </button>
             </header>
-            <form onSubmit={submitQuickAction}>
+
+            <form onSubmit={submitQuickAction} className="admin-modal-form">
               {actionType === 'announcement' ? (
                 <>
-                  <label>Title<input autoFocus maxLength={160} value={actionForm.title} onChange={(event) => setActionForm({ ...actionForm, title: event.target.value })} required /></label>
-                  <label>Message<textarea rows={5} maxLength={5000} value={actionForm.body} onChange={(event) => setActionForm({ ...actionForm, body: event.target.value })} required /></label>
-                  <label>Audience<select value={actionForm.audience} onChange={(event) => setActionForm({ ...actionForm, audience: event.target.value })}><option value="all">Everyone</option><option value="department">One department</option></select></label>
-                  {actionForm.audience === 'department' && <label>Department<select value={actionForm.department} onChange={(event) => setActionForm({ ...actionForm, department: event.target.value })} required><option value="">Select department</option>{departmentOptions.map((department) => <option value={department._id} key={department._id}>{department.name}</option>)}</select></label>}
+                  <div className="admin-form-field">
+                    <label htmlFor="announcement-title" className="admin-field-label">
+                      Announcement Title <span className="req">*</span>
+                    </label>
+                    <input
+                      id="announcement-title"
+                      className="admin-field-control"
+                      autoFocus
+                      maxLength={160}
+                      placeholder="e.g. Q4 Townhall & All-Hands Briefing"
+                      value={actionForm.title}
+                      onChange={(event) => setActionForm({ ...actionForm, title: event.target.value })}
+                      required
+                    />
+                  </div>
+
+                  <div className="admin-modal-grid-2">
+                    <div className="admin-form-field">
+                      <label htmlFor="announcement-audience" className="admin-field-label">
+                        Target Audience <span className="req">*</span>
+                      </label>
+                      <select
+                        id="announcement-audience"
+                        className="admin-field-control admin-select-control"
+                        value={actionForm.audience}
+                        onChange={(event) => setActionForm({ ...actionForm, audience: event.target.value })}
+                      >
+                        <option value="all">Everyone (Company-Wide)</option>
+                        <option value="department">Specific Department</option>
+                      </select>
+                    </div>
+
+                    {actionForm.audience === 'department' ? (
+                      <div className="admin-form-field">
+                        <label htmlFor="announcement-dept" className="admin-field-label">
+                          Department <span className="req">*</span>
+                        </label>
+                        <select
+                          id="announcement-dept"
+                          className="admin-field-control admin-select-control"
+                          value={actionForm.department}
+                          onChange={(event) => setActionForm({ ...actionForm, department: event.target.value })}
+                          required
+                        >
+                          <option value="">Select Department...</option>
+                          {departmentOptions.map((department) => (
+                            <option value={department._id} key={department._id}>
+                              {department.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    ) : (
+                      <div className="admin-form-field admin-field-placeholder">
+                        <label className="admin-field-label text-muted">Audience Scope</label>
+                        <div className="admin-field-static-badge">All Registered Staff &amp; Leadership</div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="admin-form-field">
+                    <label htmlFor="announcement-body" className="admin-field-label">
+                      Announcement Message <span className="req">*</span>
+                    </label>
+                    <textarea
+                      id="announcement-body"
+                      className="admin-field-control admin-textarea-control"
+                      rows={5}
+                      maxLength={5000}
+                      placeholder="Write your official broadcast announcement message, guidelines, or notices here..."
+                      value={actionForm.body}
+                      onChange={(event) => setActionForm({ ...actionForm, body: event.target.value })}
+                      required
+                    />
+                  </div>
+                </>
+              ) : actionType === 'department' ? (
+                <>
+                  <div className="admin-form-field">
+                    <label htmlFor="dept-name" className="admin-field-label">
+                      Department Name <span className="req">*</span>
+                    </label>
+                    <input
+                      id="dept-name"
+                      className="admin-field-control"
+                      autoFocus
+                      maxLength={120}
+                      placeholder="e.g. Engineering & Technology"
+                      value={actionForm.name}
+                      onChange={(event) => setActionForm({ ...actionForm, name: event.target.value })}
+                      required
+                    />
+                  </div>
+
+                  <div className="admin-modal-grid-2">
+                    <div className="admin-form-field">
+                      <label htmlFor="dept-code" className="admin-field-label">
+                        Department Code <span className="req">*</span>
+                      </label>
+                      <input
+                        id="dept-code"
+                        className="admin-field-control"
+                        maxLength={24}
+                        placeholder="e.g. ENG"
+                        value={actionForm.code}
+                        onChange={(event) => setActionForm({ ...actionForm, code: event.target.value.toUpperCase() })}
+                        required
+                      />
+                    </div>
+
+                    <div className="admin-form-field">
+                      <label htmlFor="dept-head" className="admin-field-label">
+                        Department Head
+                      </label>
+                      <select
+                        id="dept-head"
+                        className="admin-field-control admin-select-control"
+                        value={actionForm.head}
+                        onChange={(event) => setActionForm({ ...actionForm, head: event.target.value })}
+                      >
+                        <option value="">Unassigned</option>
+                        {employees
+                          .filter((employee) => employee.role === 'Manager' && employee.isActive !== false)
+                          .map((manager) => (
+                            <option value={manager._id} key={manager._id}>
+                              {manager.name}
+                            </option>
+                          ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="admin-form-field">
+                    <label htmlFor="dept-desc" className="admin-field-label">
+                      Description
+                    </label>
+                    <textarea
+                      id="dept-desc"
+                      className="admin-field-control admin-textarea-control"
+                      rows={3}
+                      maxLength={1000}
+                      placeholder="Brief overview of the department functions, mission, and scope..."
+                      value={actionForm.description}
+                      onChange={(event) => setActionForm({ ...actionForm, description: event.target.value })}
+                    />
+                  </div>
                 </>
               ) : (
+                /* actionType === 'project' */
                 <>
-                  <label>{actionType === 'department' ? 'Department name' : 'Project name'}<input autoFocus maxLength={120} value={actionForm.name} onChange={(event) => setActionForm({ ...actionForm, name: event.target.value })} required /></label>
-                  {actionType === 'department' && <>
-                    <label>Department code<input maxLength={24} value={actionForm.code} onChange={(event) => setActionForm({ ...actionForm, code: event.target.value.toUpperCase() })} required /></label>
-                    <label>Department head<select value={actionForm.head} onChange={(event) => setActionForm({ ...actionForm, head: event.target.value })}><option value="">Unassigned</option>{employees.filter((employee) => employee.role === 'Manager' && employee.isActive !== false).map((manager) => <option value={manager._id} key={manager._id}>{manager.name}</option>)}</select></label>
-                  </>}
-                  <label>Description<textarea rows={3} maxLength={1000} value={actionForm.description} onChange={(event) => setActionForm({ ...actionForm, description: event.target.value })} /></label>
-                  {actionType === 'project' && <>
-                    <label>Department<select value={actionForm.department} onChange={(event) => setActionForm({ ...actionForm, department: event.target.value })}><option value="">No department</option>{departmentOptions.map((department) => <option value={department._id} key={department._id}>{department.name}</option>)}</select></label>
-                    <label>Project manager<select value={actionForm.manager} onChange={(event) => setActionForm({ ...actionForm, manager: event.target.value })}><option value="">Unassigned</option>{employees.filter((employee) => employee.role === 'Manager' && employee.isActive !== false).map((manager) => <option value={manager._id} key={manager._id}>{manager.name}</option>)}</select></label>
-                    <div className="admin-modal-date-grid"><label>Start date<input type="date" value={actionForm.startDate} onChange={(event) => setActionForm({ ...actionForm, startDate: event.target.value })} /></label><label>Deadline<input type="date" value={actionForm.deadline} onChange={(event) => setActionForm({ ...actionForm, deadline: event.target.value })} /></label></div>
-                  </>}
+                  <div className="admin-form-field">
+                    <label htmlFor="proj-name" className="admin-field-label">
+                      Project Name <span className="req">*</span>
+                    </label>
+                    <input
+                      id="proj-name"
+                      className="admin-field-control"
+                      autoFocus
+                      maxLength={120}
+                      placeholder="e.g. Enterprise Cloud Migration"
+                      value={actionForm.name}
+                      onChange={(event) => setActionForm({ ...actionForm, name: event.target.value })}
+                      required
+                    />
+                  </div>
+
+                  <div className="admin-modal-grid-2">
+                    <div className="admin-form-field">
+                      <label htmlFor="proj-dept" className="admin-field-label">
+                        Department
+                      </label>
+                      <select
+                        id="proj-dept"
+                        className="admin-field-control admin-select-control"
+                        value={actionForm.department}
+                        onChange={(event) => setActionForm({ ...actionForm, department: event.target.value })}
+                      >
+                        <option value="">No department</option>
+                        {departmentOptions.map((department) => (
+                          <option value={department._id} key={department._id}>
+                            {department.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="admin-form-field">
+                      <label htmlFor="proj-manager" className="admin-field-label">
+                        Project Manager
+                      </label>
+                      <select
+                        id="proj-manager"
+                        className="admin-field-control admin-select-control"
+                        value={actionForm.manager}
+                        onChange={(event) => setActionForm({ ...actionForm, manager: event.target.value })}
+                      >
+                        <option value="">Unassigned</option>
+                        {employees
+                          .filter((employee) => employee.role === 'Manager' && employee.isActive !== false)
+                          .map((manager) => (
+                            <option value={manager._id} key={manager._id}>
+                              {manager.name}
+                            </option>
+                          ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="admin-form-field">
+                    <label htmlFor="proj-desc" className="admin-field-label">
+                      Description
+                    </label>
+                    <textarea
+                      id="proj-desc"
+                      className="admin-field-control admin-textarea-control"
+                      rows={3}
+                      maxLength={1000}
+                      placeholder="Outline key project deliverables, targets, and scope..."
+                      value={actionForm.description}
+                      onChange={(event) => setActionForm({ ...actionForm, description: event.target.value })}
+                    />
+                  </div>
+
+                  <div className="admin-modal-grid-2">
+                    <div className="admin-form-field">
+                      <label htmlFor="proj-start-date" className="admin-field-label">
+                        Start Date
+                      </label>
+                      <input
+                        id="proj-start-date"
+                        type="date"
+                        className="admin-field-control"
+                        value={actionForm.startDate}
+                        onChange={(event) => setActionForm({ ...actionForm, startDate: event.target.value })}
+                      />
+                    </div>
+                    <div className="admin-form-field">
+                      <label htmlFor="proj-deadline" className="admin-field-label">
+                        Target Deadline
+                      </label>
+                      <input
+                        id="proj-deadline"
+                        type="date"
+                        className="admin-field-control"
+                        value={actionForm.deadline}
+                        onChange={(event) => setActionForm({ ...actionForm, deadline: event.target.value })}
+                      />
+                    </div>
+                  </div>
                 </>
               )}
-              {actionError && <p className="error-text" role="alert">{actionError}</p>}
-              <footer><button type="button" className="btn-ghost" onClick={() => { setActionType(''); setEditingDepartment(null); }}>Cancel</button><button type="submit" className="btn-primary btn-small" disabled={savingAction}>{savingAction ? 'Saving...' : actionType === 'announcement' ? 'Publish' : editingDepartment ? 'Save changes' : 'Create'}</button></footer>
+
+              {actionError && (
+                <div className="admin-modal-error-box" role="alert">
+                  <AlertTriangle size={15} />
+                  <span>{actionError}</span>
+                </div>
+              )}
+
+              <footer className="admin-modal-footer">
+                <button
+                  type="button"
+                  className="btn-modal-cancel"
+                  onClick={() => { setActionType(''); setEditingDepartment(null); }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn-modal-primary"
+                  disabled={savingAction}
+                >
+                  {savingAction ? (
+                    <>
+                      <RefreshCw size={15} className="spin-icon" style={{ marginRight: '6px' }} />
+                      Saving...
+                    </>
+                  ) : actionType === 'announcement' ? (
+                    <>
+                      <Megaphone size={15} style={{ marginRight: '6px' }} />
+                      Publish Announcement
+                    </>
+                  ) : editingDepartment ? (
+                    <>
+                      <Building2 size={15} style={{ marginRight: '6px' }} />
+                      Save Changes
+                    </>
+                  ) : actionType === 'department' ? (
+                    <>
+                      <Building2 size={15} style={{ marginRight: '6px' }} />
+                      Create Department
+                    </>
+                  ) : (
+                    <>
+                      <FolderPlus size={15} style={{ marginRight: '6px' }} />
+                      Create Project
+                    </>
+                  )}
+                </button>
+              </footer>
             </form>
           </section>
         </div>

@@ -32,3 +32,8 @@ export const resendCredentials = (id) => api.post(`/users/${id}/resend-credentia
 export const uploadProfilePicture = (id, formData) => api.post(`/users/${id}/profile-picture`, formData);
 export const deleteProfilePicture = (id) => api.delete(`/users/${id}/profile-picture`);
 export const getUserProfile = (id) => api.get(`/users/${id}/profile`);
+
+// Admin Settings & Security
+export const getAdminProfile = () => api.get('/admin/profile');
+export const updateAdminProfile = (data) => api.put('/admin/profile', data);
+export const changeAdminPassword = (data) => api.put('/admin/password', data);

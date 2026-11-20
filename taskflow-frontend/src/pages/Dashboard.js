@@ -19,6 +19,7 @@ import HolidayCalendar from '../components/HolidayCalendar';
 import AdminPayrollManager from '../components/payroll/AdminPayrollManager';
 import ManagerPayrollReview from '../components/payroll/ManagerPayrollReview';
 import EmployeeSalaryPortal from '../components/payroll/EmployeeSalaryPortal';
+import SettingsView from '../components/SettingsView';
 import Swal from '../utils/swalConfig';
 import { getProjects } from '../api/adminApi';
 import { Calendar, Search, X, CheckSquare } from 'lucide-react';
@@ -31,7 +32,7 @@ const boardColumns = [
 ];
 
 function Dashboard() {
-  const { user, logout } = useAuth();
+  const { user, logout, updateUser } = useAuth();
   const [tasks, setTasks] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -241,7 +242,9 @@ function Dashboard() {
       onNavigate={handleNavigate}
       logout={logout}
     >
-      {(view === 'admin' || view === 'admin-leaves' || view === 'admin-departments') && user?.role === 'Admin' ? (
+      {view === 'settings' ? (
+        <SettingsView user={user} onUserUpdated={updateUser} />
+      ) : (view === 'admin' || view === 'admin-leaves' || view === 'admin-departments') && user?.role === 'Admin' ? (
         <AdminDashboard
           tasks={tasks}
           employees={employees}

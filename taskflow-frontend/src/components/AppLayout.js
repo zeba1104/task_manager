@@ -205,13 +205,7 @@ function AppLayout({
 
   const handleSettingsClick = () => {
     setDropdownOpen(false);
-    if (user?.role === 'Admin') {
-      onNavigate({ view: 'admin' });
-    } else if (user?.role === 'Manager') {
-      onNavigate({ view: 'manager', tab: 'profile' });
-    } else {
-      onNavigate({ view: 'employee', tab: 'profile' });
-    }
+    onNavigate({ view: 'settings', tab: 'profile' });
   };
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -367,9 +361,7 @@ function AppLayout({
         category: 'Settings',
         icon: <Settings size={16} />,
         action: () => {
-          if (role === 'Admin') onNavigate({ view: 'admin' });
-          else if (role === 'Manager') onNavigate({ view: 'manager', tab: 'profile' });
-          else onNavigate({ view: 'employee', tab: 'profile' });
+          onNavigate({ view: 'settings', tab: 'profile' });
         },
         keywords: 'settings profile account password security email personal'
       },
@@ -419,6 +411,9 @@ function AppLayout({
   }, []);
 
   const getBreadcrumb = () => {
+    if (activeView === 'settings') {
+      return { section: 'Settings', current: 'Account Settings & Security' };
+    }
     if (user?.role === 'Admin') {
       if (activeView === 'admin') return { section: 'Admin', current: 'Operations Center' };
       if (activeView === 'employees') return { section: 'Governance', current: 'Members Directory' };

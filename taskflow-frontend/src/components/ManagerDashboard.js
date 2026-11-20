@@ -6,7 +6,6 @@ import {
   ClipboardList,
   FileText,
   FolderPlus,
-  KeyRound,
   Megaphone,
   UserRound,
   Users,
@@ -21,8 +20,6 @@ import {
   Sparkles,
   Download,
   Send,
-  Camera,
-  Trash2,
   LogIn,
   LogOut,
   CheckCircle2,
@@ -42,17 +39,11 @@ import { FILE_BASE_URL } from '../api/axios';
 import { createProject } from '../api/adminApi';
 import { createTask, deleteTask, getTasks, updateTask } from '../api/taskApi';
 import {
-  changeManagerPassword,
   getManagerOverview,
-  getManagerProfile,
   getManagerProjects,
   getTasksForReview,
-  requestProfileChange,
   reviewManagerLeave,
   reviewTaskSubmission,
-  updateManagerProfile,
-  uploadProfilePicture,
-  deleteProfilePicture,
 } from '../api/managerApi';
 import {
   applyLeaveRequest,
@@ -69,6 +60,7 @@ import AnnouncementsPage from './AnnouncementsPage';
 import ChatPage from './ChatPage';
 import HolidayCalendar from './HolidayCalendar';
 import ManagerPayrollReview from './payroll/ManagerPayrollReview';
+import SettingsView from './SettingsView';
 import { getMyPayrolls } from '../api/payrollApi';
 import Swal from '../utils/swalConfig';
 
@@ -214,10 +206,6 @@ function ManagerDashboard({ user, logout, setView, activeTab, onTabChange }) {
 
   const { updateUser } = useAuth();
   const [overview, setOverview] = useState(null);
-  const [profile, setProfile] = useState(null);
-  const [profilePictureUrl, setProfilePictureUrl] = useState('');
-  const [uploadingPhoto, setUploadingPhoto] = useState(false);
-  const [photoTimestamp, setPhotoTimestamp] = useState(Date.now());
   const [managerTodayAttendance, setManagerTodayAttendance] = useState(null);
   const [currentTime, setCurrentTime] = useState(Date.now());
   const [attendanceRefreshSignal, setAttendanceRefreshSignal] = useState(0);
@@ -333,10 +321,6 @@ function ManagerDashboard({ user, logout, setView, activeTab, onTabChange }) {
   const [taskFormOpen, setTaskFormOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [projectForm, setProjectForm] = useState({ name: '', description: '', deadline: '' });
-  const [profileForm, setProfileForm] = useState({ firstName: '', lastName: '', phone: '' });
-  const [passwordForm, setPasswordForm] = useState({ currentPassword: '', newPassword: '' });
-  const [changeForm, setChangeForm] = useState({ field: 'department', requestedValue: '', reason: '' });
-  const [profileError, setProfileError] = useState('');
   const [reviewTasks, setReviewTasks] = useState([]);
   const [reviewModalTask, setReviewModalTask] = useState(null);
   const [reviewFeedback, setReviewFeedback] = useState('');
@@ -593,77 +577,6 @@ function ManagerDashboard({ user, logout, setView, activeTab, onTabChange }) {
     refreshOverview();
   }, []);
 
-  const loadProfile = useCallback(async () => {
-    setProfileError('');
-    try {
-      const response = await getManagerProfile();
-      setProfile(response.data);
-      if (response.data?.manager) {
-        const mgr = response.data.manager;
-        const nameParts = String(mgr.name || '').trim().split(/\s+/);
-        setProfileForm({
-          firstName: mgr.firstName || nameParts[0] || '',
-          lastName: mgr.lastName || nameParts.slice(1).join(' ') || '',
-          phone: mgr.phone || '',
-        });
-      }
-    } catch (requestError) {
-      setProfileError(requestError.response?.data?.message || 'Could not load your profile.');
-    }
-  }, []);
-
-  useEffect(() => {
-    if (tab === 'profile') {
-      loadProfile();
-    }
-  }, [tab, loadProfile]);
-
-  const saveProfile = async (event) => {
-    event.preventDefault();
-    setBusy(true);
-    setProfileError('');
-    try {
-      await updateManagerProfile(profileForm);
-      await loadProfile();
-      Swal.fire({ title: 'Profile updated', icon: 'success', timer: 1600, showConfirmButton: false });
-    } catch (requestError) {
-      setProfileError(requestError.response?.data?.message || 'Could not update profile.');
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const savePassword = async (event) => {
-    event.preventDefault();
-    setBusy(true);
-    setProfileError('');
-    try {
-      await changeManagerPassword(passwordForm);
-      setPasswordForm({ currentPassword: '', newPassword: '' });
-      Swal.fire({ title: 'Password changed', icon: 'success', timer: 1600, showConfirmButton: false });
-    } catch (requestError) {
-      setProfileError(requestError.response?.data?.message || 'Could not change password.');
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const submitRestrictedChange = async (event) => {
-    event.preventDefault();
-    setBusy(true);
-    setProfileError('');
-    try {
-      await requestProfileChange(changeForm);
-      setChangeForm({ ...changeForm, requestedValue: '', reason: '' });
-      await loadProfile();
-      Swal.fire({ title: 'Request sent to Admin', icon: 'success', timer: 1600, showConfirmButton: false });
-    } catch (requestError) {
-      setProfileError(requestError.response?.data?.message || 'Could not send profile-change request.');
-    } finally {
-      setBusy(false);
-    }
-  };
-
   const createOrUpdateTask = async (data) => {
     try {
       if (editingTask) await updateTask(editingTask._id, data);
@@ -722,122 +635,11 @@ function ManagerDashboard({ user, logout, setView, activeTab, onTabChange }) {
 
   const totals = overview?.stats || {};
   const taskStats = overview?.stats || {};
-  const profileManager = profile?.manager;
-
-  useEffect(() => {
-    let active = true;
-    let objectUrl = '';
-    if (!profileManager?._id || !profileManager.profilePicture) {
-      setProfilePictureUrl('');
-      return () => { active = false; };
-    }
-    axios.get(`/users/${profileManager._id}/profile-picture?t=${encodeURIComponent(profileManager.profilePicture)}_${photoTimestamp}`, { responseType: 'blob' })
-      .then((response) => {
-        objectUrl = URL.createObjectURL(response.data);
-        if (active) setProfilePictureUrl(objectUrl);
-      })
-      .catch(() => { if (active) setProfilePictureUrl(''); });
-    return () => {
-      active = false;
-      if (objectUrl) URL.revokeObjectURL(objectUrl);
-    };
-  }, [profileManager?._id, profileManager?.profilePicture, photoTimestamp]);
-
-  const handlePhotoUpload = async (event) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
-      Swal.fire({ title: 'Invalid Image', text: 'Please select a JPG, PNG, or WebP image.', icon: 'error' });
-      return;
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      Swal.fire({ title: 'File Too Large', text: 'Profile picture must be 5MB or smaller.', icon: 'error' });
-      return;
-    }
-
-    const targetId = profileManager?._id || user?._id;
-    if (!targetId) return;
-
-    setUploadingPhoto(true);
-    const formData = new FormData();
-    formData.append('picture', file);
-
-    try {
-      const res = await uploadProfilePicture(targetId, formData);
-      const newPic = res.data?.profilePicture;
-      setProfile((prev) => (prev ? {
-        ...prev,
-        manager: { ...prev.manager, profilePicture: newPic },
-      } : prev));
-      if (updateUser) updateUser({ profilePicture: newPic });
-      setPhotoTimestamp(Date.now());
-      Swal.fire({
-        title: 'Profile Photo Updated',
-        text: 'Your new profile picture has been saved successfully.',
-        icon: 'success',
-        timer: 1600,
-        showConfirmButton: false,
-      });
-    } catch (err) {
-      Swal.fire({
-        title: 'Upload Failed',
-        text: err.response?.data?.message || 'Could not upload profile picture.',
-        icon: 'error',
-      });
-    } finally {
-      setUploadingPhoto(false);
-      event.target.value = '';
-    }
-  };
-
-  const handlePhotoRemove = async () => {
-    const targetId = profileManager?._id || user?._id;
-    if (!targetId) return;
-
-    const result = await Swal.fire({
-      title: 'Remove Profile Photo?',
-      text: 'Are you sure you want to remove your photo? Your name initials will be displayed instead.',
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonText: 'Yes, remove photo',
-      cancelButtonText: 'Cancel',
-      confirmButtonColor: '#ef4444',
-    });
-    if (!result.isConfirmed) return;
-
-    setUploadingPhoto(true);
-    try {
-      await deleteProfilePicture(targetId);
-      setProfile((prev) => (prev ? {
-        ...prev,
-        manager: { ...prev.manager, profilePicture: null },
-      } : prev));
-      if (updateUser) updateUser({ profilePicture: null });
-      setProfilePictureUrl('');
-      setPhotoTimestamp(Date.now());
-      Swal.fire({
-        title: 'Photo Removed',
-        text: 'Your profile picture has been removed.',
-        icon: 'success',
-        timer: 1600,
-        showConfirmButton: false,
-      });
-    } catch (err) {
-      Swal.fire({
-        title: 'Error',
-        text: err.response?.data?.message || 'Could not remove profile picture.',
-        icon: 'error',
-      });
-    } finally {
-      setUploadingPhoto(false);
-    }
-  };
 
   return (
     <div className="dashboard-page manager-dashboard">
       {/* Clean Page Title Row (Announcements & Chat have their own dedicated rich headers) */}
-      {tab !== 'announcements' && tab !== 'chat' && tab !== 'holidays' && (
+      {tab !== 'announcements' && tab !== 'chat' && tab !== 'holidays' && tab !== 'profile' && (
         <div className="page-header-row">
           <div className="page-header-info">
             <div className="page-title-icon-box">
@@ -898,7 +700,6 @@ function ManagerDashboard({ user, logout, setView, activeTab, onTabChange }) {
           </button>
         </div>
       )}
-      {profileError && <p className="error-text" role="alert">{profileError}</p>}
       {loading && !overview && tab === 'overview' && (
         <p className="manager-loading">Loading assigned team data...</p>
       )}
@@ -1353,19 +1154,95 @@ function ManagerDashboard({ user, logout, setView, activeTab, onTabChange }) {
           )}
 
           {action === 'project' && (
-            <div className="admin-modal-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) setAction(''); }}>
-              <section className="admin-action-modal" role="dialog" aria-modal="true">
-                <header>
-                  <h2>Create project</h2>
-                  <button className="icon-btn" onClick={() => setAction('')} aria-label="Close"><X size={18} /></button>
+            <div
+              className="admin-modal-backdrop"
+              onMouseDown={(event) => {
+                if (event.target === event.currentTarget) setAction('');
+              }}
+            >
+              <section className="admin-action-modal modern-action-modal" role="dialog" aria-modal="true">
+                <header className="admin-modal-header">
+                  <div className="admin-modal-title-wrap">
+                    <div className="admin-modal-icon-badge badge-project">
+                      <FolderPlus size={22} />
+                    </div>
+                    <div>
+                      <h2 className="admin-modal-title">Create Project</h2>
+                      <p className="admin-modal-subtitle">
+                        Initialize a project workspace and assign deliverable milestones.
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    className="admin-modal-close-btn"
+                    onClick={() => setAction('')}
+                    aria-label="Close dialog"
+                  >
+                    <X size={18} />
+                  </button>
                 </header>
-                <form onSubmit={submitQuickAction}>
-                  <label>Project name<input value={projectForm.name} onChange={(event) => setProjectForm({ ...projectForm, name: event.target.value })} required /></label>
-                  <label>Description<textarea value={projectForm.description} onChange={(event) => setProjectForm({ ...projectForm, description: event.target.value })} rows={3} /></label>
-                  <label>Deadline<input type="date" value={projectForm.deadline} onChange={(event) => setProjectForm({ ...projectForm, deadline: event.target.value })} /></label>
-                  <footer>
-                    <button type="button" className="btn-ghost" onClick={() => setAction('')}>Cancel</button>
-                    <button type="submit" className="btn-primary btn-small" disabled={busy}>{busy ? 'Saving...' : 'Create'}</button>
+
+                <form onSubmit={submitQuickAction} className="admin-modal-form">
+                  <div className="admin-form-field">
+                    <label htmlFor="mgr-action-proj-name" className="admin-field-label">
+                      Project Name <span className="req">*</span>
+                    </label>
+                    <input
+                      id="mgr-action-proj-name"
+                      className="admin-field-control"
+                      autoFocus
+                      placeholder="e.g. Website Redesign & Optimization"
+                      value={projectForm.name}
+                      onChange={(event) => setProjectForm({ ...projectForm, name: event.target.value })}
+                      required
+                    />
+                  </div>
+
+                  <div className="admin-form-field">
+                    <label htmlFor="mgr-action-proj-desc" className="admin-field-label">
+                      Description
+                    </label>
+                    <textarea
+                      id="mgr-action-proj-desc"
+                      className="admin-field-control admin-textarea-control"
+                      rows={3}
+                      placeholder="Scope, key deliverables, and requirements..."
+                      value={projectForm.description}
+                      onChange={(event) => setProjectForm({ ...projectForm, description: event.target.value })}
+                    />
+                  </div>
+
+                  <div className="admin-form-field">
+                    <label htmlFor="mgr-action-proj-deadline" className="admin-field-label">
+                      Target Deadline
+                    </label>
+                    <input
+                      id="mgr-action-proj-deadline"
+                      type="date"
+                      className="admin-field-control"
+                      value={projectForm.deadline}
+                      onChange={(event) => setProjectForm({ ...projectForm, deadline: event.target.value })}
+                    />
+                  </div>
+
+                  <footer className="admin-modal-footer">
+                    <button type="button" className="btn-modal-cancel" onClick={() => setAction('')}>
+                      Cancel
+                    </button>
+                    <button type="submit" className="btn-modal-primary" disabled={busy}>
+                      {busy ? (
+                        <>
+                          <RefreshCw size={15} className="spin-icon" style={{ marginRight: '6px' }} />
+                          Saving...
+                        </>
+                      ) : (
+                        <>
+                          <FolderPlus size={15} style={{ marginRight: '6px' }} />
+                          Create Project
+                        </>
+                      )}
+                    </button>
                   </footer>
                 </form>
               </section>
@@ -2023,130 +1900,9 @@ function ManagerDashboard({ user, logout, setView, activeTab, onTabChange }) {
         </div>
       )}
 
-      {/* VIEW: MY PROFILE & DEPARTMENT */}
+      {/* VIEW: MY PROFILE & DEPARTMENT (SETTINGS) */}
       {tab === 'profile' && (
-        <>
-          {profileError && (
-            <div className="alert-box alert-error" style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span>{profileError}</span>
-              <button type="button" className="btn-secondary btn-small" onClick={loadProfile}>Retry</button>
-            </div>
-          )}
-          {!profile && !profileError ? (
-            <p className="admin-empty-state">Loading profile...</p>
-          ) : !profile ? null : (
-            <div className="manager-profile-grid">
-              <section className="admin-overview-panel">
-                <header>
-                  <h3>Professional details</h3>
-                  <span>Permitted edits save immediately</span>
-                </header>
-                <div className="manager-profile-identity">
-                  <div className="profile-avatar-wrapper">
-                    {profilePictureUrl ? (
-                      <img src={profilePictureUrl} alt={profileManager?.name || 'Manager'} className="profile-avatar-img" />
-                    ) : (
-                      <span className="employee-avatar-fallback">{profileManager?.name?.[0]?.toUpperCase() || 'M'}</span>
-                    )}
-                    <label className="profile-avatar-badge" title="Change profile photo">
-                      <Camera size={13} />
-                      <input
-                        type="file"
-                        accept="image/png,image/jpeg,image/webp"
-                        style={{ display: 'none' }}
-                        onChange={handlePhotoUpload}
-                        disabled={uploadingPhoto}
-                      />
-                    </label>
-                  </div>
-                  <div className="profile-identity-content">
-                    <h3>{profileManager?.name}</h3>
-                    <p>{profileManager?.designation || 'Manager'} · {profile?.department?.name || profileManager?.department || 'Not assigned'}</p>
-                    <div className="profile-photo-actions-row">
-                      <label className="btn-secondary btn-small profile-photo-btn" style={{ cursor: uploadingPhoto ? 'not-allowed' : 'pointer' }}>
-                        <Camera size={13} />
-                        <span>{uploadingPhoto ? 'Uploading...' : profilePictureUrl ? 'Change Photo' : 'Upload Photo'}</span>
-                        <input
-                          type="file"
-                          accept="image/png,image/jpeg,image/webp"
-                          style={{ display: 'none' }}
-                          onChange={handlePhotoUpload}
-                          disabled={uploadingPhoto}
-                        />
-                      </label>
-                      {profilePictureUrl && (
-                        <button
-                          type="button"
-                          className="btn-ghost btn-small profile-photo-remove-btn"
-                          onClick={handlePhotoRemove}
-                          disabled={uploadingPhoto}
-                          title="Remove current photo"
-                        >
-                          <Trash2 size={13} />
-                          <span>Remove</span>
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-                <div className="manager-profile-facts">
-                  <div><span>Name</span><strong>{profileManager?.name}</strong></div>
-                  <div><span>Email</span><strong>{profileManager?.email}</strong></div>
-                  <div><span>Phone</span><strong>{profileManager?.phone || 'Not set'}</strong></div>
-                  <div><span>Employee ID</span><strong>{profileManager?.employeeId || 'Not set'}</strong></div>
-                  <div><span>Designation</span><strong>{profileManager?.designation || profileManager?.role}</strong></div>
-                  <div><span>Joining date</span><strong>{profileManager?.joiningDate ? new Date(profileManager.joiningDate).toLocaleDateString() : 'Not set'}</strong></div>
-                  <div><span>Department</span><strong>{profile?.department?.name || profileManager?.department || 'Not assigned'}{profile?.department?.code ? ` · ${profile.department.code}` : ''}</strong></div>
-                  <div><span>Department head</span><strong>{profile?.departmentHead?.name || 'Not assigned'}</strong></div>
-                  <div><span>Reporting authority</span><strong>{profile?.reportingAuthority?.name || 'Not assigned'}</strong></div>
-                  <div><span>Assigned teams</span><strong>{profile?.teams?.join(', ') || 'No teams assigned'}</strong></div>
-                  <div className="manager-responsibilities"><span>Responsibilities</span><strong>{profileManager?.responsibilities || 'No responsibilities recorded'}</strong></div>
-                </div>
-                <form className="manager-profile-edit-form" onSubmit={saveProfile}>
-                  <label>First name<input value={profileForm.firstName} onChange={(event) => setProfileForm({ ...profileForm, firstName: event.target.value })} required /></label>
-                  <label>Last name<input value={profileForm.lastName} onChange={(event) => setProfileForm({ ...profileForm, lastName: event.target.value })} /></label>
-                  <label>Phone<input type="tel" value={profileForm.phone} onChange={(event) => setProfileForm({ ...profileForm, phone: event.target.value })} /></label>
-                  <button className="btn-primary btn-small" disabled={busy}>Save permitted details</button>
-                </form>
-              </section>
-
-              <section className="admin-overview-panel">
-                <header><h3>Security</h3><span>Change your account password</span></header>
-                <form className="manager-profile-edit-form" onSubmit={savePassword}>
-                  <label>Current password<input type="password" autoComplete="current-password" value={passwordForm.currentPassword} onChange={(event) => setPasswordForm({ ...passwordForm, currentPassword: event.target.value })} required /></label>
-                  <label>New password<input type="password" autoComplete="new-password" minLength={8} value={passwordForm.newPassword} onChange={(event) => setPasswordForm({ ...passwordForm, newPassword: event.target.value })} required /></label>
-                  <button className="btn-primary btn-small" disabled={busy}><KeyRound size={14} />Change password</button>
-                </form>
-                <hr />
-                <h3>Request a restricted profile change</h3>
-                <form className="manager-profile-edit-form" onSubmit={submitRestrictedChange}>
-                  <label>
-                    Field
-                    <select value={changeForm.field} onChange={(event) => setChangeForm({ ...changeForm, field: event.target.value })}>
-                      <option value="email">Email</option>
-                      <option value="employeeId">Employee ID</option>
-                      <option value="designation">Designation</option>
-                      <option value="department">Department</option>
-                      <option value="team">Team</option>
-                      <option value="manager">Reporting authority</option>
-                      <option value="joiningDate">Joining date</option>
-                    </select>
-                  </label>
-                  <label>Requested value<input type={changeForm.field === 'joiningDate' ? 'date' : 'text'} value={changeForm.requestedValue} onChange={(event) => setChangeForm({ ...changeForm, requestedValue: event.target.value })} required /></label>
-                  <label>Reason<textarea rows={2} value={changeForm.reason} onChange={(event) => setChangeForm({ ...changeForm, reason: event.target.value })} /></label>
-                  <button className="btn-ghost btn-small" disabled={busy}>Send request to Admin</button>
-                </form>
-                <h3>My change requests</h3>
-                {profile.changeRequests?.map((request) => (
-                  <div className="profile-change-status" key={request._id}>
-                    <span>{request.field}: {request.currentValue || '—'} → {request.requestedValue}</span>
-                    <strong>{request.status}</strong>
-                  </div>
-                ))}
-              </section>
-            </div>
-          )}
-        </>
+        <SettingsView user={user} onUserUpdated={updateUser} />
       )}
 
       {/* VIEW: MY ATTENDANCE */}

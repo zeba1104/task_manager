@@ -2,12 +2,6 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import axios, { FILE_BASE_URL } from '../api/axios';
 import {
   getEmployeeDashboard,
-  getEmployeeProfile,
-  updatePermittedProfile,
-  changeEmployeePassword,
-  requestProfileChange,
-  uploadProfilePicture,
-  deleteProfilePicture,
   getMyProjects,
   getProjectDetails,
   uploadProjectDocument,
@@ -33,6 +27,7 @@ import AnnouncementsPage from './AnnouncementsPage';
 import ChatPage from './ChatPage';
 import HolidayCalendar from './HolidayCalendar';
 import EmployeeSalaryPortal from './payroll/EmployeeSalaryPortal';
+import SettingsView from './SettingsView';
 import { getMyPayrolls } from '../api/payrollApi';
 import {
   Calendar,
@@ -52,11 +47,9 @@ import {
   Download,
   MessageSquare,
   Paperclip,
-  ShieldAlert,
   FileText,
   Megaphone,
   Send,
-  KeyRound,
   RotateCcw,
   Flag,
   CalendarDays,
@@ -66,8 +59,6 @@ import {
   Check,
   History,
   RefreshCw,
-  Camera,
-  Trash2,
   LogIn,
   LogOut,
   Palmtree,
@@ -183,7 +174,6 @@ export default function EmployeeDashboard({ user, logout, setView, activeTab, on
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
   // Leave Management State (Employee)
   const [leaveModalOpen, setLeaveModalOpen] = useState(false);
@@ -301,12 +291,6 @@ export default function EmployeeDashboard({ user, logout, setView, activeTab, on
   };
 
   // Profile Form State
-  const [profileData, setProfileData] = useState(null);
-  const [profileForm, setProfileForm] = useState({ firstName: '', lastName: '', phone: '' });
-  const [passwordForm, setPasswordForm] = useState({ currentPassword: '', newPassword: '' });
-  const [changeForm, setChangeForm] = useState({ field: 'department', requestedValue: '', reason: '' });
-  const [profileBusy, setProfileBusy] = useState(false);
-
   // Projects State
   const [projectsList, setProjectsList] = useState([]);
   const [projectSearch, setProjectSearch] = useState('');
@@ -354,19 +338,9 @@ export default function EmployeeDashboard({ user, logout, setView, activeTab, on
     loadDashboard();
   }, [loadDashboard]);
 
-  // Load Profile when tab changes
+  // Load data when tab changes
   useEffect(() => {
-    if (tab === 'profile') {
-      getEmployeeProfile().then((res) => {
-        setProfileData(res.data);
-        const nameParts = String(res.data.user.name || '').trim().split(/\s+/);
-        setProfileForm({
-          firstName: res.data.user.firstName || nameParts[0] || '',
-          lastName: res.data.user.lastName || nameParts.slice(1).join(' ') || '',
-          phone: res.data.user.phone || '',
-        });
-      }).catch(() => {});
-    } else if (tab === 'projects') {
+    if (tab === 'projects') {
       getMyProjects().then((res) => setProjectsList(res.data)).catch(() => {});
     } else if (tab === 'tasks') {
       getMyTasks().then((res) => setTasksList(res.data)).catch(() => {});
@@ -533,142 +507,6 @@ export default function EmployeeDashboard({ user, logout, setView, activeTab, on
       await loadDashboard();
     } catch (err) {
       Swal.fire({ title: 'Error', text: err.response?.data?.message || 'Could not cancel leave request.', icon: 'error' });
-    }
-  };
-
-  // Profile: Save Permitted Info
-  const handleSavePermittedProfile = async (e) => {
-    e.preventDefault();
-    setProfileBusy(true);
-    try {
-      await updatePermittedProfile(profileForm);
-      Swal.fire({ title: 'Profile Updated', icon: 'success', timer: 1600, showConfirmButton: false });
-      const res = await getEmployeeProfile();
-      setProfileData(res.data);
-    } catch (err) {
-      Swal.fire({ title: 'Error', text: err.response?.data?.message || 'Could not update profile', icon: 'error' });
-    } finally {
-      setProfileBusy(false);
-    }
-  };
-
-  const handlePhotoUpload = async (event) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
-      Swal.fire({ title: 'Invalid Image', text: 'Please select a JPG, PNG, or WebP image.', icon: 'error' });
-      return;
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      Swal.fire({ title: 'File Too Large', text: 'Profile picture must be 5MB or smaller.', icon: 'error' });
-      return;
-    }
-
-    const targetId = profileData?.user?._id || user?._id;
-    if (!targetId) return;
-
-    setUploadingPhoto(true);
-    const formData = new FormData();
-    formData.append('picture', file);
-
-    try {
-      const res = await uploadProfilePicture(targetId, formData);
-      const newPic = res.data?.profilePicture;
-      setProfileData((prev) => (prev ? {
-        ...prev,
-        user: { ...prev.user, profilePicture: newPic },
-      } : prev));
-      if (updateUser) updateUser({ profilePicture: newPic });
-      Swal.fire({
-        title: 'Profile Photo Updated',
-        text: 'Your new profile picture has been saved successfully.',
-        icon: 'success',
-        timer: 1600,
-        showConfirmButton: false,
-      });
-    } catch (err) {
-      Swal.fire({
-        title: 'Upload Failed',
-        text: err.response?.data?.message || 'Could not upload profile picture.',
-        icon: 'error',
-      });
-    } finally {
-      setUploadingPhoto(false);
-      event.target.value = '';
-    }
-  };
-
-  const handlePhotoRemove = async () => {
-    const targetId = profileData?.user?._id || user?._id;
-    if (!targetId) return;
-
-    const result = await Swal.fire({
-      title: 'Remove Profile Photo?',
-      text: 'Are you sure you want to remove your photo? Your name initials will be displayed instead.',
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonText: 'Yes, remove photo',
-      cancelButtonText: 'Cancel',
-      confirmButtonColor: '#ef4444',
-    });
-    if (!result.isConfirmed) return;
-
-    setUploadingPhoto(true);
-    try {
-      await deleteProfilePicture(targetId);
-      setProfileData((prev) => (prev ? {
-        ...prev,
-        user: { ...prev.user, profilePicture: null },
-      } : prev));
-      if (updateUser) updateUser({ profilePicture: null });
-      Swal.fire({
-        title: 'Photo Removed',
-        text: 'Your profile picture has been removed.',
-        icon: 'success',
-        timer: 1600,
-        showConfirmButton: false,
-      });
-    } catch (err) {
-      Swal.fire({
-        title: 'Error',
-        text: err.response?.data?.message || 'Could not remove profile picture.',
-        icon: 'error',
-      });
-    } finally {
-      setUploadingPhoto(false);
-    }
-  };
-
-  // Profile: Change Password
-  const handleChangePassword = async (e) => {
-    e.preventDefault();
-    setProfileBusy(true);
-    try {
-      await changeEmployeePassword(passwordForm);
-      setPasswordForm({ currentPassword: '', newPassword: '' });
-      Swal.fire({ title: 'Password Changed', text: 'Your password was changed successfully.', icon: 'success', timer: 1800, showConfirmButton: false });
-    } catch (err) {
-      Swal.fire({ title: 'Error', text: err.response?.data?.message || 'Could not change password', icon: 'error' });
-    } finally {
-      setProfileBusy(false);
-    }
-  };
-
-  // Profile: Request Restricted Change
-  const handleRequestProfileChange = async (e) => {
-    e.preventDefault();
-    setProfileBusy(true);
-    try {
-      await requestProfileChange(changeForm);
-      setChangeForm({ ...changeForm, requestedValue: '', reason: '' });
-      Swal.fire({ title: 'Request Sent', text: 'Profile change request sent to Admin for review.', icon: 'success', timer: 1800, showConfirmButton: false });
-      const res = await getEmployeeProfile();
-      setProfileData(res.data);
-    } catch (err) {
-      Swal.fire({ title: 'Error', text: err.response?.data?.message || 'Could not submit request', icon: 'error' });
-    } finally {
-      setProfileBusy(false);
     }
   };
 
@@ -926,7 +764,7 @@ export default function EmployeeDashboard({ user, logout, setView, activeTab, on
   return (
     <div className="dashboard-page employee-dashboard">
       {/* Clean Page Title Row (Announcements & Chat have their own dedicated rich headers) */}
-      {tab !== 'announcements' && tab !== 'chat' && tab !== 'holidays' && (
+      {tab !== 'announcements' && tab !== 'chat' && tab !== 'holidays' && tab !== 'profile' && (
         <div className="page-header-row">
           <div className="page-header-info">
             <div className="page-title-icon-box">
@@ -1767,244 +1605,10 @@ export default function EmployeeDashboard({ user, logout, setView, activeTab, on
       )}
 
       {/* =========================================================================
-          TAB 2: 1.2 MY PROFILE & DEPARTMENT INFORMATION
+          TAB 2: 1.2 MY PROFILE & DEPARTMENT INFORMATION (SETTINGS)
          ========================================================================= */}
-      {tab === 'profile' && profileData && (
-        <div className="employee-profile-view">
-          <div className="manager-scope-banner">
-            <ShieldAlert size={18} className="text-blue-500" />
-            <div>
-              <strong>Organizational Record:</strong> Your official department, designation, employee ID, team, and reporting manager are configured and managed by the Admin. You can update permitted personal contact information directly or submit a formal change request to Admin for review.
-            </div>
-          </div>
-
-          <div className="employee-profile-layout">
-            {/* Left: Professional & Department Details */}
-            <section className="emp-panel profile-details-panel">
-              <header>
-                <h3>Professional &amp; Department Details</h3>
-                <span className={`status-badge status-${profileData.employmentStatus?.toLowerCase()}`}>
-                  {profileData.employmentStatus}
-                </span>
-              </header>
-
-              <div className="profile-identity-strip">
-                <div className="profile-avatar-wrapper">
-                  <UserAvatar user={profileData.user} className="emp-avatar-large" />
-                  <label className="profile-avatar-badge" title="Change profile photo">
-                    <Camera size={13} />
-                    <input
-                      type="file"
-                      accept="image/png,image/jpeg,image/webp"
-                      style={{ display: 'none' }}
-                      onChange={handlePhotoUpload}
-                      disabled={uploadingPhoto}
-                    />
-                  </label>
-                </div>
-                <div className="profile-identity-content">
-                  <h3>{profileData.user?.name}</h3>
-                  <p className="text-muted">{profileData.user?.designation || 'Team Member'} · {profileData.department?.name || profileData.user?.department}</p>
-                  <div className="profile-photo-actions-row">
-                    <label className="btn-secondary btn-small profile-photo-btn" style={{ cursor: uploadingPhoto ? 'not-allowed' : 'pointer' }}>
-                      <Camera size={13} />
-                      <span>{uploadingPhoto ? 'Uploading...' : profileData.user?.profilePicture ? 'Change Photo' : 'Upload Photo'}</span>
-                      <input
-                        type="file"
-                        accept="image/png,image/jpeg,image/webp"
-                        style={{ display: 'none' }}
-                        onChange={handlePhotoUpload}
-                        disabled={uploadingPhoto}
-                      />
-                    </label>
-                    {profileData.user?.profilePicture && (
-                      <button
-                        type="button"
-                        className="btn-ghost btn-small profile-photo-remove-btn"
-                        onClick={handlePhotoRemove}
-                        disabled={uploadingPhoto}
-                        title="Remove current photo"
-                      >
-                        <Trash2 size={13} />
-                        <span>Remove</span>
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              <div className="manager-profile-facts">
-                <div><span>Employee ID</span><strong>{profileData.user?.employeeId || 'Not set'}</strong></div>
-                <div><span>Email Address</span><strong>{profileData.user?.email}</strong></div>
-                <div><span>Phone</span><strong>{profileData.user?.phone || 'Not provided'}</strong></div>
-                <div><span>Designation</span><strong>{profileData.user?.designation || 'Employee'}</strong></div>
-                <div><span>Department</span><strong>{profileData.department?.name || profileData.user?.department} ({profileData.department?.code || 'GEN'})</strong></div>
-                <div><span>Assigned Team</span><strong>{profileData.user?.team || 'General Team'}</strong></div>
-                <div><span>Joining Date</span><strong>{profileData.user?.joiningDate ? new Date(profileData.user.joiningDate).toLocaleDateString() : 'Not set'}</strong></div>
-                <div><span>Reporting Manager</span><strong>{profileData.user?.manager?.name || 'Department Head'}</strong></div>
-                <div><span>Employment Status</span><strong>{profileData.employmentStatus}</strong></div>
-                <div className="manager-responsibilities">
-                  <span>Assigned Responsibilities</span>
-                  <strong>{profileData.user?.responsibilities || 'No specific responsibilities logged.'}</strong>
-                </div>
-              </div>
-
-              {/* Team Members List */}
-              <div className="team-members-colleagues">
-                <h4>Team Colleagues ({profileData.teamMembers?.length || 0})</h4>
-                {profileData.teamMembers?.length === 0 ? (
-                  <p className="text-muted">No other team members assigned yet.</p>
-                ) : (
-                  <div className="colleagues-grid">
-                    {profileData.teamMembers.map((member) => (
-                      <div key={member._id} className="colleague-card">
-                        <UserAvatar user={member} className="emp-avatar-small" />
-                        <div>
-                          <strong>{member.name}</strong>
-                          <small>{member.designation || 'Member'}</small>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </section>
-
-            {/* Right: Update Permitted Info & Change Password & Restricted Requests */}
-            <div className="profile-actions-stack">
-              {/* Permitted Info Edit Form */}
-              <section className="emp-panel">
-                <header>
-                  <h3>Update Personal Details</h3>
-                  <span>Permitted updates save instantly</span>
-                </header>
-                <form onSubmit={handleSavePermittedProfile} className="profile-edit-form">
-                  <label>
-                    First Name
-                    <input
-                      type="text"
-                      value={profileForm.firstName}
-                      onChange={(e) => setProfileForm({ ...profileForm, firstName: e.target.value })}
-                      required
-                    />
-                  </label>
-                  <label>
-                    Last Name
-                    <input
-                      type="text"
-                      value={profileForm.lastName}
-                      onChange={(e) => setProfileForm({ ...profileForm, lastName: e.target.value })}
-                    />
-                  </label>
-                  <label>
-                    Phone Number
-                    <input
-                      type="tel"
-                      value={profileForm.phone}
-                      onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })}
-                      placeholder="+1 555-0199"
-                    />
-                  </label>
-                  <button type="submit" className="btn-primary btn-small" disabled={profileBusy}>
-                    {profileBusy ? 'Saving...' : 'Save Personal Details'}
-                  </button>
-                </form>
-              </section>
-
-              {/* Change Password */}
-              <section className="emp-panel">
-                <header>
-                  <h3>Change Password</h3>
-                  <span>Security</span>
-                </header>
-                <form onSubmit={handleChangePassword} className="profile-edit-form">
-                  <label>
-                    Current Password
-                    <input
-                      type="password"
-                      autoComplete="current-password"
-                      value={passwordForm.currentPassword}
-                      onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
-                      required
-                    />
-                  </label>
-                  <label>
-                    New Password (min 8 characters)
-                    <input
-                      type="password"
-                      autoComplete="new-password"
-                      minLength={8}
-                      value={passwordForm.newPassword}
-                      onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
-                      required
-                    />
-                  </label>
-                  <button type="submit" className="btn-primary btn-small" disabled={profileBusy}>
-                    <KeyRound size={14} /> Change Password
-                  </button>
-                </form>
-              </section>
-
-              {/* Request Restricted Profile Changes */}
-              <section className="emp-panel">
-                <header>
-                  <h3>Request Profile Change</h3>
-                  <span>Admin review required</span>
-                </header>
-                <form onSubmit={handleRequestProfileChange} className="profile-edit-form">
-                  <label>
-                    Restricted Field
-                    <select
-                      value={changeForm.field}
-                      onChange={(e) => setChangeForm({ ...changeForm, field: e.target.value })}
-                    >
-                      <option value="department">Department</option>
-                      <option value="designation">Designation</option>
-                      <option value="employeeId">Employee ID</option>
-                      <option value="team">Assigned Team</option>
-                      <option value="manager">Reporting Manager</option>
-                      <option value="joiningDate">Joining Date</option>
-                    </select>
-                  </label>
-                  <label>
-                    Requested Value *
-                    <input
-                      type={changeForm.field === 'joiningDate' ? 'date' : 'text'}
-                      value={changeForm.requestedValue}
-                      onChange={(e) => setChangeForm({ ...changeForm, requestedValue: e.target.value })}
-                      placeholder="Enter new desired value..."
-                      required
-                    />
-                  </label>
-                  <label>
-                    Reason &amp; Justification
-                    <textarea
-                      rows={2}
-                      value={changeForm.reason}
-                      onChange={(e) => setChangeForm({ ...changeForm, reason: e.target.value })}
-                      placeholder="Explain reason for requested adjustment..."
-                    />
-                  </label>
-                  <button type="submit" className="btn-ghost btn-small" disabled={profileBusy}>
-                    Submit Request to Admin
-                  </button>
-                </form>
-
-                {profileData.changeRequests?.length > 0 && (
-                  <div className="past-change-requests-list">
-                    <h5>Submitted Requests ({profileData.changeRequests.length})</h5>
-                    {profileData.changeRequests.map((req) => (
-                      <div key={req._id} className="change-req-row">
-                        <span>{req.field}: {req.currentValue || '—'} → {req.requestedValue}</span>
-                        <strong className={`status-badge status-${req.status}`}>{req.status}</strong>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </section>
-            </div>
-          </div>
-        </div>
+      {tab === 'profile' && (
+        <SettingsView user={user} onUserUpdated={updateUser} />
       )}
 
       {/* =========================================================================
