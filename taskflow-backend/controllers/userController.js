@@ -569,10 +569,10 @@ exports.getRecentNotifications = async (req, res) => {
             recentPayrolls.forEach((p) => {
                 if (p.status === 'Paid') {
                     notifications.push({
-                        _id: `admin_pay_paid_${p._id}`,
-                        title: '💰 Salary Disbursed via Razorpay',
-                        message: `Payment of ₹${Number(p.netSalary).toLocaleString('en-IN')} for ${p.employee?.name || 'Employee'} (${p.periodLabel}) was successfully credited via Razorpay.${p.payout?.utr ? ` UTR: ${p.payout.utr}` : ''}`,
-                        type: 'payment_credited',
+                        _id: `admin_pay_debited_${p._id}`,
+                        title: `💸 ₹${Number(p.netSalary).toLocaleString('en-IN')} Debited via Razorpay`,
+                        message: `Payment of ₹${Number(p.netSalary).toLocaleString('en-IN')} for ${p.employee?.name || 'Employee'} (${p.periodLabel}) was successfully debited from company account via Razorpay.${p.payout?.utr ? ` UTR: ${p.payout.utr}` : ''}`,
+                        type: 'payment_debited',
                         priority: 'High',
                         isRead: false,
                         createdAt: p.payout?.processedAt || p.updatedAt || p.createdAt,
@@ -581,8 +581,8 @@ exports.getRecentNotifications = async (req, res) => {
                 } else if (p.status === 'Manager_Approved') {
                     notifications.push({
                         _id: `admin_pay_mgrappr_${p._id}`,
-                        title: 'Manager Approved Payroll',
-                        message: `${p.manager?.name || 'Manager'} verified and approved ${p.periodLabel} salary calculation for ${p.employee?.name || 'Employee'} (₹${Number(p.netSalary).toLocaleString('en-IN')}). Ready for Admin sign-off.`,
+                        title: 'Manager Confirmed Payment Calculation',
+                        message: `${p.manager?.name || 'Manager'} verified and confirmed payment calculation for ${p.employee?.name || 'Employee'} (${p.periodLabel}, ₹${Number(p.netSalary).toLocaleString('en-IN')}). Ready for Admin sign-off.`,
                         type: 'payroll_approval',
                         priority: 'Medium',
                         isRead: false,
@@ -592,8 +592,8 @@ exports.getRecentNotifications = async (req, res) => {
                 } else if (p.status === 'Ready_for_Payment') {
                     notifications.push({
                         _id: `admin_pay_ready_${p._id}`,
-                        title: 'Salary Ready for Disbursement',
-                        message: `Salary for ${p.employee?.name || 'Employee'} (${p.periodLabel}, ₹${Number(p.netSalary).toLocaleString('en-IN')}) is approved and waiting for Razorpay payout.`,
+                        title: 'Payment Confirmed by Admin - Ready for Razorpay',
+                        message: `Payment for ${p.employee?.name || 'Employee'} (${p.periodLabel}, ₹${Number(p.netSalary).toLocaleString('en-IN')}) is confirmed by Admin and awaiting payout.`,
                         type: 'payroll_ready',
                         priority: 'High',
                         isRead: false,
@@ -817,7 +817,7 @@ exports.getRecentNotifications = async (req, res) => {
                     notifications.push({
                         _id: `emp_salary_paid_${p._id}`,
                         title: '🎉 Salary Credited via Razorpay',
-                        message: `₹${Number(p.netSalary).toLocaleString('en-IN')} for ${p.periodLabel} has been successfully credited to your bank account via Razorpay.${p.payout?.utr ? ` UTR: ${p.payout.utr}` : ''}`,
+                        message: `Your payment of ₹${Number(p.netSalary).toLocaleString('en-IN')} for ${p.periodLabel} has been successfully credited to your bank account via Razorpay.${p.payout?.utr ? ` Ref / UTR: ${p.payout.utr}` : ''}`,
                         type: 'payment_credited',
                         priority: 'High',
                         isRead: false,
@@ -827,8 +827,8 @@ exports.getRecentNotifications = async (req, res) => {
                 } else if (p.status === 'Ready_for_Payment') {
                     notifications.push({
                         _id: `emp_salary_adminappr_${p._id}`,
-                        title: 'Salary Approved by Admin',
-                        message: `Executive Administration approved your ${p.periodLabel} salary (₹${Number(p.netSalary).toLocaleString('en-IN')}). Queued for disbursement.`,
+                        title: 'Payment Confirmed with Admin',
+                        message: `Your payment is being confirmed with the Admin for ${p.periodLabel} (₹${Number(p.netSalary).toLocaleString('en-IN')}). It is scheduled for Razorpay bank disbursement.`,
                         type: 'payroll_approval',
                         priority: 'High',
                         isRead: false,
@@ -838,10 +838,10 @@ exports.getRecentNotifications = async (req, res) => {
                 } else if (p.status === 'Manager_Approved') {
                     notifications.push({
                         _id: `emp_salary_mgrappr_${p._id}`,
-                        title: 'Salary Approved by Manager',
-                        message: `Your reporting manager (${p.manager?.name || 'Manager'}) approved your ${p.periodLabel} salary calculation (₹${Number(p.netSalary).toLocaleString('en-IN')}). Forwarded to Admin for final sign-off.`,
+                        title: 'Payment Confirmed with Your Manager',
+                        message: `Your payment is confirmed with your manager (${p.manager?.name || 'Manager'}) for ${p.periodLabel} (₹${Number(p.netSalary).toLocaleString('en-IN')}) and forwarded to Admin for final approval.`,
                         type: 'payroll_approval',
-                        priority: 'Low',
+                        priority: 'Medium',
                         isRead: false,
                         createdAt: p.managerReview?.reviewedAt || p.updatedAt || p.createdAt,
                         link: '/dashboard?view=employee-salary'

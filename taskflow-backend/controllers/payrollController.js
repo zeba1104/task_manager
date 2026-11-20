@@ -603,8 +603,8 @@ exports.managerReviewPayroll = async (req, res) => {
       try {
         const AdminNotification = require('../models/AdminNotification');
         await AdminNotification.create({
-          title: 'Manager Approved Payroll',
-          message: `${managerUser?.name || 'Manager'} verified and approved ${payroll.periodLabel} salary calculation for ${payroll.employee?.name || 'Employee'} (₹${Number(payroll.netSalary).toLocaleString('en-IN')}). Ready for Admin sign-off.`,
+          title: 'Manager Confirmed Payment Calculation',
+          message: `${managerUser?.name || 'Manager'} confirmed payment calculation for ${payroll.employee?.name || 'Employee'} (${payroll.periodLabel}, ₹${Number(payroll.netSalary).toLocaleString('en-IN')}). Ready for Admin sign-off.`,
           type: 'general',
           priority: 'Medium',
           sender: req.userId,
@@ -740,8 +740,8 @@ exports.adminReviewPayroll = async (req, res) => {
       try {
         const AdminNotification = require('../models/AdminNotification');
         await AdminNotification.create({
-          title: 'Salary Approved for Disbursement',
-          message: `Salary for ${payroll.employee?.name || 'Employee'} (${payroll.periodLabel}, ₹${Number(payroll.netSalary).toLocaleString('en-IN')}) has been approved and is Ready for Payment via Razorpay.`,
+          title: 'Payment Confirmed by Admin',
+          message: `Payment for ${payroll.employee?.name || 'Employee'} (${payroll.periodLabel}, ₹${Number(payroll.netSalary).toLocaleString('en-IN')}) has been confirmed by Admin and is Ready for Razorpay Payout.`,
           type: 'general',
           priority: 'High',
           sender: req.userId,
@@ -900,8 +900,8 @@ exports.initiatePayout = async (req, res) => {
       try {
         const AdminNotification = require('../models/AdminNotification');
         await AdminNotification.create({
-          title: '💰 Salary Disbursed via Razorpay',
-          message: `Payment of ₹${Number(payroll.netSalary).toLocaleString('en-IN')} for ${payroll.employee?.name || 'Employee'} (${payroll.periodLabel}) was successfully credited via Razorpay.${payroll.payout?.utr ? ` UTR: ${payroll.payout.utr}` : ''}`,
+          title: `💸 ₹${Number(payroll.netSalary).toLocaleString('en-IN')} Debited via Razorpay`,
+          message: `Payment of ₹${Number(payroll.netSalary).toLocaleString('en-IN')} for ${payroll.employee?.name || 'Employee'} (${payroll.periodLabel}) was successfully debited from company account via Razorpay.${payroll.payout?.utr ? ` UTR: ${payroll.payout.utr}` : ''}`,
           type: 'general',
           priority: 'High',
           sender: req.userId,
@@ -1324,8 +1324,8 @@ exports.verifyRazorpayPayment = async (req, res) => {
     try {
       const AdminNotification = require('../models/AdminNotification');
       await AdminNotification.create({
-        title: '💰 Salary Disbursed via Razorpay',
-        message: `Payment of ₹${Number(payroll.netSalary).toLocaleString('en-IN')} for ${payroll.employee?.name || 'Employee'} (${payroll.periodLabel}) was successfully credited via Razorpay.${payroll.payout?.utr ? ` UTR: ${payroll.payout.utr}` : ''}`,
+        title: `💸 ₹${Number(payroll.netSalary).toLocaleString('en-IN')} Debited via Razorpay`,
+        message: `Payment of ₹${Number(payroll.netSalary).toLocaleString('en-IN')} for ${payroll.employee?.name || 'Employee'} (${payroll.periodLabel}) was successfully debited from company account via Razorpay.${payroll.payout?.utr ? ` UTR: ${payroll.payout.utr}` : ''}`,
         type: 'general',
         priority: 'High',
         sender: req.userId,
@@ -1469,8 +1469,8 @@ exports.batchVerifyRazorpayPayment = async (req, res) => {
       const AdminNotification = require('../models/AdminNotification');
       const totalNet = pendingPayrolls.reduce((sum, p) => sum + Number(p.netSalary || 0), 0);
       await AdminNotification.create({
-        title: '💰 Batch Salary Disbursed via Razorpay',
-        message: `Batch payout of ₹${totalNet.toLocaleString('en-IN')} for ${pendingPayrolls.length} team members (${MONTH_NAMES[targetMonth - 1]} ${targetYear}) was successfully credited via Razorpay. Payment ID: ${razorpay_payment_id}`,
+        title: `💸 ₹${totalNet.toLocaleString('en-IN')} Batch Debited via Razorpay`,
+        message: `Batch payout of ₹${totalNet.toLocaleString('en-IN')} for ${pendingPayrolls.length} team members (${MONTH_NAMES[targetMonth - 1]} ${targetYear}) was successfully debited from company account via Razorpay. Payment ID: ${razorpay_payment_id}`,
         type: 'general',
         priority: 'High',
         sender: req.userId,

@@ -256,18 +256,18 @@ export default function AdminPayrollManager({ user }) {
             });
 
             Swal.fire({
-              title: 'Payment Captured Successfully!',
+              title: '💸 Payment Debited & Disbursed Successfully!',
               html: `
                 <div style="text-align: center; font-size: 13.5px; line-height: 1.6;">
                   <p style="color: #059669; font-weight: 700; font-size: 15px; margin-bottom: 8px;">
-                    ✓ Authentic Razorpay Test Mode Payment Captured
+                    ✓ ₹${Number(payroll.netSalary).toLocaleString('en-IN')} Debited via Razorpay Test Mode
                   </p>
-                  <p>Disbursed <strong>₹${Number(payroll.netSalary).toLocaleString('en-IN')}</strong> to <strong>${employeeName}</strong>.</p>
+                  <p>Amount debited from company account and credited to <strong>${employeeName}</strong>.</p>
                   <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; margin-top: 14px; font-family: monospace; text-align: left; font-size: 12px; line-height: 1.7;">
                     <div><span style="color: #64748b;">Payment ID:</span> <strong style="color: #1e293b;">${response.razorpay_payment_id}</strong></div>
                     <div><span style="color: #64748b;">Order ID:</span> <strong style="color: #1e293b;">${response.razorpay_order_id}</strong></div>
                     <div><span style="color: #64748b;">Generated UTR:</span> <strong style="color: #059669;">RZP${response.razorpay_payment_id.slice(-8).toUpperCase()}</strong></div>
-                    <div><span style="color: #64748b;">Status:</span> <strong style="color: #059669;">Captured (Visible in Razorpay Dashboard)</strong></div>
+                    <div><span style="color: #64748b;">Disbursement Notice:</span> <strong style="color: #059669;">Credited confirmation sent to ${employeeName}</strong></div>
                   </div>
                 </div>
               `,
@@ -442,15 +442,16 @@ export default function AdminPayrollManager({ user }) {
               });
 
               Swal.fire({
-                title: 'Batch Disbursement Complete!',
+                title: '💸 Batch Payment Debited & Completed!',
                 html: `
                   <div style="text-align: center; font-size: 13.5px; line-height: 1.6;">
-                    <p style="color: #059669; font-weight: 700; font-size: 15px;">✓ All ${readyPayrolls.length} Salaries Paid via Razorpay Test Mode</p>
-                    <p>Total Disbursed: <strong>₹${totalBatchAmount.toLocaleString('en-IN')}</strong></p>
+                    <p style="color: #059669; font-weight: 700; font-size: 15px;">✓ Total ₹${totalBatchAmount.toLocaleString('en-IN')} Debited via Razorpay Test Mode</p>
+                    <p>All ${readyPayrolls.length} employee accounts credited successfully.</p>
                     <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin-top: 10px; font-family: monospace; text-align: left; font-size: 12px;">
                       <div><strong>Payment ID:</strong> ${response.razorpay_payment_id}</div>
                       <div><strong>Order ID:</strong> ${response.razorpay_order_id}</div>
-                      <div><strong>Status:</strong> Captured in Razorpay Dashboard</div>
+                      <div><strong>Debited Notice:</strong> Debited notice logged for Admin</div>
+                      <div><strong>Credited Notice:</strong> Credited alerts dispatched to team members</div>
                     </div>
                   </div>
                 `,

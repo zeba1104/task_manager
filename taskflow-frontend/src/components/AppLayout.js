@@ -21,6 +21,7 @@ import {
   X,
   Landmark,
   CheckCircle2,
+  CreditCard,
 } from 'lucide-react';
 import axios from '../api/axios';
 import Sidebar from './Sidebar';
@@ -182,7 +183,7 @@ function AppLayout({
       if (user?.role === 'Employee') onNavigate({ view: 'employee', tab: 'tasks' });
       else if (user?.role === 'Manager') onNavigate({ view: 'tasks' });
       else onNavigate({ view: 'tasks' });
-    } else if (notif.type === 'payment_credited' || notif.type === 'payroll_approval' || notif.type === 'payroll_ready') {
+    } else if (notif.type === 'payment_debited' || notif.type === 'payment_credited' || notif.type === 'payroll_approval' || notif.type === 'payroll_ready') {
       if (user?.role === 'Admin') onNavigate({ view: 'payroll' });
       else if (user?.role === 'Manager') {
         if (notif._id && String(notif._id).startsWith('mgr_own_')) {
@@ -676,7 +677,8 @@ function AppLayout({
                           tabIndex={0}
                         >
                           <div className="notif-item-icon-box">
-                            {n.type === 'payment_credited' ? <CheckCircle2 size={14} className="text-emerald" /> :
+                            {n.type === 'payment_debited' ? <CreditCard size={14} className="text-amber" /> :
+                             n.type === 'payment_credited' ? <CheckCircle2 size={14} className="text-emerald" /> :
                              n.type === 'payroll_approval' || n.type === 'payroll_ready' ? <Landmark size={14} className="text-blue" /> :
                              n.type === 'revision' ? <AlertTriangle size={14} className="text-red" /> :
                              n.type === 'leave' ? <CalendarDays size={14} className="text-purple" /> :
