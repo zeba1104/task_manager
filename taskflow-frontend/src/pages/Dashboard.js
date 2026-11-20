@@ -21,7 +21,7 @@ import ManagerPayrollReview from '../components/payroll/ManagerPayrollReview';
 import EmployeeSalaryPortal from '../components/payroll/EmployeeSalaryPortal';
 import Swal from '../utils/swalConfig';
 import { getProjects } from '../api/adminApi';
-import { Calendar, Search, X } from 'lucide-react';
+import { Calendar, Search, X, CheckSquare } from 'lucide-react';
 
 const boardColumns = [
   { status: 'pending', title: 'To Do' },
@@ -275,10 +275,18 @@ function Dashboard() {
         <EmployeeDashboard user={user} logout={logout} setView={setView} activeTab={employeeTab} onTabChange={setEmployeeTab} />
       ) : (
       <div className="dashboard-page task-board-page">
-        {/* Clean Page Title Row matching Image 2 */}
+        {/* Signature Page Header Row */}
         <div className="page-header-row">
-          <div>
-            <h2 className="page-main-title">Task Management Board</h2>
+          <div className="page-header-info">
+            <div className="page-title-icon-box">
+              <CheckSquare size={22} />
+            </div>
+            <div>
+              <h2 className="page-main-title">Task Management Board</h2>
+              <p className="page-subtitle">
+                Organize, prioritize, and track tasks across To Do, In Progress, Review, and Completed stages.
+              </p>
+            </div>
           </div>
           <div className="page-header-actions">
             <span className="header-date-badge">

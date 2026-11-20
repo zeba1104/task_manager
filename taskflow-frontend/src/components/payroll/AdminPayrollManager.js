@@ -536,6 +536,26 @@ export default function AdminPayrollManager({ user }) {
 
   return (
     <div className="payroll-page-container">
+      {/* Signature Page Header Row */}
+      <div className="page-header-row">
+        <div className="page-header-info">
+          <div className="page-title-icon-box">
+            <Landmark size={22} />
+          </div>
+          <div>
+            <h2 className="page-main-title">Salary &amp; Payroll Management</h2>
+            <p className="page-subtitle">
+              Admin Operations Control • Configure structures, review attendance deductions, and execute Razorpay payouts.
+            </p>
+          </div>
+        </div>
+        <div className="page-header-actions">
+          <span className="header-date-badge">
+            <Calendar size={13} /> {MONTH_NAMES[selectedMonth - 1]} {selectedYear}
+          </span>
+        </div>
+      </div>
+
       {/* 1. RazorpayX Gateway Banner */}
       <div className="razorpay-gateway-banner">
         <div className="gateway-banner-left">

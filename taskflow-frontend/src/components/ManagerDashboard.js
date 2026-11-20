@@ -839,14 +839,32 @@ function ManagerDashboard({ user, logout, setView, activeTab, onTabChange }) {
       {/* Clean Page Title Row (Announcements & Chat have their own dedicated rich headers) */}
       {tab !== 'announcements' && tab !== 'chat' && tab !== 'holidays' && (
         <div className="page-header-row">
-          <div>
-            <h2 className="page-main-title">
-              {tab === 'profile' ? 'My Profile & Department' :
-               tab === 'team' ? 'Team Management' :
-               tab === 'projects' ? 'Project Management' :
-               tab === 'leave' ? 'My Leave & Team Leaves' :
-               tab === 'attendance' ? 'My Everyday Attendance & Working Hours' : 'Team Overview'}
-            </h2>
+          <div className="page-header-info">
+            <div className="page-title-icon-box">
+              {tab === 'profile' ? <UserRound size={22} /> :
+               tab === 'team' ? <Users size={22} /> :
+               tab === 'projects' ? <Briefcase size={22} /> :
+               tab === 'leave' ? <CalendarDays size={22} /> :
+               tab === 'attendance' ? <Clock size={22} /> :
+               <Layers size={22} />}
+            </div>
+            <div>
+              <h2 className="page-main-title">
+                {tab === 'profile' ? 'My Profile & Department' :
+                 tab === 'team' ? 'Team Management' :
+                 tab === 'projects' ? 'Project Management' :
+                 tab === 'leave' ? 'My Leave & Team Leaves' :
+                 tab === 'attendance' ? 'My Everyday Attendance & Working Hours' : 'Team Overview'}
+              </h2>
+              <p className="page-subtitle">
+                {tab === 'profile' ? 'Personal profile, department assignment, and manager credentials.' :
+                 tab === 'team' ? 'Monitor team members, assign tasks, and supervise daily performance.' :
+                 tab === 'projects' ? 'Supervise ongoing team deliverables, milestones, and project documents.' :
+                 tab === 'leave' ? 'Review and manage team leave requests, sick leaves, and personal quotas.' :
+                 tab === 'attendance' ? 'Daily check-in logs, break tracking, and recorded work duration.' :
+                 'Operational snapshot of team capacity, task completion, and active workflows.'}
+              </p>
+            </div>
           </div>
           <div className="page-header-actions">
             {tab === 'attendance' && (

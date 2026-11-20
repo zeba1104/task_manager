@@ -150,11 +150,18 @@ function AttendanceManager() {
 
   return (
     <div className="dashboard-page attendance-manager-page">
-      {/* Page Header */}
+      {/* Signature Page Header Row */}
       <div className="page-header-row">
-        <div>
-          <h2 className="page-main-title">Attendance &amp; Working Hours</h2>
-          <p className="muted-text">Track employee clock-ins, clock-outs, and live real-time working hours</p>
+        <div className="page-header-info">
+          <div className="page-title-icon-box">
+            <Clock size={22} />
+          </div>
+          <div>
+            <h2 className="page-main-title">Attendance &amp; Working Hours</h2>
+            <p className="page-subtitle">
+              Real-time employee clock-ins, shift verifications, attendance logs, and working hours compliance.
+            </p>
+          </div>
         </div>
         <div className="page-header-actions">
           <button

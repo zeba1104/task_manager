@@ -790,14 +790,18 @@ function EmployeeManager({ fetchEmployees, setView, tasks = [], initialShowForm 
 
     return (
         <div className="dashboard-page employee-manager-page">
-            {/* TOP BAR / HEADER */}
-            <div className="dashboard-header employee-directory-header no-print">
-                <div className="directory-header-title-wrap">
-                    <div className="directory-badge">Organization Workforce</div>
-                    <h2>Workforce &amp; Account Governance</h2>
-                    <p className="muted-text">
-                        Admin authority to provision, structure, and supervise Employee and Manager accounts.
-                    </p>
+            {/* Signature Page Header Row */}
+            <div className="page-header-row employee-directory-header no-print">
+                <div className="page-header-info">
+                    <div className="page-title-icon-box">
+                        <Users size={22} />
+                    </div>
+                    <div>
+                        <h2 className="page-main-title">Workforce &amp; Account Governance</h2>
+                        <p className="page-subtitle">
+                            Admin authority to provision, structure, and supervise Employee and Manager accounts.
+                        </p>
+                    </div>
                 </div>
 
                 <div className="employee-directory-actions">

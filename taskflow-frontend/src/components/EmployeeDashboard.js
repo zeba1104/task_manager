@@ -928,15 +928,35 @@ export default function EmployeeDashboard({ user, logout, setView, activeTab, on
       {/* Clean Page Title Row (Announcements & Chat have their own dedicated rich headers) */}
       {tab !== 'announcements' && tab !== 'chat' && tab !== 'holidays' && (
         <div className="page-header-row">
-          <div>
-            <h2 className="page-main-title">
-              {tab === 'dashboard' ? 'Team Dashboard' :
-               tab === 'tasks' ? 'My Assigned Tasks' :
-               tab === 'projects' ? 'My Projects' :
-               tab === 'leave' ? 'Leave & Quotas' :
-               tab === 'attendance' ? 'My Everyday Attendance & Working Hours' :
-               tab === 'profile' ? 'My Profile & Settings' : 'Employee Workspace'}
-            </h2>
+          <div className="page-header-info">
+            <div className="page-title-icon-box">
+              {tab === 'dashboard' ? <Layers size={22} /> :
+               tab === 'tasks' ? <CheckSquare size={22} /> :
+               tab === 'projects' ? <Briefcase size={22} /> :
+               tab === 'leave' ? <CalendarDays size={22} /> :
+               tab === 'attendance' ? <Clock size={22} /> :
+               tab === 'profile' ? <UserRound size={22} /> :
+               <Users size={22} />}
+            </div>
+            <div>
+              <h2 className="page-main-title">
+                {tab === 'dashboard' ? 'Team Dashboard' :
+                 tab === 'tasks' ? 'My Assigned Tasks' :
+                 tab === 'projects' ? 'My Projects' :
+                 tab === 'leave' ? 'Leave & Quotas' :
+                 tab === 'attendance' ? 'My Everyday Attendance & Working Hours' :
+                 tab === 'profile' ? 'My Profile & Settings' : 'Employee Workspace'}
+              </h2>
+              <p className="page-subtitle">
+                {tab === 'dashboard' ? 'Overview of your workspace, upcoming deadlines, and team activity.' :
+                 tab === 'tasks' ? 'Track your active deliverables, pending reviews, and completed work.' :
+                 tab === 'projects' ? 'Collaborate on department projects, documents, and key milestones.' :
+                 tab === 'leave' ? 'Submit leave requests and monitor your remaining paid & casual quotas.' :
+                 tab === 'attendance' ? 'Daily clock-in records, shift hours, and working duration logs.' :
+                 tab === 'profile' ? 'Manage your personal details, emergency contacts, and account security.' :
+                 'Your dedicated personal workspace and operational portal.'}
+              </p>
+            </div>
           </div>
           <div className="page-header-actions">
             {tab === 'attendance' && (

@@ -327,15 +327,17 @@ function HolidayCalendar({ user, setView }) {
     <div className="holiday-page-container">
       {/* 1. Header Banner */}
       <div className="holiday-header-card">
-        <div className="holiday-header-content">
-          <div className="holiday-header-titles">
-            <div className="holiday-header-badge">
-              <Sparkles size={14} /> Official Government Calendar
+        <div className="holiday-header-content page-header-row" style={{ margin: 0, padding: 0 }}>
+          <div className="page-header-info">
+            <div className="page-title-icon-box">
+              <CalendarDays size={22} />
             </div>
-            <h1 className="holiday-title">Government & Public Holidays</h1>
-            <p className="holiday-subtitle">
-              Verified gazetted, national, and statutory public holidays. Excluded from working shift obligations and employee absent logs.
-            </p>
+            <div>
+              <h2 className="page-main-title">Government &amp; Public Holidays</h2>
+              <p className="page-subtitle">
+                Verified gazetted, national, and statutory public holidays. Excluded from working shift obligations and employee absent logs.
+              </p>
+            </div>
           </div>
 
           <div className="holiday-header-actions">

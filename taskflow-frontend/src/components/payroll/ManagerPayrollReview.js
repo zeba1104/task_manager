@@ -10,7 +10,9 @@ import {
   Search,
   ShieldCheck,
   RefreshCw,
-  Sparkles
+  Sparkles,
+  Landmark,
+  Calendar
 } from 'lucide-react';
 import { getTeamPayrolls, managerReviewPayroll, managerBulkApprove } from '../../api/payrollApi';
 import PayslipModal from './PayslipModal';
@@ -169,6 +171,26 @@ export default function ManagerPayrollReview({ user }) {
 
   return (
     <div className="payroll-page-container">
+      {/* Signature Page Header Row */}
+      <div className="page-header-row">
+        <div className="page-header-info">
+          <div className="page-title-icon-box">
+            <Landmark size={22} />
+          </div>
+          <div>
+            <h2 className="page-main-title">Team Payroll &amp; Attendance Review</h2>
+            <p className="page-subtitle">
+              Manager Review Portal • Verify employee attendance snapshots, approved leaves, and net payable before Admin payout.
+            </p>
+          </div>
+        </div>
+        <div className="page-header-actions">
+          <span className="header-date-badge">
+            <Calendar size={13} /> {MONTH_NAMES[selectedMonth - 1]} {selectedYear}
+          </span>
+        </div>
+      </div>
+
       {/* 1. Signature Hero Banner (Matching the acclaimed Leave & Quotas design) */}
       <div className="payroll-hero-banner">
         <div className="payroll-hero-top">

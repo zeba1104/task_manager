@@ -3580,24 +3580,29 @@ body.dark-theme .manager-scope-banner strong {
 }
 
 .manager-search-box .search-icon {
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #94a3b8;
-  pointer-events: none;
+  position: static !important;
+  left: auto !important;
+  top: auto !important;
+  transform: none !important;
+  color: #64748b !important;
+  pointer-events: none !important;
+  flex-shrink: 0 !important;
 }
 
 .manager-search-box .clear-btn {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  color: #94a3b8;
-  padding: 4px;
+  position: static !important;
+  right: auto !important;
+  top: auto !important;
+  transform: none !important;
+  background: transparent !important;
+  border: none !important;
+  cursor: pointer !important;
+  color: #94a3b8 !important;
+  padding: 4px !important;
+  flex-shrink: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
 .manager-filters-group {
@@ -14190,44 +14195,132 @@ body.dark-theme .breadcrumb-current {
   color: #dc2626;
 }
 
-/* Standard Clean Page Header Row (matching Image 2) */
-.page-header-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 24px;
-  gap: 16px;
-  flex-wrap: wrap;
+/* Standard Clean Page Header Row with Squircle Icon Box (Announcements Style) */
+.page-header-row,
+.announcements-header-row,
+.chat-feature-header,
+.payroll-header-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  margin-bottom: 24px !important;
+  gap: 16px !important;
+  flex-wrap: wrap !important;
 }
 
-.page-main-title {
-  font-size: 24px;
-  font-weight: 800;
+.page-header-info,
+.announcements-header-info,
+.chat-header-info,
+.payroll-header-info {
+  display: flex !important;
+  align-items: center !important;
+  gap: 14px !important;
+  flex: 1 !important;
+  min-width: 280px !important;
+}
+
+.page-title-icon-box,
+.announcements-title-icon-box,
+.chat-title-icon-box,
+.payroll-title-icon-box {
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 12px !important;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(99, 102, 241, 0.15) 100%) !important;
   color: #2563eb !important;
-  margin: 0;
-  letter-spacing: -0.025em;
-  font-family: var(--font-heading);
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.12) !important;
 }
 
-.page-header-actions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
+.page-main-title,
+.announcements-main-title,
+.chat-main-title,
+.payroll-main-title {
+  font-size: 22px !important;
+  font-weight: 700 !important;
+  color: #2563eb !important;
+  margin: 0 0 4px 0 !important;
+  line-height: 1.25 !important;
+  letter-spacing: -0.02em !important;
+}
+
+.page-subtitle,
+.announcements-subtitle,
+.chat-subtitle,
+.payroll-subtitle {
+  font-size: 13px !important;
+  color: #64748b !important;
+  margin: 0 !important;
+  line-height: 1.4 !important;
+}
+
+.page-header-actions,
+.announcements-header-actions,
+.chat-header-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  flex-wrap: wrap !important;
 }
 
 .header-date-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  font-size: 12.5px;
-  font-weight: 500;
-  color: #475569;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 6px 12px !important;
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 8px !important;
+  font-size: 12.5px !important;
+  font-weight: 500 !important;
+  color: #475569 !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03) !important;
+}
+
+/* Dark Mode Page Header Support */
+[data-theme="dark"] .page-title-icon-box,
+body.dark-theme .page-title-icon-box,
+[data-theme="dark"] .announcements-title-icon-box,
+body.dark-theme .announcements-title-icon-box,
+[data-theme="dark"] .chat-title-icon-box,
+body.dark-theme .chat-title-icon-box,
+[data-theme="dark"] .payroll-title-icon-box,
+body.dark-theme .payroll-title-icon-box {
+  background: rgba(59, 130, 246, 0.2) !important;
+  color: #60a5fa !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4) !important;
+}
+
+[data-theme="dark"] .page-main-title,
+body.dark-theme .page-main-title,
+[data-theme="dark"] .announcements-main-title,
+body.dark-theme .announcements-main-title,
+[data-theme="dark"] .chat-main-title,
+body.dark-theme .chat-main-title,
+[data-theme="dark"] .payroll-main-title,
+body.dark-theme .payroll-main-title {
+  color: #60a5fa !important;
+}
+
+[data-theme="dark"] .page-subtitle,
+body.dark-theme .page-subtitle,
+[data-theme="dark"] .announcements-subtitle,
+body.dark-theme .announcements-subtitle,
+[data-theme="dark"] .chat-subtitle,
+body.dark-theme .chat-subtitle,
+[data-theme="dark"] .payroll-subtitle,
+body.dark-theme .payroll-subtitle {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .header-date-badge,
+body.dark-theme .header-date-badge {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #94a3b8 !important;
 }
 
 /* Collapsed Sidebar Styles */
@@ -18060,38 +18153,68 @@ body.dark-theme .today-chip {
 
 .ann-search-wrap {
   position: relative;
-  display: flex;
-  align-items: center;
+  display: flex !important;
+  align-items: center !important;
   flex: 1;
   min-width: 260px;
   max-width: 440px;
+  height: 42px !important;
+  padding: 0 14px !important;
+  gap: 10px !important;
+  background: #f8fafc !important;
+  border: 1.5px solid #cbd5e1 !important;
+  border-radius: 12px !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-sizing: border-box !important;
+}
+
+.ann-search-wrap:hover {
+  border-color: #94a3b8 !important;
+  background: #ffffff !important;
+}
+
+.ann-search-wrap:focus-within {
+  border-color: #2563eb !important;
+  background: #ffffff !important;
+  box-shadow: 0 0 0 3.5px rgba(37, 99, 235, 0.14) !important;
 }
 
 .ann-search-icon {
-  position: absolute;
-  left: 12px;
-  color: #94a3b8;
-  pointer-events: none;
+  position: static !important;
+  left: auto !important;
+  top: auto !important;
+  transform: none !important;
+  color: #64748b !important;
+  flex-shrink: 0 !important;
+  pointer-events: none !important;
+  transition: color 0.18s ease !important;
+}
+
+.ann-search-wrap:focus-within .ann-search-icon {
+  color: #2563eb !important;
 }
 
 .ann-search-input {
-  width: 100%;
-  height: 38px;
-  padding: 0 34px 0 36px;
-  font-size: 13px;
-  border-radius: 9px;
-  border: 1px solid #cbd5e1;
-  background: #ffffff;
-  color: #0f172a;
-  outline: none;
-  font-family: inherit;
-  transition: all 0.15s ease;
-  box-sizing: border-box;
+  width: 100% !important;
+  height: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  font-size: 13.5px !important;
+  font-weight: 500 !important;
+  border-radius: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  color: #0f172a !important;
+  outline: none !important;
+  box-shadow: none !important;
+  font-family: inherit !important;
+  flex: 1 1 auto !important;
 }
 
 .ann-search-input:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
 }
 
 .ann-audience-pills {
@@ -21209,28 +21332,49 @@ body.dark-theme .btn-column-focus:hover {
 }
 
 .holiday-search-box .search-icon {
-  position: absolute;
-  left: 12px;
-  color: #64748b;
-  pointer-events: none;
+  position: static !important;
+  left: auto !important;
+  top: auto !important;
+  transform: none !important;
+  color: #64748b !important;
+  pointer-events: none !important;
+  flex-shrink: 0 !important;
 }
 
 .holiday-search-input {
-  width: 100%;
-  padding: 9px 36px 9px 36px;
-  font-size: 13.5px;
-  border-radius: 10px;
-  border: 1px solid #cbd5e1;
-  background: #ffffff;
-  color: #0f172a;
-  outline: none;
-  transition: all 0.15s ease;
-  box-sizing: border-box;
+  width: 100% !important;
+  height: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  font-size: 13.5px !important;
+  border-radius: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  color: #0f172a !important;
+  outline: none !important;
+  box-shadow: none !important;
+  flex: 1 1 auto !important;
 }
 
 .holiday-search-input:focus {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.holiday-search-box .search-clear-btn {
+  position: static !important;
+  right: auto !important;
+  top: auto !important;
+  transform: none !important;
+  border: none !important;
+  background: transparent !important;
+  cursor: pointer !important;
+  padding: 4px !important;
+  flex-shrink: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
 .search-clear-btn {
@@ -26802,26 +26946,45 @@ input.topbar-search-input:active,
 
 /* Search Icons styling & interactive transition */
 .employee-search svg,
+.topbar-search-wrap svg,
 .topbar-search-wrap svg.search-icon,
+.manager-search-box svg,
 .manager-search-box svg.search-icon,
+.ann-search-wrap svg,
 .ann-search-wrap svg.ann-search-icon,
+.holiday-search-box svg,
 .holiday-search-box svg.search-icon,
 .chat-search-wrap svg,
+.filter-input-wrap svg,
 .filter-input-wrap svg.filter-icon,
-.task-search-wrap svg {
+.task-search-wrap svg,
+.search-wrapper svg,
+.search-box svg,
+.search-bar svg,
+.payroll-search-input-wrap svg {
+  position: static !important;
+  left: auto !important;
+  top: auto !important;
+  transform: none !important;
+  margin: 0 !important;
   color: #64748b !important;
   flex-shrink: 0 !important;
+  pointer-events: none !important;
   transition: color 0.18s ease, transform 0.18s ease !important;
 }
 
 .employee-search:focus-within svg,
-.topbar-search-wrap:focus-within svg.search-icon,
-.manager-search-box:focus-within svg.search-icon,
-.ann-search-wrap:focus-within svg.ann-search-icon,
-.holiday-search-box:focus-within svg.search-icon,
+.topbar-search-wrap:focus-within svg,
+.manager-search-box:focus-within svg,
+.ann-search-wrap:focus-within svg,
+.holiday-search-box:focus-within svg,
 .chat-search-wrap:focus-within svg,
-.filter-input-wrap:focus-within svg.filter-icon,
-.task-search-wrap:focus-within svg {
+.filter-input-wrap:focus-within svg,
+.task-search-wrap:focus-within svg,
+.search-wrapper:focus-within svg,
+.search-box:focus-within svg,
+.search-bar:focus-within svg,
+.payroll-search-input-wrap:focus-within svg {
   color: #2563eb !important;
 }
 
@@ -27023,24 +27186,56 @@ body.dark-theme .search-bar input:hover {
 }
 
 [data-theme="dark"] .employee-search svg,
-[data-theme="dark"] .topbar-search-wrap svg.search-icon,
-[data-theme="dark"] .manager-search-box svg.search-icon,
-[data-theme="dark"] .ann-search-wrap svg.ann-search-icon,
-[data-theme="dark"] .holiday-search-box svg.search-icon,
+[data-theme="dark"] .topbar-search-wrap svg,
+[data-theme="dark"] .manager-search-box svg,
+[data-theme="dark"] .ann-search-wrap svg,
+[data-theme="dark"] .holiday-search-box svg,
 [data-theme="dark"] .chat-search-wrap svg,
-[data-theme="dark"] .filter-input-wrap svg.filter-icon,
-[data-theme="dark"] .task-search-wrap svg {
+[data-theme="dark"] .filter-input-wrap svg,
+[data-theme="dark"] .task-search-wrap svg,
+[data-theme="dark"] .search-wrapper svg,
+[data-theme="dark"] .search-box svg,
+[data-theme="dark"] .search-bar svg,
+[data-theme="dark"] .payroll-search-input-wrap svg,
+body.dark-theme .employee-search svg,
+body.dark-theme .topbar-search-wrap svg,
+body.dark-theme .manager-search-box svg,
+body.dark-theme .ann-search-wrap svg,
+body.dark-theme .holiday-search-box svg,
+body.dark-theme .chat-search-wrap svg,
+body.dark-theme .filter-input-wrap svg,
+body.dark-theme .task-search-wrap svg,
+body.dark-theme .search-wrapper svg,
+body.dark-theme .search-box svg,
+body.dark-theme .search-bar svg,
+body.dark-theme .payroll-search-input-wrap svg {
   color: #94a3b8 !important;
 }
 
 [data-theme="dark"] .employee-search:focus-within svg,
-[data-theme="dark"] .topbar-search-wrap:focus-within svg.search-icon,
-[data-theme="dark"] .manager-search-box:focus-within svg.search-icon,
-[data-theme="dark"] .ann-search-wrap:focus-within svg.ann-search-icon,
-[data-theme="dark"] .holiday-search-box:focus-within svg.search-icon,
+[data-theme="dark"] .topbar-search-wrap:focus-within svg,
+[data-theme="dark"] .manager-search-box:focus-within svg,
+[data-theme="dark"] .ann-search-wrap:focus-within svg,
+[data-theme="dark"] .holiday-search-box:focus-within svg,
 [data-theme="dark"] .chat-search-wrap:focus-within svg,
-[data-theme="dark"] .filter-input-wrap:focus-within svg.filter-icon,
-[data-theme="dark"] .task-search-wrap:focus-within svg {
+[data-theme="dark"] .filter-input-wrap:focus-within svg,
+[data-theme="dark"] .task-search-wrap:focus-within svg,
+[data-theme="dark"] .search-wrapper:focus-within svg,
+[data-theme="dark"] .search-box:focus-within svg,
+[data-theme="dark"] .search-bar:focus-within svg,
+[data-theme="dark"] .payroll-search-input-wrap:focus-within svg,
+body.dark-theme .employee-search:focus-within svg,
+body.dark-theme .topbar-search-wrap:focus-within svg,
+body.dark-theme .manager-search-box:focus-within svg,
+body.dark-theme .ann-search-wrap:focus-within svg,
+body.dark-theme .holiday-search-box:focus-within svg,
+body.dark-theme .chat-search-wrap:focus-within svg,
+body.dark-theme .filter-input-wrap:focus-within svg,
+body.dark-theme .task-search-wrap:focus-within svg,
+body.dark-theme .search-wrapper:focus-within svg,
+body.dark-theme .search-box:focus-within svg,
+body.dark-theme .search-bar:focus-within svg,
+body.dark-theme .payroll-search-input-wrap:focus-within svg {
   color: #60a5fa !important;
 }
 

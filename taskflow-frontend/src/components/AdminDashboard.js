@@ -506,10 +506,18 @@ function AdminDashboard({ tasks, employees, user, logout, setView, onAddEmployee
 
   return (
     <div className="dashboard-page admin-dashboard">
-      {/* Clean Page Title Row matching Image 2 */}
+      {/* Signature Page Header Row */}
       <div className="page-header-row">
-        <div>
-          <h2 className="page-main-title">Admin Control Center</h2>
+        <div className="page-header-info">
+          <div className="page-title-icon-box">
+            <ShieldCheck size={22} />
+          </div>
+          <div>
+            <h2 className="page-main-title">Admin Control Center</h2>
+            <p className="page-subtitle">
+              Comprehensive organization governance, workforce metrics, departmental control, and system audits.
+            </p>
+          </div>
         </div>
         <div className="page-header-actions">
           <span className="header-date-badge">

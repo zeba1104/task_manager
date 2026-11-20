@@ -7,7 +7,8 @@ import {
   AlertCircle,
   ShieldCheck,
   TrendingUp,
-  Download
+  Download,
+  Calendar
 } from 'lucide-react';
 import { getMyPayrolls } from '../../api/payrollApi';
 import PayslipModal from './PayslipModal';
@@ -41,17 +42,22 @@ export default function EmployeeSalaryPortal({ user }) {
   return (
     <div className="payroll-page-container">
       {/* 1. Page Header */}
-      <div className="payroll-header-row">
-        <div className="payroll-header-info">
-          <div className="payroll-title-icon-box">
-            <Landmark size={24} />
+      <div className="page-header-row">
+        <div className="page-header-info">
+          <div className="page-title-icon-box">
+            <Landmark size={22} />
           </div>
           <div>
-            <h1 className="payroll-main-title">My Salary &amp; Payslips</h1>
-            <p className="payroll-subtitle">
+            <h2 className="page-main-title">My Salary &amp; Payslips</h2>
+            <p className="page-subtitle">
               Personal Compensation Portal • Track monthly disbursement lifecycle, attendance deductions, and download official payslips.
             </p>
           </div>
+        </div>
+        <div className="page-header-actions">
+          <span className="header-date-badge">
+            <Calendar size={13} /> {new Date().toLocaleDateString(undefined, { month: 'short', year: 'numeric' })}
+          </span>
         </div>
       </div>
 
