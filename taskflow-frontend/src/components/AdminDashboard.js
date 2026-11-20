@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend,
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip,
   PieChart, Pie, Cell
 } from 'recharts';
 import {
@@ -57,8 +57,6 @@ import {
 } from '../api/leaveApi';
 import { FILE_BASE_URL } from '../api/axios';
 import Swal from '../utils/swalConfig';
-
-const COLORS = ['#6366f1', '#10b981', '#f43f5e', '#f59e0b', '#8b5cf6'];
 
 function AdminDashboard({ tasks, employees, user, logout, setView, onAddEmployee, activeSection }) {
   const [overview, setOverview] = useState(null);
@@ -290,21 +288,43 @@ function AdminDashboard({ tasks, employees, user, logout, setView, onAddEmployee
     };
   }, [tasks, employees, overview]);
 
-  const taskStatusData = [
-    { name: 'Completed', value: stats.completedTasks },
-    { name: 'Pending', value: stats.pendingTasks },
-    { name: 'In Progress', value: stats.inProgressTasks },
-    { name: 'Overdue', value: stats.overdueTasks },
-  ].filter(d => d.value > 0);
+  const taskStatusItems = useMemo(() => {
+    const total = Math.max(1, stats.totalTasks);
+    return [
+      { name: 'Completed', value: stats.completedTasks, color: '#10b981', percent: Math.round((stats.completedTasks / total) * 100) },
+      { name: 'In Progress', value: stats.inProgressTasks, color: '#2563eb', percent: Math.round((stats.inProgressTasks / total) * 100) },
+      { name: 'Pending', value: stats.pendingTasks, color: '#f59e0b', percent: Math.round((stats.pendingTasks / total) * 100) },
+      { name: 'Overdue', value: stats.overdueTasks, color: '#ef4444', percent: Math.round((stats.overdueTasks / total) * 100) },
+    ];
+  }, [stats]);
 
-  const attendanceData = [
-    { name: 'Present', value: stats.present },
-    { name: 'Absent', value: stats.absent },
-    { name: 'Late', value: stats.late },
-    { name: 'On Leave', value: stats.onLeave },
-  ].filter(d => d.value > 0);
+  const activeTaskData = useMemo(() => taskStatusItems.filter(d => d.value > 0), [taskStatusItems]);
 
-  const deptData = overview?.departmentDistribution || [];
+  const attendanceItems = useMemo(() => {
+    const total = Math.max(1, stats.totalEmployees || employees.length || 1);
+    return [
+      { name: 'Present', value: stats.present, color: '#10b981', percent: Math.round((stats.present / total) * 100) },
+      { name: 'On Leave', value: stats.onLeave, color: '#0ea5e9', percent: Math.round((stats.onLeave / total) * 100) },
+      { name: 'Late', value: stats.late, color: '#8b5cf6', percent: Math.round((stats.late / total) * 100) },
+      { name: 'Absent', value: stats.absent, color: '#f59e0b', percent: Math.round((stats.absent / total) * 100) },
+    ];
+  }, [stats, employees]);
+
+  const activeAttendanceData = useMemo(() => attendanceItems.filter(d => d.value > 0), [attendanceItems]);
+  const totalAttendanceLogged = useMemo(() => stats.present + stats.late + stats.onLeave + stats.absent, [stats]);
+
+  const computedDeptData = useMemo(() => {
+    if (overview?.departmentDistribution && overview.departmentDistribution.length > 0) {
+      return overview.departmentDistribution;
+    }
+    const map = {};
+    employees.forEach(e => {
+      const d = String(e.department || 'General').trim() || 'General';
+      map[d] = (map[d] || 0) + 1;
+    });
+    return Object.entries(map).map(([name, count]) => ({ name, count }));
+  }, [overview?.departmentDistribution, employees]);
+
   const departmentOptions = (overview?.departments || []).filter((department) => department.isActive);
   const projectProgress = useMemo(() => overview?.projects || [], [overview?.projects]);
   const activities = overview?.activities || [];
@@ -1461,43 +1481,265 @@ function AdminDashboard({ tasks, employees, user, logout, setView, onAddEmployee
         </section>
       </div>
 
-      {/* Charts Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '24px', position: 'relative', zIndex: 1, marginTop: '24px' }}>
-        
-        {/* Tasks Overview */}
-        <div style={{ background: 'var(--bg-card, #ffffff)', padding: '24px', borderRadius: '12px', border: '1px solid var(--border-color, rgba(0,0,0,0.06))', boxShadow: 'var(--card-shadow, 0 4px 6px -1px rgba(0, 0, 0, 0.05))', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <h3 style={{ fontFamily: 'Inter', fontSize: '18px', fontWeight: 600, color: 'var(--text-primary, #111827)', margin: '0 0 20px 0', alignSelf: 'flex-start' }}>Task Status Overview</h3>
-            <PieChart width={360} height={260}>
-              <Pie data={taskStatusData} cx="50%" cy="50%" innerRadius={60} outerRadius={90} paddingAngle={6} dataKey="value">
-                {taskStatusData.map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)}
+      {/* Dynamic Executive Analytics Grid */}
+      <div className="admin-analytics-grid">
+
+        {/* 1. Tasks Status Overview */}
+        <div className="admin-analytics-card">
+          <div className="analytics-card-header">
+            <div className="analytics-header-title-wrap">
+              <div className="analytics-header-icon-box tasks-icon">
+                <CheckSquare size={18} />
+              </div>
+              <div className="analytics-title-text">
+                <h3>Task Status Overview</h3>
+                <p>Deliverables progress & health</p>
+              </div>
+            </div>
+            <span className="analytics-header-pill">
+              <TrendingUp size={12} />
+              {stats.totalTasks} Tasks
+            </span>
+          </div>
+
+          <div className="analytics-chart-wrap">
+            <PieChart width={220} height={200}>
+              <Pie
+                data={activeTaskData.length > 0 ? activeTaskData : [{ name: 'No Tasks', value: 1, color: '#cbd5e1' }]}
+                cx={110}
+                cy={100}
+                startAngle={90}
+                endAngle={-270}
+                minAngle={0}
+                innerRadius={58}
+                outerRadius={80}
+                paddingAngle={activeTaskData.length > 1 ? 4 : 0}
+                dataKey="value"
+                stroke="none"
+              >
+                {(activeTaskData.length > 0 ? activeTaskData : [{ color: '#cbd5e1' }]).map((entry, index) => (
+                  <Cell key={`task-cell-${index}`} fill={entry.color} />
+                ))}
               </Pie>
-              <RechartsTooltip contentStyle={{ background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', color: '#fff' }} itemStyle={{color: '#fff'}} />
-              <Legend wrapperStyle={{ paddingTop: '16px' }} />
+              <RechartsTooltip
+                contentStyle={{
+                  background: '#0f172a',
+                  border: '1px solid rgba(255,255,255,0.15)',
+                  borderRadius: '10px',
+                  color: '#fff',
+                  fontSize: '12px',
+                  boxShadow: '0 8px 20px rgba(0,0,0,0.4)'
+                }}
+                itemStyle={{ color: '#fff' }}
+              />
             </PieChart>
+            <div className="analytics-center-overlay">
+              <span className="analytics-center-number">
+                {stats.totalTasks > 0 ? `${Math.round((stats.completedTasks / stats.totalTasks) * 100)}%` : '0%'}
+              </span>
+              <span className="analytics-center-label">Done</span>
+            </div>
+          </div>
+
+          {/* Dynamic Status Breakdown List */}
+          <div className="analytics-breakdown-list">
+            {taskStatusItems.map((item) => (
+              <div key={item.name} className="analytics-breakdown-item">
+                <div className="analytics-item-row">
+                  <span className="analytics-item-label">
+                    <span className="analytics-dot" style={{ background: item.color }} />
+                    {item.name}
+                  </span>
+                  <div className="analytics-item-values">
+                    <span className="analytics-item-count">{item.value}</span>
+                    <span className="analytics-item-percent">{item.percent}%</span>
+                  </div>
+                </div>
+                <div className="analytics-track">
+                  <div
+                    className="analytics-fill"
+                    style={{
+                      width: `${item.percent}%`,
+                      background: item.color
+                    }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* Attendance */}
-        <div style={{ background: 'var(--bg-card, #ffffff)', padding: '24px', borderRadius: '12px', border: '1px solid var(--border-color, rgba(0,0,0,0.06))', boxShadow: 'var(--card-shadow, 0 4px 6px -1px rgba(0, 0, 0, 0.05))', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <h3 style={{ fontFamily: 'Inter', fontSize: '18px', fontWeight: 600, color: 'var(--text-primary, #111827)', margin: '0 0 20px 0', alignSelf: 'flex-start' }}>Today's Attendance</h3>
-            <PieChart width={360} height={260}>
-              <Pie data={attendanceData} cx="50%" cy="50%" innerRadius={0} outerRadius={90} dataKey="value" stroke="none">
-                {attendanceData.map((entry, index) => <Cell key={entry.name} fill={['#0f766e', '#94a3b8', '#d97706', '#2563eb'][index]} />)}
+        {/* 2. Today's Attendance Overview */}
+        <div className="admin-analytics-card">
+          <div className="analytics-card-header">
+            <div className="analytics-header-title-wrap">
+              <div className="analytics-header-icon-box attendance-icon">
+                <Clock size={18} />
+              </div>
+              <div className="analytics-title-text">
+                <h3>Today's Attendance</h3>
+                <p>Shift presence & real-time logs</p>
+              </div>
+            </div>
+            <span className="analytics-header-pill">
+              <UserCheck size={12} />
+              {stats.present} / {stats.totalEmployees || employees.length || 0} In
+            </span>
+          </div>
+
+          <div className="analytics-chart-wrap">
+            <PieChart width={220} height={200}>
+              <Pie
+                data={activeAttendanceData.length > 0 ? activeAttendanceData : [{ name: 'Awaiting Check-in', value: 1, color: '#e2e8f0' }]}
+                cx={110}
+                cy={100}
+                startAngle={90}
+                endAngle={-270}
+                minAngle={0}
+                innerRadius={58}
+                outerRadius={80}
+                paddingAngle={activeAttendanceData.length > 1 ? 4 : 0}
+                dataKey="value"
+                stroke="none"
+              >
+                {(activeAttendanceData.length > 0 ? activeAttendanceData : [{ color: '#e2e8f0' }]).map((entry, index) => (
+                  <Cell key={`att-cell-${index}`} fill={entry.color} />
+                ))}
               </Pie>
-              <RechartsTooltip contentStyle={{ background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', color: '#fff' }} itemStyle={{color: '#fff'}} />
-              <Legend wrapperStyle={{ paddingTop: '16px' }} />
+              {activeAttendanceData.length > 0 && (
+                <RechartsTooltip
+                  contentStyle={{
+                    background: '#0f172a',
+                    border: '1px solid rgba(255,255,255,0.15)',
+                    borderRadius: '10px',
+                    color: '#fff',
+                    fontSize: '12px',
+                    boxShadow: '0 8px 20px rgba(0,0,0,0.4)'
+                  }}
+                  itemStyle={{ color: '#fff' }}
+                />
+              )}
             </PieChart>
+            <div className="analytics-center-overlay">
+              <span className="analytics-center-number">
+                {stats.present}
+              </span>
+              <span className="analytics-center-label">
+                {totalAttendanceLogged > 0 ? 'Present' : 'Logged In'}
+              </span>
+            </div>
+          </div>
+
+
+          {/* Attendance 4-Status Interactive Grid */}
+          <div className="attendance-status-chips-grid">
+            {attendanceItems.map((item) => (
+              <div key={item.name} className="attendance-status-chip">
+                <div className="attendance-chip-info">
+                  <span className="analytics-dot" style={{ background: item.color }} />
+                  <span className="attendance-chip-name">{item.name}</span>
+                </div>
+                <span className="attendance-chip-value" style={{ color: item.value > 0 ? item.color : undefined }}>
+                  {item.value}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* Department Distribution */}
-        <div style={{ background: 'var(--bg-card, #ffffff)', padding: '24px', borderRadius: '12px', border: '1px solid var(--border-color, rgba(0,0,0,0.06))', boxShadow: 'var(--card-shadow, 0 4px 6px -1px rgba(0, 0, 0, 0.05))', display: 'flex', flexDirection: 'column', alignItems: 'center', overflowX: 'auto' }}>
-          <h3 style={{ fontFamily: 'Inter', fontSize: '18px', fontWeight: 600, color: 'var(--text-primary, #111827)', margin: '0 0 20px 0', alignSelf: 'flex-start' }}>Employees by Department</h3>
-            <BarChart width={360} height={260} data={deptData} barSize={20}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" vertical={false} />
-              <XAxis dataKey="name" stroke="#94a3b8" tickLine={false} axisLine={false} dy={8} fontSize={12} />
-              <YAxis stroke="#94a3b8" tickLine={false} axisLine={false} dx={-6} fontSize={12} />
-              <RechartsTooltip contentStyle={{ background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', color: '#fff' }} cursor={{fill: 'rgba(255,255,255,0.05)'}} />
-              <Bar dataKey="count" name="Employees" fill="#0f766e" radius={[4, 4, 0, 0]} minPointSize={2} />
+        {/* 3. Employees by Department */}
+        <div className="admin-analytics-card">
+          <div className="analytics-card-header">
+            <div className="analytics-header-title-wrap">
+              <div className="analytics-header-icon-box dept-icon">
+                <Building2 size={18} />
+              </div>
+              <div className="analytics-title-text">
+                <h3>Employees by Department</h3>
+                <p>Team headcount distribution</p>
+              </div>
+            </div>
+            <span className="analytics-header-pill">
+              <Users size={12} />
+              {computedDeptData.length} Depts
+            </span>
+          </div>
+
+          <div className="analytics-chart-wrap">
+            <BarChart
+              width={310}
+              height={200}
+              data={computedDeptData}
+              margin={{ top: 15, right: 20, left: -10, bottom: 25 }}
+              barSize={computedDeptData.length <= 2 ? 36 : 22}
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.15)" vertical={false} />
+              <XAxis
+                dataKey="name"
+                type="category"
+                orientation="bottom"
+                stroke="#94a3b8"
+                tickLine={false}
+                axisLine={{ stroke: 'rgba(148, 163, 184, 0.2)' }}
+                dy={6}
+                fontSize={12}
+              />
+              <YAxis
+                type="number"
+                orientation="left"
+                domain={[0, 'dataMax + 1']}
+                stroke="#94a3b8"
+                tickLine={false}
+                axisLine={false}
+                dx={-4}
+                fontSize={12}
+                allowDecimals={false}
+              />
+              <RechartsTooltip
+                contentStyle={{
+                  background: '#0f172a',
+                  border: '1px solid rgba(255,255,255,0.15)',
+                  borderRadius: '10px',
+                  color: '#fff',
+                  fontSize: '12px',
+                  boxShadow: '0 8px 20px rgba(0,0,0,0.4)'
+                }}
+                cursor={{ fill: 'rgba(37, 99, 235, 0.06)' }}
+              />
+              <Bar dataKey="count" name="Employees" fill="#2563eb" radius={[6, 6, 0, 0]} minPointSize={0} />
             </BarChart>
+          </div>
+
+          {/* Department Breakdown List */}
+          <div className="analytics-breakdown-list">
+            {computedDeptData.map((dept) => {
+              const totalEmp = Math.max(1, employees.length || stats.totalEmployees || 1);
+              const pct = Math.round((dept.count / totalEmp) * 100);
+              return (
+                <div key={dept.name} className="analytics-breakdown-item">
+                  <div className="analytics-item-row">
+                    <span className="analytics-item-label">
+                      <Building2 size={13} className="text-muted" />
+                      {dept.name}
+                    </span>
+                    <div className="analytics-item-values">
+                      <span className="analytics-item-count">{dept.count}</span>
+                      <span className="analytics-item-percent">{pct}%</span>
+                    </div>
+                  </div>
+                  <div className="analytics-track">
+                    <div
+                      className="analytics-fill"
+                      style={{
+                        width: `${pct}%`,
+                        background: '#2563eb'
+                      }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
 
       </div>
