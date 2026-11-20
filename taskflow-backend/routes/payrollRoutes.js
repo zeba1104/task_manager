@@ -18,7 +18,11 @@ const {
   batchInitiatePayouts,
   retryPayout,
   getGatewayStatus,
-  handleWebhook
+  handleWebhook,
+  createRazorpayOrder,
+  verifyRazorpayPayment,
+  batchCreateRazorpayOrder,
+  batchVerifyRazorpayPayment
 } = require('../controllers/payrollController');
 
 // Webhook endpoint (unauthenticated - validates signature internally)
@@ -48,9 +52,13 @@ router.post('/:id/manager-review', managerReviewPayroll);
 router.post('/:id/admin-review', adminReviewPayroll);
 router.post('/:id/recalculate', recalculatePayroll);
 
-// RazorpayX Payouts
+// Razorpay Payouts & Checkout Payments
 router.post('/batch/initiate-payouts', batchInitiatePayouts);
 router.post('/:id/initiate-payout', initiatePayout);
 router.post('/:id/retry-payout', retryPayout);
+router.post('/batch/create-razorpay-order', batchCreateRazorpayOrder);
+router.post('/batch/verify-razorpay-payment', batchVerifyRazorpayPayment);
+router.post('/:id/create-razorpay-order', createRazorpayOrder);
+router.post('/verify-razorpay-payment', verifyRazorpayPayment);
 
 module.exports = router;

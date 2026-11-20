@@ -1159,3 +1159,257 @@ exports.handleWebhook = async (req, res) => {
     return res.status(200).json({ status: 'ignored' });
   }
 };
+
+// ==========================================
+// 5. INTERACTIVE RAZORPAY CHECKOUT PAYMENTS
+// ==========================================
+
+/**
+ * POST /api/payroll/:id/create-razorpay-order
+ * Admin only: Create official Razorpay order for interactive checkout payment
+ */
+exports.createRazorpayOrder = async (req, res) => {
+  try {
+    if (req.userRole !== 'Admin') {
+      return res.status(403).json({ message: 'Only administrators can initiate salary payments.' });
+    }
+
+    const { id } = req.params;
+    const payroll = await Payroll.findById(id).populate('employee', 'name email department phone');
+    if (!payroll) {
+      return res.status(404).json({ message: 'Payroll record not found.' });
+    }
+
+    if (payroll.status === 'Paid') {
+      return res.status(400).json({ message: 'This payroll record is already Paid.' });
+    }
+
+    const orderData = await razorpayxService.createPaymentOrder({
+      amount: payroll.netSalary,
+      currency: 'INR',
+      receipt: `TF_PAY_${payroll._id.toString().slice(-14)}`,
+      notes: {
+        payrollId: String(payroll._id),
+        employeeName: payroll.employee?.name || 'Employee',
+        employeeEmail: payroll.employee?.email || '',
+        period: payroll.periodLabel,
+        system: 'Taskflow'
+      }
+    });
+
+    return res.json({
+      success: true,
+      orderId: orderData.orderId,
+      amount: orderData.amount,
+      currency: orderData.currency,
+      keyId: orderData.keyId,
+      employeeName: payroll.employee?.name || 'Employee',
+      periodLabel: payroll.periodLabel,
+      netSalary: payroll.netSalary,
+      payrollId: String(payroll._id)
+    });
+  } catch (error) {
+    console.error('[Razorpay Order Creation Error]:', error.response?.data || error.message);
+    const desc = error.response?.data?.error?.description || error.message || 'Failed to create Razorpay payment order.';
+    return res.status(500).json({ message: desc });
+  }
+};
+
+/**
+ * POST /api/payroll/verify-razorpay-payment
+ * Admin only: Verify signature and mark salary as Paid
+ */
+exports.verifyRazorpayPayment = async (req, res) => {
+  try {
+    if (req.userRole !== 'Admin') {
+      return res.status(403).json({ message: 'Only administrators can verify salary payments.' });
+    }
+
+    const { payrollId, razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+    if (!payrollId || !razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+      return res.status(400).json({ message: 'Missing required Razorpay payment verification parameters.' });
+    }
+
+    const isValid = razorpayxService.verifyPaymentSignature({
+      orderId: razorpay_order_id,
+      paymentId: razorpay_payment_id,
+      signature: razorpay_signature
+    });
+
+    if (!isValid) {
+      return res.status(400).json({ message: 'Cryptographic signature mismatch. Payment verification failed.' });
+    }
+
+    const payroll = await Payroll.findById(payrollId).populate('employee', 'name email department');
+    if (!payroll) {
+      return res.status(404).json({ message: 'Payroll record not found.' });
+    }
+
+    const adminUser = await User.findById(req.userId).select('name role');
+
+    payroll.status = 'Paid';
+    payroll.payout.status = 'processed';
+    payroll.payout.provider = 'Razorpay Test Gateway';
+    payroll.payout.payoutId = razorpay_payment_id;
+    payroll.payout.utr = `RZP${razorpay_payment_id.slice(-8).toUpperCase()}`;
+    payroll.payout.processedAt = new Date();
+    payroll.payout.isTestMode = true;
+    payroll.payout.safeMetadata = {
+      orderId: razorpay_order_id,
+      paymentId: razorpay_payment_id,
+      verificationMode: 'HMAC_SHA256_AUTHENTICATED',
+      capturedAt: new Date()
+    };
+
+    payroll.auditLog.push({
+      action: 'Razorpay Payment Completed',
+      actor: req.userId,
+      actorName: adminUser?.name || 'Administrator',
+      actorRole: 'Admin',
+      remarks: `Paid via Razorpay Test Checkout. Payment ID: ${razorpay_payment_id} | Order ID: ${razorpay_order_id}`,
+      timestamp: new Date()
+    });
+
+    await payroll.save();
+
+    return res.json({
+      success: true,
+      message: `Payment of ₹${payroll.netSalary.toLocaleString('en-IN')} successfully captured via Razorpay!`,
+      paymentId: razorpay_payment_id,
+      orderId: razorpay_order_id,
+      payroll
+    });
+  } catch (error) {
+    console.error('[Razorpay Verify Error]:', error);
+    return res.status(500).json({ message: 'Failed to verify Razorpay payment.' });
+  }
+};
+
+/**
+ * POST /api/payroll/batch/create-razorpay-order
+ * Admin only: Create combined order for all Ready_for_Payment records
+ */
+exports.batchCreateRazorpayOrder = async (req, res) => {
+  try {
+    if (req.userRole !== 'Admin') {
+      return res.status(403).json({ message: 'Only administrators can initiate salary payments.' });
+    }
+
+    const { month, year } = req.body;
+    const targetMonth = Number(month) || (new Date().getMonth() + 1);
+    const targetYear = Number(year) || new Date().getFullYear();
+
+    const pendingPayrolls = await Payroll.find({
+      month: targetMonth,
+      year: targetYear,
+      status: 'Ready_for_Payment'
+    }).populate('employee', 'name email');
+
+    if (pendingPayrolls.length === 0) {
+      return res.status(400).json({ message: 'No records currently Ready for Payment in this period.' });
+    }
+
+    const totalNetSalary = pendingPayrolls.reduce((sum, p) => sum + Number(p.netSalary || 0), 0);
+
+    const orderData = await razorpayxService.createPaymentOrder({
+      amount: totalNetSalary,
+      currency: 'INR',
+      receipt: `TF_BATCH_${targetMonth}_${targetYear}_${Date.now().toString().slice(-6)}`,
+      notes: {
+        batchCount: String(pendingPayrolls.length),
+        period: `${MONTH_NAMES[targetMonth - 1]} ${targetYear}`,
+        system: 'Taskflow'
+      }
+    });
+
+    return res.json({
+      success: true,
+      orderId: orderData.orderId,
+      amount: orderData.amount,
+      currency: orderData.currency,
+      keyId: orderData.keyId,
+      count: pendingPayrolls.length,
+      totalNetSalary,
+      month: targetMonth,
+      year: targetYear
+    });
+  } catch (error) {
+    console.error('[Batch Razorpay Order Error]:', error.response?.data || error.message);
+    const desc = error.response?.data?.error?.description || error.message || 'Failed to create batch Razorpay order.';
+    return res.status(500).json({ message: desc });
+  }
+};
+
+/**
+ * POST /api/payroll/batch/verify-razorpay-payment
+ * Admin only: Verify batch payment signature and mark all matching records as Paid
+ */
+exports.batchVerifyRazorpayPayment = async (req, res) => {
+  try {
+    if (req.userRole !== 'Admin') {
+      return res.status(403).json({ message: 'Only administrators can verify salary payments.' });
+    }
+
+    const { month, year, razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+      return res.status(400).json({ message: 'Missing required Razorpay payment verification parameters.' });
+    }
+
+    const isValid = razorpayxService.verifyPaymentSignature({
+      orderId: razorpay_order_id,
+      paymentId: razorpay_payment_id,
+      signature: razorpay_signature
+    });
+
+    if (!isValid) {
+      return res.status(400).json({ message: 'Cryptographic signature mismatch. Batch payment verification failed.' });
+    }
+
+    const targetMonth = Number(month) || (new Date().getMonth() + 1);
+    const targetYear = Number(year) || new Date().getFullYear();
+
+    const pendingPayrolls = await Payroll.find({
+      month: targetMonth,
+      year: targetYear,
+      status: 'Ready_for_Payment'
+    });
+
+    const adminUser = await User.findById(req.userId).select('name role');
+
+    for (const p of pendingPayrolls) {
+      p.status = 'Paid';
+      p.payout.status = 'processed';
+      p.payout.provider = 'Razorpay Test Gateway';
+      p.payout.payoutId = razorpay_payment_id;
+      p.payout.utr = `RZPB_${razorpay_payment_id.slice(-8).toUpperCase()}`;
+      p.payout.processedAt = new Date();
+      p.payout.isTestMode = true;
+      p.payout.safeMetadata = {
+        orderId: razorpay_order_id,
+        paymentId: razorpay_payment_id,
+        batchDisbursement: true,
+        capturedAt: new Date()
+      };
+      p.auditLog.push({
+        action: 'Batch Razorpay Payment Completed',
+        actor: req.userId,
+        actorName: adminUser?.name || 'Administrator',
+        actorRole: 'Admin',
+        remarks: `Disbursed via Batch Razorpay Test Checkout. Payment ID: ${razorpay_payment_id}`,
+        timestamp: new Date()
+      });
+      await p.save();
+    }
+
+    return res.json({
+      success: true,
+      message: `Batch payment of ${pendingPayrolls.length} employee salaries successfully completed and verified!`,
+      paymentId: razorpay_payment_id,
+      orderId: razorpay_order_id,
+      count: pendingPayrolls.length
+    });
+  } catch (error) {
+    console.error('[Batch Razorpay Verify Error]:', error);
+    return res.status(500).json({ message: 'Failed to verify batch Razorpay payment.' });
+  }
+};

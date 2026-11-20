@@ -27,7 +27,11 @@ export const managerBulkApprove = (data) => api.post('/payroll/team/bulk-approve
 export const adminReviewPayroll = (id, data) => api.post(`/payroll/${id}/admin-review`, data);
 export const recalculatePayroll = (id) => api.post(`/payroll/${id}/recalculate`);
 
-// 5. RazorpayX Outbound Payouts
+// 5. Razorpay Payouts & Interactive Checkout Payments
 export const initiatePayout = (id, data) => api.post(`/payroll/${id}/initiate-payout`, data);
 export const batchInitiatePayouts = (data) => api.post('/payroll/batch/initiate-payouts', data);
 export const retryPayout = (id) => api.post(`/payroll/${id}/retry-payout`);
+export const createRazorpayOrder = (id) => api.post(`/payroll/${id}/create-razorpay-order`);
+export const verifyRazorpayPayment = (data) => api.post('/payroll/verify-razorpay-payment', data);
+export const batchCreateRazorpayOrder = (data) => api.post('/payroll/batch/create-razorpay-order', data);
+export const batchVerifyRazorpayPayment = (data) => api.post('/payroll/batch/verify-razorpay-payment', data);
