@@ -27068,8 +27068,8 @@ input.topbar-search-input:active,
 
 /* Search Icons styling & interactive transition */
 .employee-search svg,
-.topbar-search-wrap svg,
-.topbar-search-wrap svg.search-icon,
+.topbar-search-wrap > svg,
+.topbar-search-wrap > svg.search-icon,
 .manager-search-box svg,
 .manager-search-box svg.search-icon,
 .ann-search-wrap svg,
@@ -27096,7 +27096,8 @@ input.topbar-search-input:active,
 }
 
 .employee-search:focus-within svg,
-.topbar-search-wrap:focus-within svg,
+.topbar-search-wrap:focus-within > svg,
+.topbar-search-wrap:focus-within > svg.search-icon,
 .manager-search-box:focus-within svg,
 .ann-search-wrap:focus-within svg,
 .holiday-search-box:focus-within svg,
@@ -27308,7 +27309,8 @@ body.dark-theme .search-bar input:hover {
 }
 
 [data-theme="dark"] .employee-search svg,
-[data-theme="dark"] .topbar-search-wrap svg,
+[data-theme="dark"] .topbar-search-wrap > svg,
+[data-theme="dark"] .topbar-search-wrap > svg.search-icon,
 [data-theme="dark"] .manager-search-box svg,
 [data-theme="dark"] .ann-search-wrap svg,
 [data-theme="dark"] .holiday-search-box svg,
@@ -27320,7 +27322,8 @@ body.dark-theme .search-bar input:hover {
 [data-theme="dark"] .search-bar svg,
 [data-theme="dark"] .payroll-search-input-wrap svg,
 body.dark-theme .employee-search svg,
-body.dark-theme .topbar-search-wrap svg,
+body.dark-theme .topbar-search-wrap > svg,
+body.dark-theme .topbar-search-wrap > svg.search-icon,
 body.dark-theme .manager-search-box svg,
 body.dark-theme .ann-search-wrap svg,
 body.dark-theme .holiday-search-box svg,
@@ -27335,7 +27338,8 @@ body.dark-theme .payroll-search-input-wrap svg {
 }
 
 [data-theme="dark"] .employee-search:focus-within svg,
-[data-theme="dark"] .topbar-search-wrap:focus-within svg,
+[data-theme="dark"] .topbar-search-wrap:focus-within > svg,
+[data-theme="dark"] .topbar-search-wrap:focus-within > svg.search-icon,
 [data-theme="dark"] .manager-search-box:focus-within svg,
 [data-theme="dark"] .ann-search-wrap:focus-within svg,
 [data-theme="dark"] .holiday-search-box:focus-within svg,
@@ -27347,7 +27351,8 @@ body.dark-theme .payroll-search-input-wrap svg {
 [data-theme="dark"] .search-bar:focus-within svg,
 [data-theme="dark"] .payroll-search-input-wrap:focus-within svg,
 body.dark-theme .employee-search:focus-within svg,
-body.dark-theme .topbar-search-wrap:focus-within svg,
+body.dark-theme .topbar-search-wrap:focus-within > svg,
+body.dark-theme .topbar-search-wrap:focus-within > svg.search-icon,
 body.dark-theme .manager-search-box:focus-within svg,
 body.dark-theme .ann-search-wrap:focus-within svg,
 body.dark-theme .holiday-search-box:focus-within svg,
@@ -27439,10 +27444,22 @@ body.dark-theme .payroll-search-input-wrap:focus-within svg {
   transition: all 0.15s ease;
 }
 
+.popover-item-icon svg {
+  color: #2563eb !important;
+  stroke: #2563eb !important;
+  transition: all 0.15s ease !important;
+}
+
 .popover-item:hover .popover-item-icon,
 .popover-item.is-selected .popover-item-icon {
-  background: #2563eb;
-  color: #ffffff;
+  background: #2563eb !important;
+  color: #ffffff !important;
+}
+
+.popover-item:hover .popover-item-icon svg,
+.popover-item.is-selected .popover-item-icon svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
 }
 
 .popover-item-text {
@@ -27524,16 +27541,30 @@ body.dark-theme .popover-item.is-selected {
 
 [data-theme="dark"] .popover-item-icon,
 body.dark-theme .popover-item-icon {
-  background: #1e293b;
-  color: #60a5fa;
+  background: #1e293b !important;
+  color: #60a5fa !important;
+}
+
+[data-theme="dark"] .popover-item-icon svg,
+body.dark-theme .popover-item-icon svg {
+  color: #60a5fa !important;
+  stroke: #60a5fa !important;
 }
 
 [data-theme="dark"] .popover-item:hover .popover-item-icon,
 body.dark-theme .popover-item:hover .popover-item-icon,
 [data-theme="dark"] .popover-item.is-selected .popover-item-icon,
 body.dark-theme .popover-item.is-selected .popover-item-icon {
-  background: #3b82f6;
-  color: #ffffff;
+  background: #3b82f6 !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .popover-item:hover .popover-item-icon svg,
+body.dark-theme .popover-item:hover .popover-item-icon svg,
+[data-theme="dark"] .popover-item.is-selected .popover-item-icon svg,
+body.dark-theme .popover-item.is-selected .popover-item-icon svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
 }
 
 [data-theme="dark"] .popover-item-title,
